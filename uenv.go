@@ -15,6 +15,7 @@ import (
 type AppDescr struct {
 	Name string `json: "Name"`	
 	Repo string `json: "Repo"`
+	IsTest bool `json: "IsTest"`
 }
 
 type InstDescr struct {
@@ -26,25 +27,39 @@ type InstDescr struct {
 
 type EnvDescr struct {
 	EnvName string `json: "EnvName"`
+	UhuraPort int `json: "UhuraPort"`
 	Instances [] InstDescr
 }
 
 //  The main data object for this module
 var UEnv EnvDescr
 
-// Execute the descriptor
-func ExecuteDescriptor() {
-	log.Printf("Executing environment build for: %s\n", UEnv.EnvName)
-	log.Printf("Will attempt to build %d Instances\n", len(UEnv.Instances))
+func PrintEnvDescriptor() {
+	fmt.Printf("Executing environment build for: %s\n", UEnv.EnvName)
+	fmt.Printf("Will attempt to build %d Instances\n", len(UEnv.Instances))
+	fmt.Printf("UhuraPort = %d\n", UEnv.UhuraPort)
 	for i := 0; i < len(UEnv.Instances); i++ {
-		fmt.Printf("Instance[%d]:  %s,  %s, count=%d\n", 
-			i, UEnv.Instances[i].InstName, 
-			UEnv.Instances[i].OS, UEnv.Instances[i].Count)
+		fmt.Printf("Instance[%d]:  %s,  %s, count=%d\n", i, UEnv.Instances[i].InstName, UEnv.Instances[i].OS, UEnv.Instances[i].Count)
 		fmt.Printf("Apps:")
 		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-			fmt.Printf("\t(%s, %s)\n", UEnv.Instances[i].Apps[j].Name, UEnv.Instances[i].Apps[j].Repo)
+			fmt.Printf("\t(%s, %s, IsTest = %v)\n", UEnv.Instances[i].Apps[j].Name, UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].IsTest)
 		}
 		fmt.Printf("\n")
+	}
+}
+
+// Execute the descriptor
+func ExecuteDescriptor() {
+	if (0 == UEnv.UhuraPort) {
+		UEnv.UhuraPort = 8080;		// default port for Uhura
+	}
+    PrintEnvDescriptor()
+
+    // Emit the application payload lines	
+	for i := 0; i < len(UEnv.Instances); i++ {
+		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+			fmt.Printf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+		}
 	}
 	return
 }
@@ -66,8 +81,7 @@ func ParseEnvDescriptor(fname *string) {
     if (err != nil) {
     	fmt.Println(err)
     }
-    fmt.Println(UEnv)
-
+ 
     // Now that we have the datastructure filled in, we can 
     // begin to execute it.
     ExecuteDescriptor();
