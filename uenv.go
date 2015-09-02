@@ -9,7 +9,6 @@ import (
     "io/ioutil"
     "log"
     "os"
-	// "strings"
 )
 
 type AppDescr struct {
@@ -48,20 +47,55 @@ func PrintEnvDescriptor() {
 	}
 }
 
+// OK, this is a major cop-out, but not sure what else to do...
+func check(e error) {
+    if e != nil {
+        panic(e)
+    }
+}
+
 // Execute the descriptor
 func ExecuteDescriptor() {
 	if (0 == UEnv.UhuraPort) {
 		UEnv.UhuraPort = 8080;		// default port for Uhura
 	}
-    PrintEnvDescriptor()
+    PrintEnvDescriptor()  // debugging purposes only
 
-    // Emit the application payload lines	
+    // Read in the basis for each quartermaster script
+    qmbasefname := "/usr/local/accord/bin/qmaster.sh"		// assume linux name
+    if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
+    	qmbasefname = "/c/Accord/bin/qmaster.sh"			// if linux name fails, try windows name
+    	if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
+    		log.Printf("Cannot find required file qmaster.sh\n")
+    		os.Exit(3);
+    	}
+	}
+    qmasterdata, err := ioutil.ReadFile(qmbasefname)
+    check(err)
+
+    // Build the quartermaster script to create each environment instance...
+    var qmstr string
+    var f *os.File
+    var apps string
 	for i := 0; i < len(UEnv.Instances); i++ {
+		// Build up a string with all the apps to deploy to this instance
+		apps = "";
 		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-			fmt.Printf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+			apps += fmt.Sprintf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+		}
+		// Now build a script for each instance
+		for j := 0; j < UEnv.Instances[i].Count; j++ {
+			qmstr = fmt.Sprintf("qmstr-%s-%d", UEnv.Instances[i].InstName, j)	// unique name for each script
+			f, err = os.Create(qmstr)
+	    	defer f.Close()
+	    	fmt.Printf("Created file: %s,  apps = %s\n", qmstr, apps)
+	    	_, err = f.Write(qmasterdata)
+	    	check(err)
+	    	_, err = f.Write([]byte(apps))
+	    	check(err)
+	    	f.Sync()
 		}
 	}
-	return
 }
 
 // Parse the environment
