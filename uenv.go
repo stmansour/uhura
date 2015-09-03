@@ -9,6 +9,7 @@ import (
     "io/ioutil"
     "log"
     "os"
+    "os/exec"
 )
 
 type AppDescr struct {
@@ -33,19 +34,6 @@ type EnvDescr struct {
 //  The main data object for this module
 var UEnv EnvDescr
 
-func PrintEnvDescriptor() {
-	fmt.Printf("Executing environment build for: %s\n", UEnv.EnvName)
-	fmt.Printf("Will attempt to build %d Instances\n", len(UEnv.Instances))
-	fmt.Printf("UhuraPort = %d\n", UEnv.UhuraPort)
-	for i := 0; i < len(UEnv.Instances); i++ {
-		fmt.Printf("Instance[%d]:  %s,  %s, count=%d\n", i, UEnv.Instances[i].InstName, UEnv.Instances[i].OS, UEnv.Instances[i].Count)
-		fmt.Printf("Apps:")
-		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-			fmt.Printf("\t(%s, %s, IsTest = %v)\n", UEnv.Instances[i].Apps[j].Name, UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].IsTest)
-		}
-		fmt.Printf("\n")
-	}
-}
 
 // OK, this is a major cop-out, but not sure what else to do...
 func check(e error) {
@@ -54,69 +42,144 @@ func check(e error) {
     }
 }
 
-// Execute the descriptor
-func ExecuteDescriptor() {
-	if (0 == UEnv.UhuraPort) {
-		UEnv.UhuraPort = 8080;		// default port for Uhura
-	}
-    PrintEnvDescriptor()  // debugging purposes only
+// just reduces the lines of code
+func FileWriteString(f *os.File, s *string) {
+	_, err := f.WriteString(*s)
+	check(err)
+}
 
-    // Read in the basis for each quartermaster script
-    qmbasefname := "/usr/local/accord/bin/qmaster.sh"		// assume linux name
-    if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
-    	qmbasefname = "/c/Accord/bin/qmaster.sh"			// if linux name fails, try windows name
-    	if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
-    		log.Printf("Cannot find required file qmaster.sh\n")
-    		os.Exit(3);
-    	}
-	}
-    qmasterdata, err := ioutil.ReadFile(qmbasefname)
-    check(err)
+func FileWriteBytes(f *os.File, b []byte) {
+	_, err := f.Write(b)
+	check(err)
+}
 
+// Create a deterministic unique name for each script
+func EnvDescrScriptName(i, k int) string {
+	var ftype string
+	if UEnv.Instances[i].OS == "Windows" {
+		ftype = "scr"
+	} else {
+		ftype = "sh"
+	}
+	return fmt.Sprintf("qmstr-%s-%d.%s", UEnv.Instances[i].InstName, k, ftype)
+}
+
+// Make a Windows init script for the ith Instance, and the kth Count 
+func MakeWindowsScript(i, k int) {
+	// First, build up a string with all the apps to deploy to this instance
+	// Now build a script for each instance.  We assume for Windows that everything
+	// is in "ext-tools/utils"
+	empty := ""
+	comma := ","
+	apps := ""
+	var eol *string;
+	var n int = len(UEnv.Instances[i].Apps)
+	for j := 0; j < n; j++ {
+		if 1 + j == n { eol = &empty } else { eol = &comma }
+		apps += fmt.Sprintf("\t\t\"%s\"%s\n", UEnv.Instances[i].Apps[j].Name, *eol)
+	}
+	apps += ")\n"
+	qmstr := EnvDescrScriptName(i, k)	
+	f, err := os.Create(qmstr)
+	check(err)
+	defer f.Close()
+	FileWriteBytes(f, Uhura.QmstrHdrWin)
+	phoneHome := fmt.Sprintf("$UHURA_MASTER_URL = \"%s\"\n",Uhura.MasterURL)
+	phoneHome += fmt.Sprintf("$MY_INSTANCE_NAME = \"%s\"\n$MY_INSTANCE_COUNT = \"%d\"\n",UEnv.Instances[i].InstName, k)
+	FileWriteString(f,&apps)
+	FileWriteString(f,&phoneHome)
+	FileWriteBytes(f,Uhura.QmstrFtrWin)
+	f.Sync()
+}
+
+// Make a linux init script for the ith Instance, and the kth Count 
+func MakeLinuxScript(i, k int) {
+	// First, build up a string with all the apps to deploy to this instance
+	// Now build a script for each instance
+	apps := ""
+	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+		apps += fmt.Sprintf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+	}
+
+	// now we have all wwe need to create and write the file
+	qmstr := EnvDescrScriptName(i, k)	
+	phoneHome := fmt.Sprintf("UHURA_MASTER_URL=%s\n",Uhura.MasterURL)
+	phoneHome += fmt.Sprintf("MY_INSTANCE_NAME=\"%s\"\nMY_INSTANCE_COUNT=%d\n",UEnv.Instances[i].InstName, k)
+	f, err := os.Create(qmstr)
+	check(err)
+	defer f.Close()
+	FileWriteBytes(f,Uhura.QmstrBaseLinux)
+	FileWriteString(f,&phoneHome)
+	FileWriteString(f,&apps)
+	f.Sync()
+}
+
+// Unmarshal the data in descriptor.
+// The machine bring-up scripts are created at the same time.
+func CreateInstanceScripts() {
+	if 0 == UEnv.UhuraPort {
+		UEnv.UhuraPort = 8080		// default port for Uhura
+	}
     // Build the quartermaster script to create each environment instance...
-    var qmstr string
-    var f *os.File
-    var apps string
 	for i := 0; i < len(UEnv.Instances); i++ {
-		// Build up a string with all the apps to deploy to this instance
-		apps = "";
-		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-			apps += fmt.Sprintf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
-		}
-		// Now build a script for each instance
 		for j := 0; j < UEnv.Instances[i].Count; j++ {
-			qmstr = fmt.Sprintf("qmstr-%s-%d", UEnv.Instances[i].InstName, j)	// unique name for each script
-			f, err = os.Create(qmstr)
-	    	defer f.Close()
-	    	fmt.Printf("Created file: %s,  apps = %s\n", qmstr, apps)
-	    	_, err = f.Write(qmasterdata)
-	    	check(err)
-	    	_, err = f.Write([]byte(apps))
-	    	check(err)
-	    	f.Sync()
+			if UEnv.Instances[i].OS == "Windows" {
+				MakeWindowsScript(i,j)
+			} else {
+				MakeLinuxScript(i,j)
+			}
 		}
 	}
 }
 
+func ExecScript(i,j int) {
+	var app string
+	if UEnv.Instances[i].OS == "Windows" {
+		app = "/c/Accord/bin/cr_win_testenv.sh"
+	} else {
+		app = "/usr/local/accord/bin/cr_linux_testenv.sh"
+	}
+	arg0 := EnvDescrScriptName(i, j)
+	fmt.Printf("exec.Command(%s, %s)\n", app, arg0)
+	cmd := exec.Command(app, arg0)
+	stdout, err := cmd.Output()
+	if err != nil {
+		log.Printf("*** Error *** running %s:  %v\n", app, err.Error())
+	}
+    log.Printf( "exec %s\noutput:\n%s\n", app, string(stdout))
+}
+
+// Execute the descriptor.  That means create the environment(s).
+func ExecuteDescriptor() {
+	for i := 0; i < len(UEnv.Instances); i++ {
+		for j := 0; j < UEnv.Instances[i].Count; j++ {
+			ExecScript(i,j)
+		}
+	}
+}
+
+
 // Parse the environment
-func ParseEnvDescriptor(fname *string) {
+func ParseEnvDescriptor() {
 	// First, see if we can read the file in
-    log.Printf("ParseEnvDescriptor - Loading %s\n", *fname)
-    content, e := ioutil.ReadFile(*fname)
+    log.Printf("ParseEnvDescriptor - Loading %s\n", *Uhura.EnvDescFname)
+    content, e := ioutil.ReadFile(*Uhura.EnvDescFname)
     if e != nil {
         log.Printf("File error on Environment Descriptor file: %v\n", e)
         os.Exit(1)		// no recovery from this
     }
     log.Printf("%s\n", string(content))
     
-    // OK, now we have the json describing the environment in a string
+    // OK, now we have the json describing the environment in content (a string)
     // Parse it into an internal data structure...
     err := json.Unmarshal(content, &UEnv)
     if (err != nil) {
-    	fmt.Println(err)
+    	log.Printf("Error unmarshaling Environment Descriptor json: %s\n",err)
+    	check(err)
     }
  
     // Now that we have the datastructure filled in, we can 
     // begin to execute it.
-    ExecuteDescriptor();
+    CreateInstanceScripts()
+    ExecuteDescriptor()
 }

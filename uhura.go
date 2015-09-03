@@ -3,6 +3,7 @@ package main
 import (
     "flag"
     "fmt"
+    "io/ioutil"
     "log"
     "net/http"
     "encoding/json"
@@ -12,39 +13,6 @@ import (
     "time"
 )
 
-
-// This is a debugging tool for me.
-func PrintHttpRequest(r *http.Request) {
-    fmt.Println("r.Method: " + r.Method)
-    fmt.Println("r.URL:")
-    fmt.Println("    Scheme: " + r.URL.Scheme)
-    fmt.Println("    Opaque: " + r.URL.Opaque)
-    fmt.Printf( "    User:   %v\n", r.URL.User)
-    fmt.Printf( "    Host: %s\n", r.URL.Host)
-    fmt.Printf( "    Host: %s\n", r.URL.Host)
-    fmt.Printf( "    Path: %s\n", r.URL.Path)
-    fmt.Printf( "    RawPath: %s\n", r.URL.RawPath)
-    fmt.Printf( "    RawQuery: %s\n", r.URL.RawQuery)
-    fmt.Printf( "    Fragment: %s\n", r.URL.Fragment)
-    fmt.Println("r.Proto: " + r.Proto)
-    fmt.Printf( "r.ProtoMajor: %d\n", r.ProtoMajor)
-    fmt.Printf( "r.ProtoMinor: %d\n", r.ProtoMinor)
-    fmt.Printf( "r.Header: %v\n", r.Header)
-    fmt.Printf( "r.Body: %v\n", r.Body)
-    if nil != r.Body {
-        body := r.FormValue("body")
-        fmt.Printf("    body = %s\n", body)
-    }
-    fmt.Printf( "r.ContentLength: %d\n", r.ContentLength)
-    fmt.Printf( "r.Close: %t\n", r.Close)
-    fmt.Printf( "r.Host: %s\n", r.Host)
-    fmt.Printf( "r.Form: %v\n", r.Form)
-    fmt.Printf( "r.PostForm: %v\n", r.PostForm)
-    fmt.Printf( "r.Trailer: %v\n", r.Trailer)
-    fmt.Printf( "r.RemoteAddr: %s\n", r.RemoteAddr)
-    fmt.Printf( "r.RequestURI: %s\n", r.RequestURI)
-}
-
 //  Data needs for Uhura operating in Master mode
 type UhuraMaster struct {
     envDescriptorFname *string
@@ -52,17 +20,21 @@ type UhuraMaster struct {
 
 //  Data needs for Uhura operating in Slave mode
 type UhuraSlave struct {
-	masterURL string	// where to contact the master
+	MasterURL string	// where to contact the master
 
 }
 
 //  The application data structure
 type UhuraApp struct {
-    port string 	// What port are we listening on
-    mode string 	// master or slave
-    UhuraMaster		// data unique to master
-    UhuraSlave		// data unique to slave
-
+    Port int 				// What port are we listening on
+    Mode string 			// master or slave
+    MasterURL string 		// URL where master can be contacted
+    EnvDescFname *string 	// The filename of the Environment Descriptor
+    QmstrBaseLinux []byte	// data for first part of the Linux shell script 
+    QmstrHdrWin []byte		// data for first part of the Windows script
+    QmstrFtrWin []byte		// data for the last part of the Windows script
+    UhuraMaster				// data unique to master
+    UhuraSlave				// data unique to slave
 }
 
 type UhuraResponse struct {
@@ -126,15 +98,16 @@ func makeHandler( fn func (http.ResponseWriter, *http.Request)) http.HandlerFunc
 func handleCmdLineArgs() {
     portPtr := flag.Int("p", 8080, "port on which uhura listens" )
     modePtr := flag.String("m", "slave", "mode of operation: (master|slave)")
-    envdPtr := flag.String("e", "", "environment descriptor, required if mode == master")
+    envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
+    murlPtr := flag.String("t", "localhost", "public dns hostname where master can be contacted")
     flag.Parse()
-    Uhura.port = fmt.Sprintf(":%d", *portPtr)
+    Uhura.Port = *portPtr
     match, _ := regexp.MatchString("(master|slave)", strings.ToLower(*modePtr));
     if (!match) {
         log.Printf("*** ERROR *** Mode (-m) must be either 'master' or 'slave'")
         os.Exit(1)
     }
-    log.Printf("Uhura starting in %s mode on port %s\n", *modePtr, Uhura.port)
+    log.Printf("Uhura starting in %s mode on port %s\n", *modePtr, Uhura.Port)
 
      if (len(*envdPtr) == 0) {
         log.Printf("*** ERROR *** Environment descriptor is required for operation in master mode\n");
@@ -143,21 +116,64 @@ func handleCmdLineArgs() {
     log.Printf("environment descriptor: %s\n", *envdPtr)
     match, _ = regexp.MatchString("master", strings.ToLower(*modePtr));
     if (match) {
-        ParseEnvDescriptor(envdPtr)
+    	Uhura.MasterURL = fmt.Sprintf("http://%s:%d/",*murlPtr,Uhura.Port)
+    	Uhura.EnvDescFname = envdPtr
     }
 }
 
+
+//  Slog through the minutia of startup.
 func UhuruInit() {
+	// Let's get a log file going first
 	f, err := os.OpenFile("uhura.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 	    log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
-
 	log.SetOutput(f)
     log.Printf("**********   U H U R A   **********")
+
+    // Gather the command line info...
     handleCmdLineArgs()
-}
+ 
+    // Pull in the data we need to build the cloud initialization scripts.
+    // The data we pull in for Linux is the first half of the script. For
+    // Windows we pull in the "header" and the "footer" of the script and we
+    // generate a little bit of information to sandwich between them. After
+    // we pull in the Environment Description file, we generate a script for
+    // each instance we create that makes up the environment we're building.  
+    // we pass it to the AWS launch command that will run after the OS has
+    // started up. We generate these scripts in uenv.go. We're just pulling
+    // in the data now.
+
+    // First, validate the directory where we find the files.  
+    var qmdir string
+    qmbasefname := "/usr/local/accord/bin/qmaster.sh"		// assume linux name
+    if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
+    	qmbasefname = "/c/Accord/bin/qmaster.sh"			// if linux name fails, try windows name
+    	if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
+    		log.Printf("Cannot find required file qmaster.sh\n")
+    		os.Exit(3);
+    	} else {
+    		qmdir = "/c/Accord/bin"
+    	}
+	} else {
+		qmdir = "/usr/local/accord/bin"
+	}
+
+	// Linux...
+    Uhura.QmstrBaseLinux, err = ioutil.ReadFile(qmbasefname)
+    check(err)
+    Uhura.QmstrHdrWin, err = ioutil.ReadFile(fmt.Sprintf("%s/qmaster.scr1",qmdir))
+    check(err)
+    Uhura.QmstrFtrWin, err = ioutil.ReadFile(fmt.Sprintf("%s/qmaster.scr2",qmdir))
+    check(err)
+
+	// Very last step in the initialization process.  Now
+	// That everything has been pulled in, we can process the
+	// Environment Descriptor 
+    ParseEnvDescriptor()
+ }
 
 func main() {
 	UhuruInit()
@@ -165,9 +181,8 @@ func main() {
     http.HandleFunc("/status/",     makeHandler(StatusHandler))
     http.HandleFunc("/test-done/",  makeHandler(TestDoneHandler))
     http.HandleFunc("/test-start/", makeHandler(TestStartHandler))
-    err := http.ListenAndServe(Uhura.port, nil)
+    err := http.ListenAndServe(fmt.Sprintf(":%d",Uhura.Port), nil)
     if (nil != err) {
         log.Println(err)
     }
 }
-
