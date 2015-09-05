@@ -6,11 +6,9 @@ import (
     "io/ioutil"
     "log"
     "net/http"
-    "encoding/json"
     "os"
     "regexp"
     "strings"
-    "time"
 )
 
 //  Data needs for Uhura operating in Master mode
@@ -24,10 +22,16 @@ type UhuraSlave struct {
 
 }
 
+const (
+	MODE_SLAVE	 = iota
+	MODE_MASTER  = iota
+)
+
 //  The application data structure
 type UhuraApp struct {
     Port int 				// What port are we listening on
-    Mode string 			// master or slave
+    Mode int 				// master or slave
+    Debug bool 				// Debug mode -- show ulog messages on screen
     MasterURL string 		// URL where master can be contacted
     EnvDescFname *string 	// The filename of the Environment Descriptor
     QmstrBaseLinux []byte	// data for first part of the Linux shell script 
@@ -44,80 +48,37 @@ type UhuraResponse struct {
 
 var Uhura UhuraApp
 
-func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Shutdown Handler")
-    log.Println("Normal Shutdown")
-    os.Exit(0)
-}
-
-func StatusHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Status Handler")
-    m := UhuraResponse{ Status: "OK", Timestamp: time.Now().Format(time.RFC850)}
-    str, err := json.Marshal(m)
-    if (nil != err) {
-        fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n", 
-            "encoding error", time.Now().Format(time.RFC850))
-    } else {
-        fmt.Fprintf(w,string(str))
-    }
-}
-
-func TestStartHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Test Start Handler")
-    m := UhuraResponse{ Status: "OK", Timestamp: time.Now().Format(time.RFC850)}
-    str, err := json.Marshal(m)
-    if (nil != err) {
-        fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n", 
-            "encoding error", time.Now().Format(time.RFC850))
-    } else {
-        fmt.Fprintf(w,string(str))
-    }
-
-}
-
-func TestDoneHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Test Done Handler")
-    m := UhuraResponse{ Status: "OK", Timestamp: time.Now().Format(time.RFC850)}
-    str, err := json.Marshal(m)
-    if (nil != err) {
-        fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n", 
-            "encoding error", time.Now().Format(time.RFC850))
-    } else {
-        fmt.Fprintf(w,string(str))
-    }
-}
-
-func makeHandler( fn func (http.ResponseWriter, *http.Request)) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-	    PrintHttpRequest(r)
-        fn(w, r)
-    }
-}
 
 
 func handleCmdLineArgs() {
+	dbugPtr := flag.Bool("d", false, "debug mode - prints log messages to stdout")
     portPtr := flag.Int("p", 8080, "port on which uhura listens" )
     modePtr := flag.String("m", "slave", "mode of operation: (master|slave)")
     envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
     murlPtr := flag.String("t", "localhost", "public dns hostname where master can be contacted")
     flag.Parse()
+
     Uhura.Port = *portPtr
+    Uhura.Debug = *dbugPtr
+    ulog("**********   U H U R A   **********\n")
+
     match, _ := regexp.MatchString("(master|slave)", strings.ToLower(*modePtr));
     if (!match) {
-        log.Printf("*** ERROR *** Mode (-m) must be either 'master' or 'slave'")
+        ulog("*** ERROR *** Mode (-m) must be either 'master' or 'slave'\n")
         os.Exit(1)
     }
-    log.Printf("Uhura starting in %s mode on port %s\n", *modePtr, Uhura.Port)
+    ulog("Uhura starting in %s mode on port %d\n", *modePtr, Uhura.Port)
 
      if (len(*envdPtr) == 0) {
-        log.Printf("*** ERROR *** Environment descriptor is required for operation in master mode\n");
+        ulog("*** ERROR *** Environment descriptor is required for operation in master mode\n");
         os.Exit(2)
     }
-    log.Printf("environment descriptor: %s\n", *envdPtr)
+    ulog("environment descriptor: %s\n", *envdPtr)
     match, _ = regexp.MatchString("master", strings.ToLower(*modePtr));
     if (match) {
     	Uhura.MasterURL = fmt.Sprintf("http://%s:%d/",*murlPtr,Uhura.Port)
     	Uhura.EnvDescFname = envdPtr
+    	Uhura.Mode = MODE_MASTER
     }
 }
 
@@ -131,7 +92,6 @@ func UhuruInit() {
 	}
 	defer f.Close()
 	log.SetOutput(f)
-    log.Printf("**********   U H U R A   **********")
 
     // Gather the command line info...
     handleCmdLineArgs()
@@ -152,7 +112,7 @@ func UhuruInit() {
     if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
     	qmbasefname = "/c/Accord/bin/qmaster.sh"			// if linux name fails, try windows name
     	if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
-    		log.Printf("Cannot find required file qmaster.sh\n")
+    		ulog("Cannot find required file qmaster.sh\n")
     		os.Exit(3);
     	} else {
     		qmdir = "/c/Accord/bin"
@@ -179,10 +139,11 @@ func main() {
 	UhuruInit()
     http.HandleFunc("/shutdown/",   makeHandler(ShutdownHandler))
     http.HandleFunc("/status/",     makeHandler(StatusHandler))
+    http.HandleFunc("/map/",        makeHandler(MapHandler))
     http.HandleFunc("/test-done/",  makeHandler(TestDoneHandler))
     http.HandleFunc("/test-start/", makeHandler(TestStartHandler))
     err := http.ListenAndServe(fmt.Sprintf(":%d",Uhura.Port), nil)
     if (nil != err) {
-        log.Println(err)
+        ulog(string(err.Error()))
     }
 }
