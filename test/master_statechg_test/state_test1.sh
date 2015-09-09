@@ -22,8 +22,8 @@ ENV_DESCR="env.json"
 SLAVELOG="state_test1_slave.log"
 VERBOSE=0
 
-dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
-			  'qmaster.scr1''qmaster.scr2' 'qmaster.sh')
+declare -a dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
+			             'qmaster.scr1''qmaster.scr2' 'qmaster.sh')
 
 shutdown() {
 	bash ${TOOLS_DIR}/uhura_shutdown >>${SLAVELOG} 2>&1
@@ -103,7 +103,7 @@ fi
 
 #  Validate that all Uhura's dependencies are in place...
 missing=0
-for dep in ${dependencies}; do
+for dep in ${dependencies[@]}; do
 	if [ ! -e ${ACCORDBIN}/${dep} ]; then
 		((++missing))
 		echo "*** ERROR: Required file ${ACCORDBIN}/${dep} was not found"
