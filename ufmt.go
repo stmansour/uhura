@@ -28,7 +28,7 @@ func PrintHttpRequest(r *http.Request) {
     fmt.Printf( "    Host: %s\n", r.URL.Host)
     fmt.Printf( "    Host: %s\n", r.URL.Host)
     fmt.Printf( "    Path: %s\n", r.URL.Path)
-    fmt.Printf( "    RawPath: %s\n", r.URL.RawPath)
+    //fmt.Printf( "    RawPath: %s\n", r.URL.RawPath)
     fmt.Printf( "    RawQuery: %s\n", r.URL.RawQuery)
     fmt.Printf( "    Fragment: %s\n", r.URL.Fragment)
     fmt.Println("r.Proto: " + r.Proto)
