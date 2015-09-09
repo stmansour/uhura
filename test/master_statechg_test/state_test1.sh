@@ -23,7 +23,7 @@ SLAVELOG="state_test1_slave.log"
 VERBOSE=0
 
 declare -a dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
-			             'qmaster.scr1''qmaster.scr2' 'qmaster.sh')
+			             'qmaster.scr1' 'qmaster.scr2' 'qmaster.sh')
 
 shutdown() {
 	bash ${TOOLS_DIR}/uhura_shutdown >>${SLAVELOG} 2>&1
