@@ -144,6 +144,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 func MapHandler(w http.ResponseWriter, r *http.Request) {
     ulog("Map Handler\n")
     DPrintHttpRequest(r)
+    http.ServeFile(w, r, "/Users/sman/Documents/src/go/src/uhura/test/map.json")
     SendOKReply(w)
 }
 
@@ -161,7 +162,7 @@ func TestDoneHandler(w http.ResponseWriter, r *http.Request) {
 
 func makeHandler( fn func (http.ResponseWriter, *http.Request)) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
-	    PrintHttpRequest(r)
+	    //PrintHttpRequest(r)
         fn(w, r)
     }
 }

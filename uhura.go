@@ -7,6 +7,7 @@ import (
     "log"
     "net/http"
     "os"
+    "path/filepath"
     "regexp"
     "strings"
 )
@@ -32,8 +33,10 @@ type UhuraApp struct {
     Port int 				// What port are we listening on
     Mode int 				// master or slave
     Debug bool 				// Debug mode -- show ulog messages on screen
+    DebugToScreen bool      // Send logging info to screen too
     MasterURL string 		// URL where master can be contacted
     EnvDescFname *string 	// The filename of the Environment Descriptor
+    LogFile *os.File        // Uhura's logfile
     QmstrBaseLinux []byte	// data for first part of the Linux shell script 
     QmstrHdrWin []byte		// data for first part of the Windows script
     QmstrFtrWin []byte		// data for the last part of the Windows script
@@ -51,7 +54,8 @@ var Uhura UhuraApp
 
 
 func handleCmdLineArgs() {
-	dbugPtr := flag.Bool("d", false, "debug mode - prints log messages to stdout")
+	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
+    dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
     portPtr := flag.Int("p", 8080, "port on which uhura listens" )
     modePtr := flag.String("m", "slave", "mode of operation: (master|slave)")
     envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
@@ -60,6 +64,7 @@ func handleCmdLineArgs() {
 
     Uhura.Port = *portPtr
     Uhura.Debug = *dbugPtr
+    Uhura.DebugToScreen = *dtscPtr
     ulog("**********   U H U R A   **********\n")
 
     match, _ := regexp.MatchString("(master|slave)", strings.ToLower(*modePtr));
@@ -68,11 +73,23 @@ func handleCmdLineArgs() {
         os.Exit(1)
     }
     ulog("Uhura starting in %s mode on port %d\n", *modePtr, Uhura.Port)
+    if Uhura.Debug {
+        ulog("Debug logging enabled\n")
+    }
+    if Uhura.DebugToScreen {
+        ulog("Logging to Screen enabled\n")
+    }
 
      if (len(*envdPtr) == 0) {
         ulog("*** ERROR *** Environment descriptor is required for operation in master mode\n");
         os.Exit(2)
     }
+    dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+    if err != nil {
+            log.Fatal(err)
+    }
+    ulog("Current working directory = %v\n", dir)
+
     ulog("environment descriptor: %s\n", *envdPtr)
     match, _ = regexp.MatchString("master", strings.ToLower(*modePtr));
     if (match) {
@@ -85,14 +102,7 @@ func handleCmdLineArgs() {
 
 //  Slog through the minutia of startup.
 func UhuruInit() {
-	// Let's get a log file going first
-	f, err := os.OpenFile("uhura.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
-	if err != nil {
-	    log.Fatalf("error opening file: %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
-
+ 
     // Gather the command line info...
     handleCmdLineArgs()
  
@@ -122,6 +132,7 @@ func UhuruInit() {
 	}
 
 	// Linux...
+   var err error
     Uhura.QmstrBaseLinux, err = ioutil.ReadFile(qmbasefname)
     check(err)
     Uhura.QmstrHdrWin, err = ioutil.ReadFile(fmt.Sprintf("%s/qmaster.scr1",qmdir))
@@ -136,13 +147,26 @@ func UhuruInit() {
  }
 
 func main() {
+    // Let's get a log file going first.  If I put this file create in any other call
+    // it seems to stop working after the call returns. Must be some sort of a scoping thing
+    // that I don't understand. But for now, creating the logfile in the main() routine
+    // seems to be the way to make it work.
+   var err error
+    Uhura.LogFile, err = os.OpenFile("uhura.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+    if err != nil {
+        log.Fatalf("error opening file: %v", err)
+    }
+    defer Uhura.LogFile.Close()
+    log.SetOutput(Uhura.LogFile)
+
+    // OK, now on with the show...
 	UhuruInit()
     http.HandleFunc("/shutdown/",   makeHandler(ShutdownHandler))
     http.HandleFunc("/status/",     makeHandler(StatusHandler))
     http.HandleFunc("/map/",        makeHandler(MapHandler))
     http.HandleFunc("/test-done/",  makeHandler(TestDoneHandler))
     http.HandleFunc("/test-start/", makeHandler(TestStartHandler))
-    err := http.ListenAndServe(fmt.Sprintf(":%d",Uhura.Port), nil)
+    err = http.ListenAndServe(fmt.Sprintf(":%d",Uhura.Port), nil)
     if (nil != err) {
         ulog(string(err.Error()))
     }

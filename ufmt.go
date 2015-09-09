@@ -12,9 +12,9 @@ import (
 
 func ulog(format string, a ...interface{}) {
     p := fmt.Sprintf(format, a...)
-    log.Printf(p)
-    if Uhura.Debug {
-        fmt.Printf(p)
+    log.Print(p)
+    if Uhura.DebugToScreen {
+        fmt.Print(p)
     }
 }
 

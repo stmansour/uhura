@@ -1,0 +1,13 @@
+#!/bin/bash
+if [ 3 != $# ]; then
+    echo "Usage:   clientsim instname uid state"
+    echo "                                state: INIT|READY|TEST|DONE"
+    echo "Example: clientsim MainTestInstance prog1 INIT"
+    exit 1
+fi
+
+#  curl options:
+#    -s  = don's show progress meter or error messages
+#    -H  = headers
+TSTAMP=$( date )
+curl -s -H "content-Type: application/json" -X POST -d "{\"State\":\"$3\", \"InstName\": \"$1\", \"UID\": \"$2\", \"Tstamp\": \"$TSTAMP\"}" http://localhost:8080/status/

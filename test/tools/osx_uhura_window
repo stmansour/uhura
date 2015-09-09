@@ -1,0 +1,1 @@
+osascript -e 'tell application "Terminal" to activate' -e 'tell application "System Events" to tell process "Terminal" to keystroke "n" using command down' -e 'tell application "Terminal" to do script "gogo;cd src/uhura/test;./m" in the front window'

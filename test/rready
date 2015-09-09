@@ -1,7 +1,0 @@
-#!/bin/bash
-if [ "x" == "x$1" ]; then
-    echo "You must supply the UID of the instance sending this message"
-    exit 1
-fi
-TSTAMP=$( date )
-curl -H "content-Type: application/json" -X POST -d "{\"State\":\"READY\", \"InstName\": \"MainTestInstance\", \"UID\": \"$1\", \"Tstamp\": \"$TSTAMP\"}" http://localhost:8080/status/
