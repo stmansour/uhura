@@ -169,5 +169,7 @@ func main() {
     err = http.ListenAndServe(fmt.Sprintf(":%d",Uhura.Port), nil)
     if (nil != err) {
         ulog(string(err.Error()))
+        fmt.Printf("*** Error on http.ListenAndServe: %v\n", err)
+        os.Exit(4)
     }
 }

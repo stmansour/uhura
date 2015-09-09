@@ -21,6 +21,8 @@ TOOLS_DIR="/Users/sman/Documents/src/go/src/uhura/test/tools"
 ENV_DESCR="env.json"
 SLAVELOG="state_test1_slave.log"
 VERBOSE=0
+UHOST=localhost
+UPORT=8080
 
 declare -a dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
 			             'qmaster.scr1' 'qmaster.scr2' 'qmaster.sh')
@@ -32,7 +34,14 @@ shutdown() {
 }
 
 usage() {
-	echo "Usage: $0 [-q] [-d <uhura dir>] [-t <toolsdir>] [-e <env descr>]" 1>&2
+	echo "Usage: $0 options..." 
+	echo "optons:"
+	echo "    -q           quiet mode"
+	echo "    -d uhuraDir  directory where uhura executable lives"
+	echo "    -t toolsDir  directory where test tools reside"
+	echo "    -e envDescr  environment descriptor"
+    echo "   [-p port]     default is 8080"
+    echo "   [-h host]     default is localhost"
 	exit 1
 }
 
@@ -41,16 +50,17 @@ usage() {
 # $2 = status mode: {INIT|READY|TEST|DONE}
 sendStatus() {
 	if [ ${VERBOSE} -gt 0 ]; then
-		echo "$1 status: $2"
+		echo "bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"
 	fi
-	echo -n "$1 $2:   "  >>${SLAVELOG} 2>&1
-	bash ${TOOLS_DIR}/clientsim MainTestInstance $1 $2 >>${SLAVELOG} 2>&1
+	echo -n "bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"  >>${SLAVELOG} 2>&1
+
+	bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2 >>${SLAVELOG} 2>&1
 	echo >>${SLAVELOG} 2>&1
 }
 
 #  optspec begins with ':', option letters follow, if the
 #  option takes a param then it is followed by ':'
-while getopts ":vd:t:e:" o; do
+while getopts ":vd:t:e:p:h:" o; do
     case "${o}" in
         v)
             VERBOSE=1
@@ -64,6 +74,13 @@ while getopts ":vd:t:e:" o; do
         t)
             TOOLS_DIR=${OPTARG}
             ;;
+        p)
+            UPORT=${OPTARG}
+            ;;
+
+        h)
+			UHOST=${OPTARG}
+			;;
         *)
             usage
             ;;
