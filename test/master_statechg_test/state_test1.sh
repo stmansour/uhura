@@ -81,9 +81,9 @@ fi
 #  Stop early if uhura is already running on this box...
 COUNT=$(ps -ef | grep uhura | grep -v grep | wc -l)
 if [ ${COUNT} -gt 0 ]; then
-	echo "There is another instance of uhura already running..."
+	echo "*** ERROR: There is another instance of uhura already running..."
 	ps -ef | grep uhura | grep -v grep 
-	echo "Stop this instance and try again."
+	echo "***        Stop this instance and try again."
 	exit 1
 fi
 
@@ -93,8 +93,8 @@ if [ -d /usr/local/accord/bin ]; then
 elif [ -d /c/Accord/bin ]; then
 	ACCORDBIN=/c/Accord/bin
 else
-	echo "Required directory /usr/local/accord/bin or /c/Accord/bin does not exist."
-	echo "Please repair installation and try again."
+	echo "*** ERROR: Required directory /usr/local/accord/bin or /c/Accord/bin does not exist."
+	echo "           Please repair installation and try again."
 	exit 2
 fi
 if [ ${VERBOSE} -gt 0 ]; then
@@ -106,11 +106,11 @@ missing=0
 for dep in ${dependencies}; do
 	if [ ! -e ${ACCORDBIN}/${dep} ]; then
 		((++missing))
-		echo "Required file ${ACCORDBIN}/${dep} was not found"
+		echo "*** ERROR: Required file ${ACCORDBIN}/${dep} was not found"
 	fi
 done
 if [ $missing -gt 0 ]; then
-	echo "Please install the missing files and try again."
+	echo "           Please install the missing files and try again."
 	exit 3
 fi
 
