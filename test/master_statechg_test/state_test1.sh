@@ -24,11 +24,8 @@ VERBOSE=0
 UHOST=localhost
 UPORT=8080
 
-declare -a dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
-			             'qmaster.scr1' 'qmaster.scr2' 'qmaster.sh')
-
 shutdown() {
-	bash ${TOOLS_DIR}/uhura_shutdown >>${SLAVELOG} 2>&1
+	bash ${TOOLS_DIR}/uhura_shutdown -p {$UPORT} >>${SLAVELOG} 2>&1
 	# Give the server a second to shutdown
 	sleep 1
 }
@@ -40,14 +37,17 @@ usage() {
 	echo "    -d uhuraDir  directory where uhura executable lives"
 	echo "    -t toolsDir  directory where test tools reside"
 	echo "    -e envDescr  environment descriptor"
+	echo "    -v           enables verbose mode"
     echo "   [-p port]     default is 8080"
     echo "   [-h host]     default is localhost"
 	exit 1
 }
 
+#---------------------------------------------------------------------
 # Function to send status to Uhura master
 # $1 = UID
 # $2 = status mode: {INIT|READY|TEST|DONE}
+#---------------------------------------------------------------------
 sendStatus() {
 	if [ ${VERBOSE} -gt 0 ]; then
 		echo "bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"
@@ -58,8 +58,10 @@ sendStatus() {
 	echo >>${SLAVELOG} 2>&1
 }
 
+#---------------------------------------------------------------------
 #  optspec begins with ':', option letters follow, if the
 #  option takes a param then it is followed by ':'
+#---------------------------------------------------------------------
 while getopts ":vd:t:e:p:h:" o; do
     case "${o}" in
         v)
@@ -89,13 +91,16 @@ done
 shift $((OPTIND-1))
 
 if [ ${VERBOSE} -gt 0 ]; then
+	UVERBOSE="-D"
 	echo "VERBOSE = ${VERBOSE}"
 	echo "UHURA_DIR = ${UHURA_DIR}"
 	echo "TOOLS_DIR = ${TOOLS_DIR}"
 	echo "ENV_DESCR = ${ENV_DESCR}"
 fi
 
+#---------------------------------------------------------------------
 #  Stop early if uhura is already running on this box...
+#---------------------------------------------------------------------
 COUNT=$(ps -ef | grep uhura | grep -v grep | wc -l)
 if [ ${COUNT} -gt 0 ]; then
 	echo "*** ERROR: There is another instance of uhura already running..."
@@ -104,7 +109,9 @@ if [ ${COUNT} -gt 0 ]; then
 	exit 1
 fi
 
+#---------------------------------------------------------------------
 #  Find accord bin...
+#---------------------------------------------------------------------
 if [ -d /usr/local/accord/bin ]; then
 	ACCORDBIN=/usr/local/accord/bin
 elif [ -d /c/Accord/bin ]; then
@@ -118,7 +125,12 @@ if [ ${VERBOSE} -gt 0 ]; then
 	echo "ACCORDBIN = ${ACCORDBIN}"
 fi
 
-#  Validate that all Uhura's dependencies are in place...
+#---------------------------------------------------------------------
+#  Validate that all the files that Uhura depends on are in place...
+#---------------------------------------------------------------------
+declare -a dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
+			             'qmaster.scr1' 'qmaster.scr2' 'qmaster.sh')
+
 missing=0
 for dep in ${dependencies[@]}; do
 	if [ ! -e ${ACCORDBIN}/${dep} ]; then
@@ -132,11 +144,18 @@ if [ $missing -gt 0 ]; then
 fi
 
 rm -f qm* *.log *.out
-${UHURA_DIR}/uhura -d -m master -e ${ENV_DESCR} >uhura.out 2>&1 &
+${UHURA_DIR}/uhura -p ${UPORT} -d ${UVERBOSE} -m master -e ${ENV_DESCR} >uhura.out 2>&1 &
 
+#---------------------------------------------------------------------
 # Give the server a second startup
+#---------------------------------------------------------------------
 sleep 1
 
+#---------------------------------------------------------------------
+# This simulates the 2 clients contacting the server and walking
+# through their states.  This is just a straight functional test.
+# There are no random pauses or timing tricks.
+#---------------------------------------------------------------------
 sendStatus "prog1" "INIT"
 sendStatus "prog2" "INIT"
 sendStatus "prog1" "READY"
@@ -149,6 +168,7 @@ sendStatus "prog2" "DONE"
 shutdown
 mv uhura.log state_test1_master.log
 
+#---------------------------------------------------------------------
 #  Files produced:
 #     * state_test1_master.log  - uhura log file from this test run
 #     * state_test1_slave.log   - output from the client simulator (currently not used)
@@ -159,6 +179,9 @@ mv uhura.log state_test1_master.log
 
 #  Compare the "gold" output to log file output from this run
 #     *  ignore differences in timestamps
+#     *  ignore differences in the startup port. On different systems
+#        uhura may need to listen on different ports. This is not a
+#        a functional issue.
 #     *  fail if there are any other differences
 
 #  We do this by essentially filtering out timestamps in both gold log and this run's log:
@@ -174,8 +197,11 @@ mv uhura.log state_test1_master.log
 #  Note B: for the year the regexp constrains to the following range 2010 - 2049, and a few
 #          other constraints on days, hrs, mins, secs are in these regexps.  They're probably
 #          fine, but if we see any miscompares in timestamps, look closely at the regexps.
+#---------------------------------------------------------------------
 
-
+#---------------------------------------------------------------------
+#  Deal with the timestamps...
+#---------------------------------------------------------------------
 #           |     year     /   month   /   day  | |   hr    :    min   :    sec  |   everything else
 perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1_master.gold   \
 | perl -pe 's/Tstamp: [A-Z][a-z]{2} [A-Z][a-z]{2} [ 0-1][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [A-Z]{3} 20[1-4][0-9]/Tstamp: TIMESTAMP/' > x
@@ -183,6 +209,16 @@ perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-
 
 perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1_master.log   \
 | perl -pe 's/Tstamp: [A-Z][a-z]{2} [A-Z][a-z]{2} [ 0-1][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [A-Z]{3} 20[1-4][0-9]/Tstamp: TIMESTAMP/' > y
+
+#---------------------------------------------------------------------
+#  Now deal with any port differences
+#---------------------------------------------------------------------
+perl -pe 's/master mode on port [0-9]+/master mode on port SOMEPORT/' x > x1; mv x1 x
+perl -pe 's/master mode on port [0-9]+/master mode on port SOMEPORT/' y > y1; mv y1 y
+
+#---------------------------------------------------------------------
+#  Now see how they compare...
+#---------------------------------------------------------------------
 DIFFS=$(diff x y | wc -l)
 
 if [ ${VERBOSE} -gt 0 ]; then
