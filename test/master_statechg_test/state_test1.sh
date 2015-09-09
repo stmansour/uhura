@@ -16,8 +16,8 @@
 #  Author:  sman
 #  Version: 0.1  Tue Sep  8 15:39:33 PDT 2015
 
-UHURA_DIR="/Users/sman/Documents/src/go/src/uhura"
-TOOLS_DIR="/Users/sman/Documents/src/go/src/uhura/test/tools"
+UHURA_DIR="../.."
+TOOLS_DIR="../tools"
 ENV_DESCR="env.json"
 SLAVELOG="state_test1_slave.log"
 VERBOSE=0
@@ -166,6 +166,11 @@ sendStatus "prog1" "DONE"
 sendStatus "prog2" "DONE"
 
 shutdown
+if [ ! -e uhura.log ]; then
+	echo "*** ERROR:  could not find uhura.log."
+	exit 1
+fi
+
 mv uhura.log state_test1_master.log
 
 #---------------------------------------------------------------------
@@ -182,9 +187,14 @@ mv uhura.log state_test1_master.log
 #     *  ignore differences in the startup port. On different systems
 #        uhura may need to listen on different ports. This is not a
 #        a functional issue.
+#     *  ignore differences in the current workng directory. It will be
+#        different on different machines and different operating systems
 #     *  fail if there are any other differences
+#---------------------------------------------------------------------
 
-#  We do this by essentially filtering out timestamps in both gold log and this run's log:
+#---------------------------------------------------------------------
+#  Deal with the timestamps by essentially filtering out timestamps in 
+#  both gold log and this run's log:
 
 #  1. The log files contain the date and time at the beginning of each line.
 #     The first perl invocation removes it. 
@@ -198,10 +208,6 @@ mv uhura.log state_test1_master.log
 #          other constraints on days, hrs, mins, secs are in these regexps.  They're probably
 #          fine, but if we see any miscompares in timestamps, look closely at the regexps.
 #---------------------------------------------------------------------
-
-#---------------------------------------------------------------------
-#  Deal with the timestamps...
-#---------------------------------------------------------------------
 #           |     year     /   month   /   day  | |   hr    :    min   :    sec  |   everything else
 perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1_master.gold   \
 | perl -pe 's/Tstamp: [A-Z][a-z]{2} [A-Z][a-z]{2} [ 0-1][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [A-Z]{3} 20[1-4][0-9]/Tstamp: TIMESTAMP/' > x
@@ -213,8 +219,14 @@ perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-
 #---------------------------------------------------------------------
 #  Now deal with any port differences
 #---------------------------------------------------------------------
-perl -pe 's/master mode on port [0-9]+/master mode on port SOMEPORT/' x > x1; mv x1 x
-perl -pe 's/master mode on port [0-9]+/master mode on port SOMEPORT/' y > y1; mv y1 y
+perl -pe 's/master mode on port [0-9]+/Current working directory = SOMEdirectory/' x > x1; mv x1 x
+perl -pe 's/master mode on port [0-9]+/Current working directory = SOMEdirectory/' y > y1; mv y1 y
+
+#---------------------------------------------------------------------
+#  Now deal with any working directory differences
+#---------------------------------------------------------------------
+perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' x > x1; mv x1 x
+perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' y > y1; mv y1 y
 
 #---------------------------------------------------------------------
 #  Now see how they compare...
