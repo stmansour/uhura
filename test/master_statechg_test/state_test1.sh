@@ -22,6 +22,9 @@ ENV_DESCR="env.json"
 SLAVELOG="state_test1_slave.log"
 VERBOSE=0
 
+dependencies=('cr_linux_testenv.sh' 'cr_win_testenv.sh' 
+			  'qmaster.scr1''qmaster.scr2' 'qmaster.sh')
+
 shutdown() {
 	bash ${TOOLS_DIR}/uhura_shutdown >>${SLAVELOG} 2>&1
 	# Give the server a second to shutdown
@@ -82,6 +85,33 @@ if [ ${COUNT} -gt 0 ]; then
 	ps -ef | grep uhura | grep -v grep 
 	echo "Stop this instance and try again."
 	exit 1
+fi
+
+#  Find accord bin...
+if [ -d /usr/local/accord/bin ]; then
+	ACCORDBIN=/usr/local/accord/bin
+elif [ -d /c/Accord/bin ]; then
+	ACCORDBIN=/c/Accord/bin
+else
+	echo "Required directory /usr/local/accord/bin or /c/Accord/bin does not exist."
+	echo "Please repair installation and try again."
+	exit 2
+fi
+if [ ${VERBOSE} -gt 0 ]; then
+	echo "ACCORDBIN = ${ACCORDBIN}"
+fi
+
+#  Validate that all Uhura's dependencies are in place...
+missing=0
+for dep in ${dependencies}; do
+	if [ ! -e ${ACCORDBIN}/${dep} ]; then
+		((++missing))
+		echo "Required file ${ACCORDBIN}/${dep} was not found"
+	fi
+done
+if [ $missing -gt 0 ]; then
+	echo "Please install the missing files and try again."
+	exit 3
 fi
 
 rm -f qm* *.log *.out
