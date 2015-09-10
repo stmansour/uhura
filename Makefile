@@ -8,6 +8,8 @@ install: uhura
 	@echo "*** INSTALL COMPLETED ***"
 
 uhura: *.go
+	go fmt
+	go vet
 	go build
 	@echo "*** BUILD COMPLETED ***"
 

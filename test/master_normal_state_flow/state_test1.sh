@@ -91,6 +91,7 @@ done
 shift $((OPTIND-1))
 
 if [ ${VERBOSE} -gt 0 ]; then
+    echo "Current working directory = $(pwd)"
 	UVERBOSE="-D"
 	echo "VERBOSE = ${VERBOSE}"
 	echo "UHURA_DIR = ${UHURA_DIR}"
@@ -101,13 +102,13 @@ fi
 #---------------------------------------------------------------------
 #  Stop early if uhura is already running on this box...
 #---------------------------------------------------------------------
-COUNT=$(ps -ef | grep uhura | grep -v grep | wc -l)
-if [ ${COUNT} -gt 0 ]; then
-	echo "*** ERROR: There is another instance of uhura already running..."
-	ps -ef | grep uhura | grep -v grep 
-	echo "***        Stop this instance and try again."
-	exit 1
-fi
+# COUNT=$(ps -ef | grep uhura | grep -v grep | wc -l)
+# if [ ${COUNT} -gt 0 ]; then
+# 	echo "*** ERROR: There is another instance of uhura already running..."
+# 	ps -ef | grep uhura | grep -v grep 
+# 	echo "***        Stop this instance and try again."
+# 	exit 1
+# fi
 
 #---------------------------------------------------------------------
 #  Find accord bin...
@@ -244,7 +245,8 @@ if [ ${DIFFS} -eq 0 ]; then
 	exit 0
 else
 	if [ ${VERBOSE} -gt 0 ]; then
-		echo "FAILED"
+		echo "FAILED:  differences are as follows:"
+		diff x y
 	fi
 	exit 1
 fi
