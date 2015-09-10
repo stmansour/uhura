@@ -10,6 +10,20 @@ import (
 	"net/http"
 )
 
+// I want to log here... but I cannot because
+// of the scope of the logfile that we open. If
+// it is open inside of a func (like, say UhuraInit)
+// it quietly stops working after we exit the func.
+// Opening it in main doesn't work because during
+// testing we don't go into main. So, I'm using
+// ulog0 in the hopes that I'll see a solution to this
+// at some point in the future, and we can simply
+// change ulog0 to ulog everywhere.
+func ulog0(format string, a ...interface{}) {
+	fmt.Printf(format, a...)
+}
+
+// This is uhura's standard loger
 func ulog(format string, a ...interface{}) {
 	p := fmt.Sprintf(format, a...)
 	log.Print(p)

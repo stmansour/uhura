@@ -21,3 +21,7 @@ clean:
 test:
 	cd ./test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
+
+coverage:
+	go test -cover
+	go tool cover -html=cover.out

@@ -145,7 +145,7 @@ if [ $missing -gt 0 ]; then
 fi
 
 rm -f qm* *.log *.out
-${UHURA_DIR}/uhura -p ${UPORT} -d ${UVERBOSE} -m master -e ${ENV_DESCR} >uhura.out 2>&1 &
+${UHURA_DIR}/uhura -p ${UPORT} -d ${UVERBOSE} -e ${ENV_DESCR} >uhura.out 2>&1 &
 
 #---------------------------------------------------------------------
 # Give the server a second startup

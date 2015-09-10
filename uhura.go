@@ -8,30 +8,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strings"
-)
-
-//  Data needs for Uhura operating in Master mode
-type UhuraMaster struct {
-	envDescriptorFname *string
-}
-
-//  Data needs for Uhura operating in Slave mode
-type UhuraSlave struct {
-	MasterURL string // where to contact the master
-
-}
-
-const (
-	MODE_SLAVE  = iota
-	MODE_MASTER = iota
 )
 
 //  The application data structure
 type UhuraApp struct {
 	Port           int      // What port are we listening on
-	Mode           int      // master or slave
 	Debug          bool     // Debug mode -- show ulog messages on screen
 	DebugToScreen  bool     // Send logging info to screen too
 	MasterURL      string   // URL where master can be contacted
@@ -40,8 +21,6 @@ type UhuraApp struct {
 	QmstrBaseLinux []byte   // data for first part of the Linux shell script
 	QmstrHdrWin    []byte   // data for first part of the Windows script
 	QmstrFtrWin    []byte   // data for the last part of the Windows script
-	UhuraMaster             // data unique to master
-	UhuraSlave              // data unique to slave
 }
 
 type UhuraResponse struct {
@@ -51,11 +30,10 @@ type UhuraResponse struct {
 
 var Uhura UhuraApp
 
-func handleCmdLineArgs() {
+func ProcessCommandLine() {
 	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
 	portPtr := flag.Int("p", 8080, "port on which uhura listens")
-	modePtr := flag.String("m", "slave", "mode of operation: (master|slave)")
 	envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
 	murlPtr := flag.String("t", "localhost", "public dns hostname where master can be contacted")
 	flag.Parse()
@@ -63,46 +41,33 @@ func handleCmdLineArgs() {
 	Uhura.Port = *portPtr
 	Uhura.Debug = *dbugPtr
 	Uhura.DebugToScreen = *dtscPtr
-	ulog("**********   U H U R A   **********\n")
 
-	match, _ := regexp.MatchString("(master|slave)", strings.ToLower(*modePtr))
-	if !match {
-		ulog("*** ERROR *** Mode (-m) must be either 'master' or 'slave'\n")
-		os.Exit(1)
+
+	if len(*envdPtr) == 0 {
+		ulog0("*** ERROR *** Environment descriptor is required for operation in master mode\n")
+		os.Exit(2)
 	}
-	ulog("Uhura starting in %s mode on port %d\n", *modePtr, Uhura.Port)
+
+	Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
+	Uhura.EnvDescFname = envdPtr
+}
+
+func InitUhura() {
+	log.SetOutput(Uhura.LogFile)
+	ulog("**********   U H U R A   **********\n")
+	ulog("Uhura starting on port %d\n", Uhura.Port)
 	if Uhura.Debug {
 		ulog("Debug logging enabled\n")
 	}
 	if Uhura.DebugToScreen {
 		ulog("Logging to Screen enabled\n")
 	}
-
-	if len(*envdPtr) == 0 {
-		ulog("*** ERROR *** Environment descriptor is required for operation in master mode\n")
-		os.Exit(2)
-	}
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
 	}
 	ulog("Current working directory = %v\n", dir)
-
-	ulog("environment descriptor: %s\n", *envdPtr)
-	match, _ = regexp.MatchString("master", strings.ToLower(*modePtr))
-	if match {
-		Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
-		Uhura.EnvDescFname = envdPtr
-		Uhura.Mode = MODE_MASTER
-	}
-}
-
-//  Slog through the minutia of startup.
-func UhuruInit() {
-
-	// Gather the command line info...
-	handleCmdLineArgs()
-
+	ulog("environment descriptor: %s\n", *Uhura.EnvDescFname)
 	// Pull in the data we need to build the cloud initialization scripts.
 	// The data we pull in for Linux is the first half of the script. For
 	// Windows we pull in the "header" and the "footer" of the script and we
@@ -119,7 +84,7 @@ func UhuruInit() {
 	if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
 		qmbasefname = "/c/Accord/bin/qmaster.sh" // if linux name fails, try windows name
 		if _, err := os.Stat(qmbasefname); os.IsNotExist(err) {
-			ulog("Cannot find required file qmaster.sh\n")
+			ulog0("Cannot find required file qmaster.sh\n")
 			os.Exit(3)
 		} else {
 			qmdir = "/c/Accord/bin"
@@ -129,7 +94,6 @@ func UhuruInit() {
 	}
 
 	// Linux...
-	var err error
 	Uhura.QmstrBaseLinux, err = ioutil.ReadFile(qmbasefname)
 	check(err)
 	Uhura.QmstrHdrWin, err = ioutil.ReadFile(fmt.Sprintf("%s/qmaster.scr1", qmdir))
@@ -141,6 +105,13 @@ func UhuruInit() {
 	// That everything has been pulled in, we can process the
 	// Environment Descriptor
 	ParseEnvDescriptor()
+
+	// Set up the handler functions for our server...
+	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
+	http.HandleFunc("/status/", makeHandler(StatusHandler))
+	http.HandleFunc("/map/", makeHandler(MapHandler))
+	http.HandleFunc("/test-done/", makeHandler(TestDoneHandler))
+	http.HandleFunc("/test-start/", makeHandler(TestStartHandler))
 }
 
 func main() {
@@ -154,15 +125,11 @@ func main() {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer Uhura.LogFile.Close()
-	log.SetOutput(Uhura.LogFile)
 
 	// OK, now on with the show...
-	UhuruInit()
-	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
-	http.HandleFunc("/status/", makeHandler(StatusHandler))
-	http.HandleFunc("/map/", makeHandler(MapHandler))
-	http.HandleFunc("/test-done/", makeHandler(TestDoneHandler))
-	http.HandleFunc("/test-start/", makeHandler(TestStartHandler))
+	ProcessCommandLine()
+	InitUhura()
+
 	err = http.ListenAndServe(fmt.Sprintf(":%d", Uhura.Port), nil)
 	if nil != err {
 		ulog(string(err.Error()))
