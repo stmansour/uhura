@@ -35,7 +35,7 @@ var tests = []struct {
 }
 
 func TestStatusHandler(t *testing.T) {
-	Uhura.EnvDescFname = "./test/master_normal_state_flow/env1.json"
+	Uhura.EnvDescFname = "./test/stateflow_normal/env1.json"
 	InitUhura()
 	SetUpHttpEnv()
 

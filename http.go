@@ -177,7 +177,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	DPrintHttpRequest(r)
 
 	// This is a temporary hack until I can create the real one...
-	http.ServeFile(w, r, "test/master_normal_state_flow/env.json")
+	http.ServeFile(w, r, "test/stateflow_normal/env.json")
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {

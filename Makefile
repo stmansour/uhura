@@ -15,6 +15,7 @@ uhura: *.go
 
 clean:
 	go clean
+	rm -f *.log qmstr* *.out
 	cd ./test;make clean
 	@echo "*** CLEAN COMPLETE ***"
 
