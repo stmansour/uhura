@@ -28,10 +28,31 @@ func AllAppStatesMatch(es int) bool {
 	return same
 }
 
-func BadState() {
-	ulog("Unrecognized state: %d\nTime to panic\n", UEnv.State)
-	err := fmt.Errorf("Unrecognized state: %d", UEnv.State)
-	check(err)
+func SendReply(w http.ResponseWriter, s string) {
+	m := UhuraResponse{Status: s, Timestamp: time.Now().Format(time.RFC822)}
+	str, err := json.Marshal(m)
+	if nil != err {
+		fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n",
+			"encoding error", time.Now().Format(time.RFC822))
+	} else {
+		fmt.Fprintf(w, string(str))
+	}
+}
+
+func SendOKReply(w http.ResponseWriter) {
+	SendReply(w, "OK")
+}
+
+func BadState(w http.ResponseWriter, s *StatusReq) {
+	r := fmt.Sprintf("BAD STATE: %s", s.State)
+	ulog("%s\n", r)
+	SendReply(w, r)
+}
+
+func BadInstUidCombo(w http.ResponseWriter, s *StatusReq) {
+	r := fmt.Sprintf("BAD INSTANCE-UID: %s-%s", s.InstName, s.UID)
+	ulog("%s\n", r)
+	SendReply(w, r)
 }
 
 // Check the state of all environments and see if a state
@@ -67,7 +88,7 @@ func ChangeState() bool {
 	case UEnv.State == uDONE:
 		ulog("state change check: %s\n", StateToString(UEnv.State))
 	default:
-		BadState()
+		panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
 	}
 	return change
 }
@@ -81,7 +102,7 @@ func ProcessStateChanges() {
 		case UEnv.State == uDONE:
 			ulog("Handle state change to DONE\n")
 		default:
-			BadState()
+			panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
 		}
 	}
 }
@@ -89,21 +110,41 @@ func ProcessStateChanges() {
 //  One of the environments has sent status
 //  Update internals and make any state change that
 //  result from the status update.
-func SetStatus(s *StatusReq) {
+//  the ResponseWriter is passed in to handle the different
+//  error cases we might find.
+func SetStatus(w http.ResponseWriter, s *StatusReq) error {
 	DPrintEnvDescr("Entering SetStatus\n")
+	found := false
 	// Build the quartermaster script to create each environment instance...
-	for i := 0; i < len(UEnv.Instances); i++ {
+	for i := 0; i < len(UEnv.Instances) && !found; i++ {
 		if UEnv.Instances[i].InstName == s.InstName {
-			for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+			for j := 0; j < len(UEnv.Instances[i].Apps) && !found; j++ {
 				if s.UID == UEnv.Instances[i].Apps[j].UID {
-					UEnv.Instances[i].Apps[j].State = StateToInt(s.State)
-					DPrintEnvInstance(&UEnv.Instances[i], i)
-					ProcessStateChanges()
+					found = true
+					st := StateToInt(s.State)
+					if st < 0 {
+						err := fmt.Errorf("Unrecognized State: %s", s.State)
+						DPrintEnvDescr("Exiting SetStatus with error\n")
+						BadState(w, s)
+						return err
+					} else {
+						UEnv.Instances[i].Apps[j].State = st
+						DPrintEnvInstance(&UEnv.Instances[i], i)
+						ProcessStateChanges()
+						SendOKReply(w)
+					}
 				}
 			}
 		}
 	}
+	if !found {
+		err := fmt.Errorf("NO SUCH INSTANCE-UID: %s-%s", s.InstName, s.UID)
+		BadInstUidCombo(w, s)
+		DPrintEnvDescr("Exiting SetStatus with error\n")
+		return err
+	}
 	DPrintEnvDescr("Exiting SetStatus\n")
+	return nil
 }
 
 func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
@@ -111,17 +152,6 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 	ulog("Shutdown Handler\n")
 	ulog("Normal Shutdown\n")
 	os.Exit(0)
-}
-
-func SendOKReply(w http.ResponseWriter) {
-	m := UhuraResponse{Status: "OK", Timestamp: time.Now().Format(time.RFC850)}
-	str, err := json.Marshal(m)
-	if nil != err {
-		fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n",
-			"encoding error", time.Now().Format(time.RFC850))
-	} else {
-		fmt.Fprintf(w, string(str))
-	}
 }
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -137,32 +167,21 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	DPrintStatusMsg(&s)
 
 	//  Scan the datastructure, find this instance, mark its status
-	SetStatus(&s)
-	SendOKReply(w)
+	//  As many errors can occur, we pass in the response writer
+	//  and handle the different returns within SetStatus
+	err = SetStatus(w, &s)
 }
 
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 	ulog("Map Handler\n")
 	DPrintHttpRequest(r)
-	http.ServeFile(w, r, "/Users/sman/Documents/src/go/src/uhura/test/map.json")
-	SendOKReply(w)
-}
 
-func TestStartHandler(w http.ResponseWriter, r *http.Request) {
-	ulog("Test Start Handler\n")
-	DPrintHttpRequest(r)
-	SendOKReply(w)
-}
-
-func TestDoneHandler(w http.ResponseWriter, r *http.Request) {
-	ulog("Test Done Handler\n")
-	DPrintHttpRequest(r)
-	SendOKReply(w)
+	// This is a temporary hack until I can create the real one...
+	http.ServeFile(w, r, "test/master_normal_state_flow/env.json")
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//PrintHttpRequest(r)
 		fn(w, r)
 	}
 }

@@ -5,11 +5,11 @@ HOST=localhost
 PORT=8080
 
 usage() {
-    echo "Usage:   clientsim -n instname -u instanceUid -s state [-h host] [-p port]"
+    echo "Usage:   clientsim -n instname -u instanceUid -s state [-h host] [-p port] [-i]"
     echo "                                state: INIT|READY|TEST|DONE"
     echo "Example: clientsim -p 8123 -n MainTestInstance -u prog1 -s READY"
 }
-while getopts ":n:u:s:p:h:" o; do
+while getopts ":n:u:s:p:ih:" o; do
     case "${o}" in
         n)
             INSTNAME=${OPTARG}
@@ -25,6 +25,9 @@ while getopts ":n:u:s:p:h:" o; do
             ;;
         p)
             PORT=${OPTARG}
+            ;;
+        i)
+            CURLOPTS="-i"
             ;;
         *)
             usage

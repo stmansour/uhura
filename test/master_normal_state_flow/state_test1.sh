@@ -19,10 +19,22 @@
 UHURA_DIR="../.."
 TOOLS_DIR="../tools"
 ENV_DESCR="env.json"
-SLAVELOG="state_test1_slave.log"
+SLAVELOG="state_test1_script.log"
 VERBOSE=0
 UHOST=localhost
 UPORT=8080
+
+if [ ! -e "${UHURA_DIR}/uhura" ]; then
+	if [ -e "${GOPATH}/bin/uhura" ]; then
+		UHURA_DIR="${GOPATH}/bin"
+		echo "**** NOTICE **** uhura was not found in relative location:  ../../uhura"
+		echo "**** NOTICE **** using ${GOPATH}/bin/uhura instead"
+	else
+		echo "**** ERROR **** uhura was not found in ../.. nor in ${GOPATH}/bin"
+		exit 5
+	fi
+fi
+
 
 shutdown() {
 	bash ${TOOLS_DIR}/uhura_shutdown -p {$UPORT} >>${SLAVELOG} 2>&1

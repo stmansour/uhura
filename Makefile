@@ -14,14 +14,15 @@ uhura: *.go
 	@echo "*** BUILD COMPLETED ***"
 
 clean:
-	rm -f uhura
+	go clean
 	cd ./test;make clean
 	@echo "*** CLEAN COMPLETE ***"
 
-test:
+test: coverage
 	cd ./test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
 
 coverage:
-	go test -cover
-	go tool cover -html=cover.out
+	go test -coverprofile=c.out
+	go tool cover -func=c.out
+	go tool cover -html=c.out

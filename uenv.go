@@ -185,8 +185,8 @@ func ExecuteDescriptor() {
 // Parse the environment
 func ParseEnvDescriptor() {
 	// First, see if we can read the file in
-	ulog("ParseEnvDescriptor - Loading %s\n", *Uhura.EnvDescFname)
-	content, e := ioutil.ReadFile(*Uhura.EnvDescFname)
+	ulog("ParseEnvDescriptor - Loading %s\n", Uhura.EnvDescFname)
+	content, e := ioutil.ReadFile(Uhura.EnvDescFname)
 	if e != nil {
 		ulog("File error on Environment Descriptor file: %v\n", e)
 		os.Exit(1) // no recovery from this
