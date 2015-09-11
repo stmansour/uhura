@@ -20,6 +20,7 @@ clean:
 	@echo "*** CLEAN COMPLETE ***"
 
 test:
+	go test
 	cd ./test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
 
