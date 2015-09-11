@@ -26,3 +26,4 @@ coverage:
 	go test -coverprofile=c.out
 	go tool cover -func=c.out
 	go tool cover -html=c.out
+	@echo "*** COVERAGE COMPLETE - ALL UNIT TESTS PASSED ***"
