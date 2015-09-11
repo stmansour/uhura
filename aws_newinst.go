@@ -94,6 +94,10 @@ func LoadNewAwsInstanceInfo(fname string) *AwsNewInstance {
 	}
 
 	inst := new(AwsNewInstance)
-	json.Unmarshal(file, inst)
+	err := json.Unmarshal(file, inst)
+	if nil != err {
+		ulog("Could not unmarshal aws instance")
+	}
+
 	return inst
 }

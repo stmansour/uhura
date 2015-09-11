@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// StatusReq is the data that we'll find in the status requests
+// coming from the clients
 type StatusReq struct {
 	State    string
 	InstName string

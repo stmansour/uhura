@@ -15,10 +15,11 @@ uhura: *.go
 
 clean:
 	go clean
+	rm -f qmstr* c.out
 	cd ./test;make clean
 	@echo "*** CLEAN COMPLETE ***"
 
-test: coverage
+test: 
 	cd ./test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
 
