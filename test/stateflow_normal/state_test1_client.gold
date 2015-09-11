@@ -1,0 +1,8 @@
+prog1 INIT:   {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:07 PDT"}
+prog2 INIT:   {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:07 PDT"}
+prog1 READY:  {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:07 PDT"}
+prog2 READY:  {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:07 PDT"}
+prog1 TEST:   {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:07 PDT"}
+prog2 TEST:   {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:08 PDT"}
+prog1 DONE:   {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:08 PDT"}
+prog2 DONE:   {"Status":"OK","Timestamp":"Tuesday, 08-Sep-15 13:14:08 PDT"}

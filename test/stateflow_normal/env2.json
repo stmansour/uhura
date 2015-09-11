@@ -1,0 +1,34 @@
+{
+    "EnvName": "My Test Environment",
+    "Instances": [
+	{
+	    "InstName": "WinBase",
+	    "OS":       "Windows",
+	    "Count":    1,
+	    "Apps": [
+	        {
+	        	"Name": "deployfile.sh",
+	        	"Repo": "ext-tools/utils",
+	        	"IsTest": false
+	        },
+	        {
+	        	"Name": "getfile.sh",
+	        	"Repo": "ext-tools/utils",
+	        	"IsTest": true
+	        }
+	    ]  
+	},
+	{
+	    "InstName": "LinuxBase",
+	    "OS":       "Linux",
+	    "Count":    2,
+	    "Apps": [
+	    	{
+	    		"Name": "deployfile.sh",
+	    		"Repo": "ext-tools/utils",
+	    		"IsTest": false
+	    	}
+	    ]
+	}
+    ]
+} 
