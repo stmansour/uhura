@@ -23,11 +23,6 @@ type UhuraApp struct {
 	QmstrFtrWin    []byte   // data for the last part of the Windows script
 }
 
-type UhuraResponse struct {
-	Status    string
-	Timestamp string
-}
-
 var Uhura UhuraApp
 
 func ProcessCommandLine() {

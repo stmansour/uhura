@@ -9,11 +9,13 @@
 	        {
 	        	"Name": "deployfile.sh",
 	        	"Repo": "ext-tools/utils",
+	    		"UPort": 8082,
 	        	"IsTest": false
 	        },
 	        {
 	        	"Name": "getfile.sh",
 	        	"Repo": "ext-tools/utils",
+	    		"UPort": 8083,
 	        	"IsTest": true
 	        }
 	    ]  
@@ -21,11 +23,12 @@
 	{
 	    "InstName": "LinuxBase",
 	    "OS":       "Linux",
-	    "Count":    2,
+	    "Count":    1,
 	    "Apps": [
 	    	{
 	    		"Name": "deployfile.sh",
 	    		"Repo": "ext-tools/utils",
+	    		"UPort": 8084,
 	    		"IsTest": false
 	    	}
 	    ]

@@ -15,6 +15,18 @@ type StatusReq struct {
 	Tstamp   string
 }
 
+type UhuraResponse struct {
+	Status    string
+	ReplyCode int
+	Timestamp string
+}
+
+const (
+	RespOK = iota
+	RespNoSuchInstance
+	InvalidState
+)
+
 //  Check for the state of all sub-environments. If they
 //  have all entered the same state return true. Otherwise
 //  return false;
@@ -28,8 +40,9 @@ func AllAppStatesMatch(es int) bool {
 	return same
 }
 
-func SendReply(w http.ResponseWriter, s string) {
-	m := UhuraResponse{Status: s, Timestamp: time.Now().Format(time.RFC822)}
+func SendReply(w http.ResponseWriter, rc int, s string) {
+	w.Header().Set("Content-Type", "application/json")
+	m := UhuraResponse{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
 	str, err := json.Marshal(m)
 	if nil != err {
 		fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n",
@@ -40,19 +53,19 @@ func SendReply(w http.ResponseWriter, s string) {
 }
 
 func SendOKReply(w http.ResponseWriter) {
-	SendReply(w, "OK")
+	SendReply(w, RespOK, "OK")
 }
 
 func BadState(w http.ResponseWriter, s *StatusReq) {
 	r := fmt.Sprintf("BAD STATE: %s", s.State)
 	ulog("%s\n", r)
-	SendReply(w, r)
+	SendReply(w, InvalidState, r)
 }
 
 func BadInstUidCombo(w http.ResponseWriter, s *StatusReq) {
 	r := fmt.Sprintf("BAD INSTANCE-UID: %s-%s", s.InstName, s.UID)
 	ulog("%s\n", r)
-	SendReply(w, r)
+	SendReply(w, RespNoSuchInstance, r)
 }
 
 // Check the state of all environments and see if a state

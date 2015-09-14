@@ -43,7 +43,7 @@ type EnvDescr struct {
 }
 
 //  The main data object for this module
-var UEnv EnvDescr
+var UEnv *EnvDescr
 
 // OK, this is a major cop-out, but not sure what else to do...
 func check(e error) {
