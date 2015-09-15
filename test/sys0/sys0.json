@@ -1,0 +1,19 @@
+{
+    "EnvName": "My Test Environment",
+    "Instances": [
+	{
+	    "InstName": "TGOtest",
+	    "OS":       "Linux",
+	    "Count":    1,
+	    "Apps": [
+	    	{
+	    		"UID": "tgo0",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8082,
+	    		"IsTest": false
+	    	}
+	    ]
+	}
+    ]
+} 
