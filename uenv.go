@@ -7,8 +7,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 const (
@@ -112,8 +114,14 @@ func MakeLinuxScript(i int) {
 	// Now build a script for each instance
 	apps := ""
 	dirs := "mkdir ~/apps\n"
+	ctrl := ""
 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-		apps += fmt.Sprintf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+		apps += fmt.Sprintf("artf_get %s %s.tar.gz\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+		//                            vvvvvv---should be IsController
+		if !UEnv.Instances[i].Apps[j].IsTest {
+			app := UEnv.Instances[i].Apps[j].Name
+			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar;cd %s;./activate.sh START > activate.log 2>&1\n", app, app, app)
+		}
 		dirs += fmt.Sprintf("mkdir ~/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 	}
 
@@ -128,6 +136,7 @@ func MakeLinuxScript(i int) {
 	FileWriteString(f, &phoneHome)
 	FileWriteString(f, &dirs)
 	FileWriteString(f, &apps)
+	FileWriteString(f, &ctrl)
 	f.Sync()
 }
 
@@ -169,8 +178,13 @@ func ExecScript(i int) {
 		script = "cr_linux_testenv.sh"
 	}
 	arg0 := EnvDescrScriptName(i)
+	arg1, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
 	app := fmt.Sprintf("%s/%s", path, script)
-	cmd := exec.Command(app, arg0)
+	cmd := exec.Command(app, arg0, arg1)
+	ulog("exec %s %s %s\n", app, arg0, arg1)
 	stdout, err := cmd.Output()
 	if err != nil {
 		ulog("*** Error *** running %s:  %v\n", app, err.Error())
