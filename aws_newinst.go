@@ -1,3 +1,7 @@
+// This code parses the file returned by 'aws ec2 run-instances --output json ...'
+// It creates a data structure of type AwsNewInstance containing the parsed
+// values of all the data and returns it to the caller.
+
 package main
 
 import (

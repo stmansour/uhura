@@ -1,0 +1,4 @@
+#!/bin/bash
+LOGFILE=t.log
+make >${LOGFILE} 2>&1
+exit

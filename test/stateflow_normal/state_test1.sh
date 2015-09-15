@@ -17,7 +17,7 @@
 #  Version: 0.1  Tue Sep  8 15:39:33 PDT 2015
 
 UHURA_DIR="../.."
-TOOLS_DIR="../tools"
+TOOLS_DIR="/usr/local/accord/testtools"
 ENV_DESCR="env.json"
 SLAVELOG="state_test1_script.log"
 VERBOSE=0
@@ -37,7 +37,7 @@ fi
 
 
 shutdown() {
-	bash ${TOOLS_DIR}/uhura_shutdown -p {$UPORT} >>${SLAVELOG} 2>&1
+	bash ${TOOLS_DIR}/uhura_shutdown.sh -p {$UPORT} >>${SLAVELOG} 2>&1
 	# Give the server a second to shutdown
 	sleep 1
 }
@@ -62,11 +62,11 @@ usage() {
 #---------------------------------------------------------------------
 sendStatus() {
 	if [ ${VERBOSE} -gt 0 ]; then
-		echo "bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"
+		echo "bash ${TOOLS_DIR}/clientsim.sh -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"
 	fi
-	echo -n "bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"  >>${SLAVELOG} 2>&1
+	echo -n "bash ${TOOLS_DIR}/clientsim.sh -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2"  >>${SLAVELOG} 2>&1
 
-	bash ${TOOLS_DIR}/clientsim -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2 >>${SLAVELOG} 2>&1
+	bash ${TOOLS_DIR}/clientsim.sh -h ${UHOST} -p ${UPORT} -n MainTestInstance -u $1 -s $2 >>${SLAVELOG} 2>&1
 	echo >>${SLAVELOG} 2>&1
 }
 

@@ -1,3 +1,6 @@
+// This code parses searches the return data from 'aws ec2 describe-instances --output json ...'
+// for the supplied instance id.
+
 package main
 
 import (

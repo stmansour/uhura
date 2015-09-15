@@ -11,51 +11,51 @@ import (
 	"time"
 )
 
-type StatusReply struct {
-	Status string
-	Tstamp time.Time
+type TestStep struct {
+	State     string
+	InstName  string
+	InstUID   string
+	ReplyCode int
 }
 
-var tests = []struct {
-	State    string
-	InstName string
-	InstUID  string
-	response string
-}{
-	{"ARGH", "MainTestInstance", "wprog2", "BAD INSTANCE-UID: MainTestInstance-wprog2"},
-	{"YUCK", "MainTestInstance", "prog2", "BAD STATE: YUCK"},
-	{"INIT", "MainTestInstance", "prog2", "OK"},
-	{"INIT", "MainWinInstance", "wprog2", "OK"},
-	{"READY", "MainTestInstance", "prog2", "OK"},
-	{"READY", "MainWinInstance", "wprog2", "OK"},
-	{"TEST", "MainTestInstance", "prog2", "OK"},
-	{"TEST", "MainWinInstance", "wprog2", "OK"},
-	{"DONE", "MainTestInstance", "prog2", "OK"},
-	{"DONE", "MainWinInstance", "wprog2", "OK"},
+var test1 = []TestStep{
+	{"ARGH", "MainTestInstance", "wprog2", RespNoSuchInstance},
+	{"YUCK", "MainTestInstance", "prog2", InvalidState},
+	{"INIT", "MainTestInstance", "prog2", RespOK},
+	{"INIT", "MainWinInstance", "wprog2", RespOK},
+	{"READY", "MainTestInstance", "prog2", RespOK},
+	{"READY", "MainWinInstance", "wprog2", RespOK},
+	{"TEST", "MainTestInstance", "prog2", RespOK},
+	{"TEST", "MainWinInstance", "wprog2", RespOK},
+	{"DONE", "MainTestInstance", "prog2", RespOK},
+	{"DONE", "MainWinInstance", "wprog2", RespOK},
 }
 
 func TestStatusHandler(t *testing.T) {
-	Uhura.EnvDescFname = "./test/master_normal_state_flow/env1.json"
+	Uhura.EnvDescFname = "./test/stateflow_normal/env1.json"
 	InitUhura()
 	SetUpHttpEnv()
-	Uhura.Debug = true         // this forces a lot more code to be executed
-	Uhura.DebugToScreen = true // ditto
+
 	ts := httptest.NewServer(http.HandlerFunc(StatusHandler))
 	defer ts.Close()
 
 	url := fmt.Sprintf("%s/status/", ts.URL)
-
-	for i := 0; i < len(tests); i++ {
-		test := tests[i]
-		r := StatusReq{test.State, test.InstName, test.InstUID, time.Now().Format(time.RFC822)}
-		data, _ := json.Marshal(r)
-		body := bytes.NewBuffer(data)
-		reply, _ := http.Post(url, "application/json", body)
-		response, _ := ioutil.ReadAll(reply.Body)
-		resp := new(StatusReply)
-		json.Unmarshal(response, resp)
-		if test.response != resp.Status {
-			t.Errorf("Expected: %s,   Received: %s", test.response, resp.Status)
+	for j := 0; j < 2; j++ {
+		Uhura.DebugToScreen = (j == 0)    // this forces a lot more code to be executed
+		Uhura.Debug = Uhura.DebugToScreen // this forces a lot more code to be executed
+		t.Logf("j=%d, Uhura.DebugToScreen=%v, Uhura.Debug=%v", j, Uhura.DebugToScreen, Uhura.Debug)
+		for i := 0; i < len(test1); i++ {
+			test := test1[i]
+			r := StatusReq{test.State, test.InstName, test.InstUID, time.Now().Format(time.RFC822)}
+			data, _ := json.Marshal(r)
+			body := bytes.NewBuffer(data)
+			reply, _ := http.Post(url, "application/json", body)
+			response, _ := ioutil.ReadAll(reply.Body)
+			resp := new(UResp)
+			json.Unmarshal(response, resp)
+			if test.ReplyCode != resp.ReplyCode {
+				t.Errorf("Expected: %d,   Received: %d", test.ReplyCode, resp.ReplyCode)
+			}
 		}
 	}
 }

@@ -10,6 +10,7 @@
 	    		"UID": "wprog2",
 	        	"Name": "getfile.sh",
 	        	"Repo": "ext-tools/utils",
+	    		"UPort": 8081,
 	        	"IsTest": true
 	        }
 	    ]  
