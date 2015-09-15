@@ -241,6 +241,9 @@ perl -pe 's/master mode on port [0-9]+/Current working directory = SOMEdirectory
 perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' x > x1; mv x1 x
 perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' y > y1; mv y1 y
 
+perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+/exec SOMEPATH/g' x > x1; mv x1 x
+perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' y > y1; mv y1 y
+
 #---------------------------------------------------------------------
 #  Now see how they compare...
 #---------------------------------------------------------------------
