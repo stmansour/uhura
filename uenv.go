@@ -111,8 +111,10 @@ func MakeLinuxScript(i int) {
 	// First, build up a string with all the apps to deploy to this instance
 	// Now build a script for each instance
 	apps := ""
+	dirs := "mkdir ~/apps\n"
 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
 		apps += fmt.Sprintf("artf_get %s %s\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
+		dirs += fmt.Sprintf("mkdir ~/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 	}
 
 	// now we have all wwe need to create and write the file
@@ -124,6 +126,7 @@ func MakeLinuxScript(i int) {
 	defer f.Close()
 	FileWriteBytes(f, Uhura.QmstrBaseLinux)
 	FileWriteString(f, &phoneHome)
+	FileWriteString(f, &dirs)
 	FileWriteString(f, &apps)
 	f.Sync()
 }
