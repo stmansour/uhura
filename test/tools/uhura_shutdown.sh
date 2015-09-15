@@ -24,4 +24,5 @@ done
 shift $((OPTIND-1))
 
 
-curl -s http://${HOST}:${PORT}/shutdown/
+RET=$(curl -s http://${HOST}:${PORT}/shutdown/)
+exit

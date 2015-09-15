@@ -51,7 +51,7 @@ func TestStatusHandler(t *testing.T) {
 			body := bytes.NewBuffer(data)
 			reply, _ := http.Post(url, "application/json", body)
 			response, _ := ioutil.ReadAll(reply.Body)
-			resp := new(UhuraResponse)
+			resp := new(UResp)
 			json.Unmarshal(response, resp)
 			if test.ReplyCode != resp.ReplyCode {
 				t.Errorf("Expected: %d,   Received: %d", test.ReplyCode, resp.ReplyCode)

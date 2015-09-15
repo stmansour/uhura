@@ -10,3 +10,7 @@ test:
 	cd ./stateflow_normal;make test
 	cd ./publicdns;make test
 	@echo "*** TEST COMPLETED in test ***"
+
+install:
+	cd ./tools;make install
+	@echo "*** INSTALL COMPLETED in test ***"

@@ -5,6 +5,7 @@ all: clean uhura test
 
 install: uhura
 	cp uhura /usr/local/accord/bin
+	cd test;make install
 	@echo "*** INSTALL COMPLETED ***"
 
 uhura: *.go

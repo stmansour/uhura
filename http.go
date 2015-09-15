@@ -15,7 +15,7 @@ type StatusReq struct {
 	Tstamp   string
 }
 
-type UhuraResponse struct {
+type UResp struct {
 	Status    string
 	ReplyCode int
 	Timestamp string
@@ -42,7 +42,7 @@ func AllAppStatesMatch(es int) bool {
 
 func SendReply(w http.ResponseWriter, rc int, s string) {
 	w.Header().Set("Content-Type", "application/json")
-	m := UhuraResponse{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
+	m := UResp{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
 	str, err := json.Marshal(m)
 	if nil != err {
 		fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n",
