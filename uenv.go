@@ -10,7 +10,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 )
 
 const (
@@ -178,7 +177,7 @@ func ExecScript(i int) {
 		script = "cr_linux_testenv.sh"
 	}
 	arg0 := EnvDescrScriptName(i)
-	arg1, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	arg1, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}

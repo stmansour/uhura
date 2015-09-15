@@ -7,7 +7,7 @@ SYS0_TEST_DIR=$(pwd)
 UHURAHOST=localhost
 
 if [ $(uname) == "Linux" ]; then
-	UHURAHOST=$(curl http://169.254.169.254/latest/meta-data/public-hostname)
+	UHURAHOST=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
 fi
 
 # Start up uhura with env descr: sys0.json
