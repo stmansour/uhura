@@ -17,12 +17,12 @@
 #  Version: 0.1  Tue Sep  8 15:39:33 PDT 2015
 
 UHURA_DIR="../.."
-TOOLS_DIR="/usr/local/accord/testtools"
 ENV_DESCR="env.json"
 SLAVELOG="state_test1_script.log"
 VERBOSE=0
 UHOST=localhost
-UPORT=8080
+UPORT=8123
+DRYRUN=0
 
 if [ ! -e "${UHURA_DIR}/uhura" ]; then
 	if [ -e "${GOPATH}/bin/uhura" ]; then
@@ -43,15 +43,19 @@ shutdown() {
 }
 
 usage() {
-	echo "Usage: $0 options..." 
-	echo "optons:"
-	echo "    -q           quiet mode"
-	echo "    -d uhuraDir  directory where uhura executable lives"
-	echo "    -t toolsDir  directory where test tools reside"
-	echo "    -e envDescr  environment descriptor"
-	echo "    -v           enables verbose mode"
-    echo "   [-p port]     default is 8080"
-    echo "   [-h host]     default is localhost"
+	cat << ZZEOF
+Usage: $0 options...
+optons:
+    -q           quiet mode
+    -d uhuraDir  directory where uhura executable lives
+    -t toolsDir  directory where test tools reside
+    -e envDescr  environment descriptor
+    -n           dry-run mode.  Do not create new cloud instances.
+    -v           enables verbose mode
+   [-p port]     default is 8080
+   [-h host]     default is localhost
+ZZEOF
+	
 	exit 1
 }
 
@@ -74,10 +78,13 @@ sendStatus() {
 #  optspec begins with ':', option letters follow, if the
 #  option takes a param then it is followed by ':'
 #---------------------------------------------------------------------
-while getopts ":vd:t:e:p:h:" o; do
+while getopts ":vnd:t:e:p:h:" o; do
     case "${o}" in
         v)
             VERBOSE=1
+            ;;
+        n)
+            DRYRUN=1
             ;;
         d)
             UHURA_DIR=${OPTARG}
@@ -91,7 +98,6 @@ while getopts ":vd:t:e:p:h:" o; do
         p)
             UPORT=${OPTARG}
             ;;
-
         h)
 			UHOST=${OPTARG}
 			;;
@@ -102,33 +108,31 @@ while getopts ":vd:t:e:p:h:" o; do
 done
 shift $((OPTIND-1))
 
-if [ ${VERBOSE} -gt 0 ]; then
-    echo "Current working directory = $(pwd)"
-	UVERBOSE="-D"
-	echo "VERBOSE = ${VERBOSE}"
-	echo "UHURA_DIR = ${UHURA_DIR}"
-	echo "TOOLS_DIR = ${TOOLS_DIR}"
-	echo "ENV_DESCR = ${ENV_DESCR}"
+if [ ${DRYRUN} -gt 0 ]; then
+	UDRYRUN="-n"
 fi
 
-#---------------------------------------------------------------------
-#  Stop early if uhura is already running on this box...
-#---------------------------------------------------------------------
-# COUNT=$(ps -ef | grep uhura | grep -v grep | wc -l)
-# if [ ${COUNT} -gt 0 ]; then
-# 	echo "*** ERROR: There is another instance of uhura already running..."
-# 	ps -ef | grep uhura | grep -v grep 
-# 	echo "***        Stop this instance and try again."
-# 	exit 1
-# fi
+if [ ${VERBOSE} -gt 0 ]; then
+	UVERBOSE="-D"
+    echo "Current working directory = $(pwd)" >>${SLAVELOG} 2>&1
+	echo "DRYRUN = ${DRYRUN}" >>${SLAVELOG} 2>&1
+	echo "UDRYRUN = ${UDRYRUN}" >>${SLAVELOG} 2>&1
+	echo "VERBOSE = ${VERBOSE}" >>${SLAVELOG} 2>&1
+	echo "UHURA_DIR = ${UHURA_DIR}" >>${SLAVELOG} 2>&1
+	echo "TOOLS_DIR = ${TOOLS_DIR}" >>${SLAVELOG} 2>&1
+	echo "ENV_DESCR = ${ENV_DESCR}" >>${SLAVELOG} 2>&1
+fi
+
 
 #---------------------------------------------------------------------
 #  Find accord bin...
 #---------------------------------------------------------------------
 if [ -d /usr/local/accord/bin ]; then
 	ACCORDBIN=/usr/local/accord/bin
+	TOOLS_DIR="/usr/local/accord/testtools"
 elif [ -d /c/Accord/bin ]; then
 	ACCORDBIN=/c/Accord/bin
+	TOOLS_DIR="/c/Accord/testtools"
 else
 	echo "*** ERROR: Required directory /usr/local/accord/bin or /c/Accord/bin does not exist."
 	echo "           Please repair installation and try again."
@@ -136,6 +140,20 @@ else
 fi
 if [ ${VERBOSE} -gt 0 ]; then
 	echo "ACCORDBIN = ${ACCORDBIN}"
+fi
+
+#---------------------------------------------------------------------
+#  hard stance now... if uhura is running on our port, stop it first
+#---------------------------------------------------------------------
+COUNT=$(ps -ef | grep uhura | grep -v grep | grep ${UPORT} | wc -l)
+if [ ${COUNT} -gt 0 ]; then
+	echo "*** NOTICE: attempting to stop uhura already running on port ${UPORT}..."
+	${TOOLS_DIR}/uhura_shutdown.sh -p ${UPORT}
+	COUNT=$(ps -ef | grep uhura | grep -v grep | grep ${UPORT} | wc -l)
+	if [ ${COUNT} -gt 0 ]; then
+		echo "*** cannot stop it.  exiting..."
+		exit 6
+	fi
 fi
 
 #---------------------------------------------------------------------
@@ -157,7 +175,8 @@ if [ $missing -gt 0 ]; then
 fi
 
 rm -f qm* *.log *.out
-${UHURA_DIR}/uhura -p ${UPORT} -d ${UVERBOSE} -e ${ENV_DESCR} >uhura.out 2>&1 &
+echo "${UHURA_DIR}/uhura -p ${UPORT} -d ${UVERBOSE} ${UDRYRUN} -e ${ENV_DESCR} >uhura.out 2>&1 &" >>${SLAVELOG} 2>&1
+${UHURA_DIR}/uhura -p ${UPORT} -d ${UVERBOSE} ${UDRYRUN} -e ${ENV_DESCR} >uhura.out 2>&1 &
 
 #---------------------------------------------------------------------
 # Give the server a second startup
@@ -241,7 +260,7 @@ perl -pe 's/master mode on port [0-9]+/Current working directory = SOMEdirectory
 perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' x > x1; mv x1 x
 perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' y > y1; mv y1 y
 
-perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+/exec SOMEPATH/g' x > x1; mv x1 x
+perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' x > x1; mv x1 x
 perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' y > y1; mv y1 y
 
 #---------------------------------------------------------------------

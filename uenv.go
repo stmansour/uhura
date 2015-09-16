@@ -115,7 +115,7 @@ func MakeLinuxScript(i int) {
 	dirs := "mkdir ~ec2-user/apps;cd apps\n"
 	ctrl := ""
 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-		dirs += fmt.Sprintf("mkdir ~/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
+		dirs += fmt.Sprintf("mkdir ~ec2-user/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 		apps += fmt.Sprintf("artf_get %s %s.tar.gz\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
 
 		//TODO:                       vvvvvv---should be IsController
@@ -179,17 +179,20 @@ func ExecScript(i int) {
 	}
 
 	// Gather the args...
+	app := fmt.Sprintf("%s/%s", path, script)
 	arg0 := EnvDescrScriptName(i)
 	arg1, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	app := fmt.Sprintf("%s/%s", path, script)
-	args := []string{arg0, arg1}
+	arg2 := ""
+	if Uhura.DryRun {
+		arg2 = "-n"
+	}
 
 	// Run it
-	ulog("exec %s %s %s\n", app, arg0, arg1)
-	if err := exec.Command(app, args...).Run(); err != nil {
+	ulog("exec %s %s %s %s", app, arg0, arg1, arg2)
+	if err := exec.Command(app, arg0, arg1, arg2).Run(); err != nil {
 		ulog("*** Error *** running %s:  %v\n", app, err.Error())
 	}
 }

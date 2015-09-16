@@ -15,6 +15,7 @@ type UhuraApp struct {
 	Port           int      // What port are we listening on
 	Debug          bool     // Debug mode -- show ulog messages on screen
 	DebugToScreen  bool     // Send logging info to screen too
+	DryRun         bool     // when true, scripts it produces skip calls to create new cloud instances
 	MasterURL      string   // URL where master can be contacted
 	EnvDescFname   string   // The filename of the Environment Descriptor
 	LogFile        *os.File // Uhura's logfile
@@ -29,6 +30,7 @@ func ProcessCommandLine() {
 	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
 	portPtr := flag.Int("p", 8080, "port on which uhura listens")
+	dryrPtr := flag.Bool("n", false, "Dry Run - don't actually create new instances on AWS")
 	envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
 	murlPtr := flag.String("t", "localhost", "public dns hostname where master can be contacted")
 	flag.Parse()
@@ -36,6 +38,7 @@ func ProcessCommandLine() {
 	Uhura.Port = *portPtr
 	Uhura.Debug = *dbugPtr
 	Uhura.DebugToScreen = *dtscPtr
+	Uhura.DryRun = *dryrPtr
 
 	if len(*envdPtr) == 0 {
 		fmt.Printf("*** ERROR *** Environment descriptor is required for operation in master mode\n")
@@ -63,6 +66,7 @@ func InitUhura() {
 	}
 	ulog("Current working directory = %v\n", dir)
 	ulog("environment descriptor: %s\n", Uhura.EnvDescFname)
+	ulog("Port=%d, Debug=%v, DryRun=%v\n", Uhura.Port, Uhura.Debug, Uhura.DryRun)
 }
 
 func SetUpHttpEnv() {
