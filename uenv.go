@@ -112,16 +112,17 @@ func MakeLinuxScript(i int) {
 	// First, build up a string with all the apps to deploy to this instance
 	// Now build a script for each instance
 	apps := ""
-	dirs := "mkdir ~/apps\n"
+	dirs := "mkdir ~ec2-user/apps;cd apps\n"
 	ctrl := ""
 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+		dirs += fmt.Sprintf("mkdir ~/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 		apps += fmt.Sprintf("artf_get %s %s.tar.gz\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
-		//                            vvvvvv---should be IsController
+
+		//TODO:                       vvvvvv---should be IsController
 		if !UEnv.Instances[i].Apps[j].IsTest {
 			app := UEnv.Instances[i].Apps[j].Name
 			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar;cd %s;./activate.sh START > activate.log 2>&1\n", app, app, app)
 		}
-		dirs += fmt.Sprintf("mkdir ~/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 	}
 
 	// now we have all wwe need to create and write the file
@@ -176,19 +177,21 @@ func ExecScript(i int) {
 	} else {
 		script = "cr_linux_testenv.sh"
 	}
+
+	// Gather the args...
 	arg0 := EnvDescrScriptName(i)
 	arg1, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 	app := fmt.Sprintf("%s/%s", path, script)
-	cmd := exec.Command(app, arg0, arg1)
+	args := []string{arg0, arg1}
+
+	// Run it
 	ulog("exec %s %s %s\n", app, arg0, arg1)
-	stdout, err := cmd.Output()
-	if err != nil {
+	if err := exec.Command(app, args...).Run(); err != nil {
 		ulog("*** Error *** running %s:  %v\n", app, err.Error())
 	}
-	ulog("exec %s\noutput:\n%s\n", app, string(stdout))
 }
 
 // Execute the descriptor.  That means create the environment(s).

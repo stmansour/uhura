@@ -1,10 +1,10 @@
-2015/09/15 13:20:41 **********   U H U R A   **********
-2015/09/15 13:20:41 Uhura starting on port 8123
-2015/09/15 13:20:41 Debug logging enabled
-2015/09/15 13:20:41 Current working directory = /Users/sman/Documents/src/go/src/uhura
-2015/09/15 13:20:41 environment descriptor: env.json
-2015/09/15 13:20:41 ParseEnvDescriptor - Loading env.json
-2015/09/15 13:20:41 {
+2015/09/15 17:27:39 **********   U H U R A   **********
+2015/09/15 17:27:39 Uhura starting on port 8123
+2015/09/15 17:27:39 Debug logging enabled
+2015/09/15 17:27:39 Current working directory = /Users/sman/Documents/src/go/src/uhura
+2015/09/15 17:27:39 environment descriptor: env.json
+2015/09/15 17:27:39 ParseEnvDescriptor - Loading env.json
+2015/09/15 17:27:39 {
     "EnvName": "My Test Environment",
     "Instances": [
 	{
@@ -31,714 +31,711 @@
     ]
 } 
 
-2015/09/15 13:20:41 UEnv after initial parse:
-2015/09/15 13:20:41 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:41 EnvName  : My Test Environment
-2015/09/15 13:20:41 State    : 0 (INIT)
-2015/09/15 13:20:41 UhuraPort: 0
-2015/09/15 13:20:41 Instances: 1
-2015/09/15 13:20:41     Instance[0]
-2015/09/15 13:20:41 	InstName    : MainTestInstance
-2015/09/15 13:20:41 	OS          : Linux
-2015/09/15 13:20:41 	Apps        :
-2015/09/15 13:20:41 		UID         : prog1
-2015/09/15 13:20:41 		Name        : myapp
-2015/09/15 13:20:41 		Repo        : ext-tools/utils
-2015/09/15 13:20:41 		PublicDNS   : 
-2015/09/15 13:20:41 		UPort       : 8081
-2015/09/15 13:20:41 		IsTest      : false
-2015/09/15 13:20:41 		State       : 0 (INIT)
-2015/09/15 13:20:41 		RunCmd      : 
-2015/09/15 13:20:41 		--------------
-2015/09/15 13:20:41 		UID         : prog2
-2015/09/15 13:20:41 		Name        : mytest
-2015/09/15 13:20:41 		Repo        : ext-tools/utils
-2015/09/15 13:20:41 		PublicDNS   : 
-2015/09/15 13:20:41 		UPort       : 8082
-2015/09/15 13:20:41 		IsTest      : false
-2015/09/15 13:20:41 		State       : 0 (INIT)
-2015/09/15 13:20:41 		RunCmd      : 
-2015/09/15 13:20:41 		--------------
-2015/09/15 13:20:41 exec /usr/local/accord/bin/cr_linux_testenv.sh qmstr-MainTestInstance.sh /Users/sman/Documents/src/go/src/uhura
-2015/09/15 13:20:41 exec /usr/local/accord/bin/cr_linux_testenv.sh
-output:
-aws ec2 run-instances --output json --image-id ami-1ecae776 --count 1 --instance-type t2.micro --key-name smanAWS1  --security-groups Linux-Jenkins-CI  --user-data file://qmstr-MainTestInstance.sh >> qmstr-MainTestInstance.sh.json
-
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: INIT
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog1
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: INIT
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog2
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: READY
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog1
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: READY
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog2
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 0 (INIT)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 0 (INIT)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 state changing from INIT to TEST
-2015/09/15 13:20:42 Handle state change to TEST
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: TEST
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog1
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: TEST
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog2
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 1 (READY)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: DONE
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog1
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Status Handler
-2015/09/15 13:20:42 Status Message
-2015/09/15 13:20:42 	State: DONE
-2015/09/15 13:20:42 	InstName: MainTestInstance
-2015/09/15 13:20:42 	UID: prog2
-2015/09/15 13:20:42 	Tstamp: Tue Sep 15 13:20:42 PDT 2015
-2015/09/15 13:20:42 Entering SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 2 (TEST)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 2 (TEST)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 state change to DONE
-2015/09/15 13:20:42 Handle state change to DONE
-2015/09/15 13:20:42 Exiting SetStatus
-2015/09/15 13:20:42 ----------------------  UEnv  ----------------------
-2015/09/15 13:20:42 EnvName  : My Test Environment
-2015/09/15 13:20:42 State    : 3 (DONE)
-2015/09/15 13:20:42 UhuraPort: 8080
-2015/09/15 13:20:42 Instances: 1
-2015/09/15 13:20:42     Instance[0]
-2015/09/15 13:20:42 	InstName    : MainTestInstance
-2015/09/15 13:20:42 	OS          : Linux
-2015/09/15 13:20:42 	Apps        :
-2015/09/15 13:20:42 		UID         : prog1
-2015/09/15 13:20:42 		Name        : myapp
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8081
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 		UID         : prog2
-2015/09/15 13:20:42 		Name        : mytest
-2015/09/15 13:20:42 		Repo        : ext-tools/utils
-2015/09/15 13:20:42 		PublicDNS   : 
-2015/09/15 13:20:42 		UPort       : 8082
-2015/09/15 13:20:42 		IsTest      : false
-2015/09/15 13:20:42 		State       : 3 (DONE)
-2015/09/15 13:20:42 		RunCmd      : 
-2015/09/15 13:20:42 		--------------
-2015/09/15 13:20:42 Shutdown Handler
-2015/09/15 13:20:42 Normal Shutdown
+2015/09/15 17:27:39 UEnv after initial parse:
+2015/09/15 17:27:39 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:39 EnvName  : My Test Environment
+2015/09/15 17:27:39 State    : 0 (INIT)
+2015/09/15 17:27:39 UhuraPort: 0
+2015/09/15 17:27:39 Instances: 1
+2015/09/15 17:27:39     Instance[0]
+2015/09/15 17:27:39 	InstName    : MainTestInstance
+2015/09/15 17:27:39 	OS          : Linux
+2015/09/15 17:27:39 	Apps        :
+2015/09/15 17:27:39 		UID         : prog1
+2015/09/15 17:27:39 		Name        : myapp
+2015/09/15 17:27:39 		Repo        : ext-tools/utils
+2015/09/15 17:27:39 		PublicDNS   : 
+2015/09/15 17:27:39 		UPort       : 8081
+2015/09/15 17:27:39 		IsTest      : false
+2015/09/15 17:27:39 		State       : 0 (INIT)
+2015/09/15 17:27:39 		RunCmd      : 
+2015/09/15 17:27:39 		--------------
+2015/09/15 17:27:39 		UID         : prog2
+2015/09/15 17:27:39 		Name        : mytest
+2015/09/15 17:27:39 		Repo        : ext-tools/utils
+2015/09/15 17:27:39 		PublicDNS   : 
+2015/09/15 17:27:39 		UPort       : 8082
+2015/09/15 17:27:39 		IsTest      : false
+2015/09/15 17:27:39 		State       : 0 (INIT)
+2015/09/15 17:27:39 		RunCmd      : 
+2015/09/15 17:27:39 		--------------
+2015/09/15 17:27:39 exec /usr/local/accord/bin/cr_linux_testenv.sh qmstr-MainTestInstance.sh /Users/sman/Documents/src/go/src/uhura/test/stateflow_normal
+2015/09/15 17:27:40 *** Error *** running /usr/local/accord/bin/cr_linux_testenv.sh:  exit status 255
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: INIT
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog1
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: INIT
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog2
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: READY
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog1
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: READY
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog2
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 0 (INIT)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 0 (INIT)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 state changing from INIT to TEST
+2015/09/15 17:27:40 Handle state change to TEST
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: TEST
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog1
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: TEST
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog2
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 1 (READY)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: DONE
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog1
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Status Handler
+2015/09/15 17:27:40 Status Message
+2015/09/15 17:27:40 	State: DONE
+2015/09/15 17:27:40 	InstName: MainTestInstance
+2015/09/15 17:27:40 	UID: prog2
+2015/09/15 17:27:40 	Tstamp: Tue Sep 15 17:27:40 PDT 2015
+2015/09/15 17:27:40 Entering SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 2 (TEST)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 2 (TEST)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 state change to DONE
+2015/09/15 17:27:40 Handle state change to DONE
+2015/09/15 17:27:40 Exiting SetStatus
+2015/09/15 17:27:40 ----------------------  UEnv  ----------------------
+2015/09/15 17:27:40 EnvName  : My Test Environment
+2015/09/15 17:27:40 State    : 3 (DONE)
+2015/09/15 17:27:40 UhuraPort: 8080
+2015/09/15 17:27:40 Instances: 1
+2015/09/15 17:27:40     Instance[0]
+2015/09/15 17:27:40 	InstName    : MainTestInstance
+2015/09/15 17:27:40 	OS          : Linux
+2015/09/15 17:27:40 	Apps        :
+2015/09/15 17:27:40 		UID         : prog1
+2015/09/15 17:27:40 		Name        : myapp
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8081
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 		UID         : prog2
+2015/09/15 17:27:40 		Name        : mytest
+2015/09/15 17:27:40 		Repo        : ext-tools/utils
+2015/09/15 17:27:40 		PublicDNS   : 
+2015/09/15 17:27:40 		UPort       : 8082
+2015/09/15 17:27:40 		IsTest      : false
+2015/09/15 17:27:40 		State       : 3 (DONE)
+2015/09/15 17:27:40 		RunCmd      : 
+2015/09/15 17:27:40 		--------------
+2015/09/15 17:27:40 Shutdown Handler
+2015/09/15 17:27:40 Normal Shutdown
