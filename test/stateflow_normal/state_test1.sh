@@ -203,16 +203,16 @@ if [ ! -e uhura.log ]; then
 	exit 1
 fi
 
-mv uhura.log state_test1_master.log
+mv uhura.log state_test1.log
 
 #---------------------------------------------------------------------
 #  Files produced:
-#     * state_test1_master.log  - uhura log file from this test run
+#     * state_test1.log  - uhura log file from this test run
 #     * state_test1_slave.log   - output from the client simulator (currently not used)
 
 #  Other file definitions:
-#     * state_test1_master.gold - uhura log file from this test case where the information
-#                                in the log file is known to be correct.
+#     * state_test1.gold - uhura log file from this test case where the information
+#                          in the log file is known to be correct.
 
 #  Compare the "gold" output to log file output from this run
 #     *  ignore differences in timestamps
@@ -241,11 +241,11 @@ mv uhura.log state_test1_master.log
 #          fine, but if we see any miscompares in timestamps, look closely at the regexps.
 #---------------------------------------------------------------------
 #           |     year     /   month   /   day  | |   hr    :    min   :    sec  |   everything else
-perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1_master.gold   \
+perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1.gold   \
 | perl -pe 's/Tstamp: [A-Z][a-z]{2} [A-Z][a-z]{2} [ 0-1][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [A-Z]{3} 20[1-4][0-9]/Tstamp: TIMESTAMP/' > x
 #                     |     dow    |   month      |   dom    |    hour  :    min   :   sec    |   TZ   |  year     |
 
-perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1_master.log   \
+perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1.log   \
 | perl -pe 's/Tstamp: [A-Z][a-z]{2} [A-Z][a-z]{2} [ 0-1][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [A-Z]{3} 20[1-4][0-9]/Tstamp: TIMESTAMP/' > y
 
 #---------------------------------------------------------------------
