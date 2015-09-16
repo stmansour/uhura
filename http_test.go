@@ -33,6 +33,7 @@ var test1 = []TestStep{
 
 func TestStatusHandler(t *testing.T) {
 	Uhura.EnvDescFname = "./test/stateflow_normal/env1.json"
+	Uhura.DryRun = true
 	InitUhura()
 	SetUpHttpEnv()
 

@@ -137,6 +137,8 @@ func MakeLinuxScript(i int) {
 	FileWriteString(f, &dirs)
 	FileWriteString(f, &apps)
 	FileWriteString(f, &ctrl)
+	finish := fmt.Sprint("cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
+	FileWriteString(f, &finish)
 	f.Sync()
 }
 
