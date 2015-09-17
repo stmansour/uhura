@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	uINIT  = iota
-	uREADY = iota
-	uTEST  = iota
-	uDONE  = iota
+	uINIT = iota
+	uREADY
+	uTEST
+	uDONE
 )
 
 type AppDescr struct {
@@ -38,6 +38,7 @@ type InstDescr struct {
 
 type EnvDescr struct {
 	EnvName   string
+	UhuraHost string
 	UhuraPort int
 	State     int
 	Instances []InstDescr
@@ -137,8 +138,19 @@ func MakeLinuxScript(i int) {
 	FileWriteString(f, &dirs)
 	FileWriteString(f, &apps)
 	FileWriteString(f, &ctrl)
-	finish := fmt.Sprint("cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
-	FileWriteString(f, &finish)
+	content, err := ioutil.ReadFile(Uhura.EnvDescFname)
+	check(err)
+	s := "cat >env.json <<ZZEOF\n"
+	FileWriteString(f, &s)
+	FileWriteBytes(f, content)
+	s = "ZZEOF\n"
+	FileWriteString(f, &s)
+
+	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
+	// started up, then change the ownership.
+	startitup := fmt.Sprint("sleep 1;cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
+	FileWriteString(f, &startitup)
+
 	f.Sync()
 }
 

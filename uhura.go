@@ -31,8 +31,8 @@ func ProcessCommandLine() {
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
 	portPtr := flag.Int("p", 8080, "port on which uhura listens")
 	dryrPtr := flag.Bool("n", false, "Dry Run - don't actually create new instances on AWS")
-	envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
-	murlPtr := flag.String("t", "localhost", "public dns hostname where master can be contacted")
+	envdPtr := flag.String("e", "", "environment descriptor filename, required")
+	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
 	flag.Parse()
 
 	Uhura.Port = *portPtr
@@ -45,7 +45,12 @@ func ProcessCommandLine() {
 		os.Exit(2)
 	}
 
-	Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
+	if *murlPtr == "" {
+		s, _ := os.Hostname()
+		Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", s, Uhura.Port)
+	} else {
+		Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
+	}
 	Uhura.EnvDescFname = fmt.Sprintf("%s", *envdPtr)
 	fmt.Printf("Uhura.EnvDescFname = %s\n", Uhura.EnvDescFname)
 }
@@ -53,7 +58,7 @@ func ProcessCommandLine() {
 func InitUhura() {
 	log.SetOutput(Uhura.LogFile)
 	ulog("**********   U H U R A   **********\n")
-	ulog("Uhura starting on port %d\n", Uhura.Port)
+	ulog("Uhura starting on: %s\n", Uhura.MasterURL)
 	if Uhura.Debug {
 		ulog("Debug logging enabled\n")
 	}
@@ -126,6 +131,7 @@ func main() {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer Uhura.LogFile.Close()
+	log.SetOutput(Uhura.LogFile)
 
 	// OK, now on with the show...
 	ProcessCommandLine()

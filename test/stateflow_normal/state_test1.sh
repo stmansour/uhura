@@ -263,6 +263,9 @@ perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOME
 perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' x > x1; mv x1 x
 perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' y > y1; mv y1 y
 
+perl -pe 's/^Uhura starting on:.*/URL: somehost:someport/' x > x1; mv x1 x
+perl -pe 's/^Uhura starting on:.*/URL: somehost:someport/' y > y1; mv y1 y
+
 #---------------------------------------------------------------------
 #  Now see how they compare...
 #---------------------------------------------------------------------
