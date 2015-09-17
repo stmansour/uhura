@@ -131,7 +131,7 @@ func MakeLinuxScript(i int) {
 		//TODO:                       vvvvvv---should be IsController
 		if !UEnv.Instances[i].Apps[j].IsTest {
 			app := UEnv.Instances[i].Apps[j].Name
-			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar;cd %s;./activate.sh START > activate.log 2>&1\n", app, app, app)
+			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar;cd %s\n", app, app, app)
 		}
 	}
 
@@ -163,8 +163,10 @@ func MakeLinuxScript(i int) {
 
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
 	// started up, then change the ownership.
-	startitup := fmt.Sprint("sleep 1;cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
+	startitup := fmt.Sprint("./activate.sh START > activate.log 2>&1\n")
 	FileWriteString(f, &startitup)
+	s = fmt.Sprintf("sleep 1;cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
+	FileWriteString(f, &s)
 
 	f.Sync()
 }
@@ -173,7 +175,7 @@ func MakeLinuxScript(i int) {
 // The machine bring-up scripts are created at the same time.
 func CreateInstanceScripts() {
 	if 0 == UEnv.UhuraPort {
-		UEnv.UhuraPort = 8080 // default port for Uhura
+		UEnv.UhuraPort = 8100 // default port for Uhura
 	}
 	// Build the quartermaster script to create each environment instance...
 	for i := 0; i < len(UEnv.Instances); i++ {
