@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 //  The application data structure
@@ -45,11 +47,23 @@ func ProcessCommandLine() {
 		os.Exit(2)
 	}
 
-	if *murlPtr == "" {
-		s, _ := os.Hostname()
+	// It's not as straightforward as you might think to set the hostname
+	// On a home network (like mine), the host name is not in anyone's dns, so
+	// using the hostname as a network address is useless. Here's the logic that
+	// seems to work...
+	s := ""
+	if *murlPtr == "" { // if nothing was specified on the cmd line
+		uname, _ := exec.Command("sh", "-c", "uname").Output() // determine the OS name
+		sysname := string(uname)
+		sysname = strings.TrimRight(sysname, "\n\r")
+		if "Darwin" == string(sysname) { // if a Mac, we almost certainly want to use localhost
+			s = "localhost" // so use localhost
+		} else { // if not, we're probably on AWS, so...
+			s, _ = os.Hostname() // just use the host name
+		}
 		Uhura.URL = fmt.Sprintf("http://%s:%d/", s, Uhura.Port)
 	} else {
-		Uhura.URL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
+		Uhura.URL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port) // use what was specified on the cmd line
 	}
 	Uhura.EnvDescFname = fmt.Sprintf("%s", *envdPtr)
 	fmt.Printf("Uhura.EnvDescFname = %s\n", Uhura.EnvDescFname)

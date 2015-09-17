@@ -36,10 +36,18 @@ type InstDescr struct {
 	Apps     []AppDescr
 }
 
+//  Environment Descriptor. This struct defines a test (or production) environment.
+//  EnvName is the name associated with the collection of Instances
+//  UhuraURL is the http url where tgo instances should contact uhura
+//  UhuraPort (may not be needed) is the port on which uhura listens. Default is 8100
+//  ThisInst - when this value is present, it is to inform a tgo instance which instance it is.
+//  State = the overall state of the environment, one of  INIT, READY, TEST, DONE
+//  Instances - an array of instance descriptors that describe each instance in the environment.
 type EnvDescr struct {
 	EnvName   string
 	UhuraURL  string
 	UhuraPort int
+	ThisInst  string
 	State     int
 	Instances []InstDescr
 }
@@ -138,12 +146,18 @@ func MakeLinuxScript(i int) {
 	FileWriteString(f, &dirs)
 	FileWriteString(f, &apps)
 	FileWriteString(f, &ctrl)
-	content, err := ioutil.ReadFile(Uhura.EnvDescFname)
-	check(err)
-	s := "cat >env.json <<ZZEOF\n"
+
+	s := "cat >uhura_map.json <<ZZEOF\n"
 	FileWriteString(f, &s)
-	FileWriteBytes(f, content)
-	s = "ZZEOF\n"
+
+	// content, err := ioutil.ReadFile(Uhura.EnvDescFname)
+	// check(err)
+	// FileWriteBytes(f, content)
+	UEnv.ThisInst = UEnv.Instances[i].InstName
+	b, err := json.Marshal(&UEnv)
+	FileWriteBytes(f, b)
+
+	s = "\nZZEOF\n"
 	FileWriteString(f, &s)
 
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
@@ -250,7 +264,7 @@ func ParseEnvDescriptor() {
 
 	// Add Uhura's URL to the environment description
 	UEnv.UhuraURL = Uhura.URL
-	WriteEnvDescr()
+	// WriteEnvDescr()   // removed -- I think we'll write it from memory each time because we need to set ThisInst name.
 
 	// Now that we have the datastructure filled in, we can
 	// begin to execute it.

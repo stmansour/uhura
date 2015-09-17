@@ -1,9 +1,9 @@
 2015/09/16 22:15:03 **********   U H U R A   **********
-2015/09/16 22:15:03 Uhura starting on: http://Steves-MacBook-Pro-2.local:8123/
+2015/09/16 22:15:03 Uhura starting on: http://Steves-MacBook-Pro-2.local:8100/
 2015/09/16 22:15:03 Debug logging enabled
 2015/09/16 22:15:03 Current working directory = /Users/sman/Documents/src/go/src/uhura
 2015/09/16 22:15:03 environment descriptor: env.json
-2015/09/16 22:15:03 Port=8123, Debug=true, DryRun=true
+2015/09/16 22:15:03 Port=8100, Debug=true, DryRun=true
 2015/09/16 22:15:03 ParseEnvDescriptor - Loading env.json
 2015/09/16 22:15:03 {
     "EnvName": "My Test Environment",

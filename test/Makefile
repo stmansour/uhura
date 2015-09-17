@@ -7,8 +7,8 @@ clean:
 	@echo "*** CLEAN COMPLETED in test ***"
 
 test:
-	# shutdown any running uhura on our port (8123)
-	if [ `ps -ef | grep uhura | grep -v grep | grep "p 8123" | wc -l` -gt 0 ]; then RET=`/usr/local/accord/testtools/uhura_shutdown.sh -p 8123`;echo "uhura normal shutdown"; fi
+	# shutdown any running uhura on our port (8100)
+	if [ `ps -ef | grep uhura | grep -v grep | grep "p 8100" | wc -l` -gt 0 ]; then RET=`/usr/local/accord/testtools/uhura_shutdown.sh -p 8100`;echo "uhura normal shutdown"; fi
 	cd ./stateflow_normal;make test
 	cd ./publicdns;make test
 	@echo "*** TEST COMPLETED in test ***"

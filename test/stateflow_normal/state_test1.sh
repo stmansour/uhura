@@ -21,7 +21,7 @@ ENV_DESCR="env.json"
 SLAVELOG="state_test1_script.log"
 VERBOSE=0
 UHOST=localhost
-UPORT=8123
+UPORT=8100
 DRYRUN=0
 
 if [ ! -e "${UHURA_DIR}/uhura" ]; then
