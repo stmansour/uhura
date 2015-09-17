@@ -16,7 +16,7 @@ type UhuraApp struct {
 	Debug          bool     // Debug mode -- show ulog messages on screen
 	DebugToScreen  bool     // Send logging info to screen too
 	DryRun         bool     // when true, scripts it produces skip calls to create new cloud instances
-	MasterURL      string   // URL where master can be contacted
+	URL            string   // URL where master can be contacted
 	EnvDescFname   string   // The filename of the Environment Descriptor
 	LogFile        *os.File // Uhura's logfile
 	QmstrBaseLinux []byte   // data for first part of the Linux shell script
@@ -47,9 +47,9 @@ func ProcessCommandLine() {
 
 	if *murlPtr == "" {
 		s, _ := os.Hostname()
-		Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", s, Uhura.Port)
+		Uhura.URL = fmt.Sprintf("http://%s:%d/", s, Uhura.Port)
 	} else {
-		Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
+		Uhura.URL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
 	}
 	Uhura.EnvDescFname = fmt.Sprintf("%s", *envdPtr)
 	fmt.Printf("Uhura.EnvDescFname = %s\n", Uhura.EnvDescFname)
@@ -58,7 +58,7 @@ func ProcessCommandLine() {
 func InitUhura() {
 	log.SetOutput(Uhura.LogFile)
 	ulog("**********   U H U R A   **********\n")
-	ulog("Uhura starting on: %s\n", Uhura.MasterURL)
+	ulog("Uhura starting on: %s\n", Uhura.URL)
 	if Uhura.Debug {
 		ulog("Debug logging enabled\n")
 	}

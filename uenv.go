@@ -20,25 +20,25 @@ const (
 )
 
 type AppDescr struct {
-	UID       string
-	Name      string
-	Repo      string
-	PublicDNS string
-	UPort     int
-	IsTest    bool
-	State     int
-	RunCmd    string
+	UID    string
+	Name   string
+	Repo   string
+	UPort  int
+	IsTest bool
+	State  int
+	RunCmd string
 }
 
 type InstDescr struct {
 	InstName string
 	OS       string
+	HostName string
 	Apps     []AppDescr
 }
 
 type EnvDescr struct {
 	EnvName   string
-	UhuraHost string
+	UhuraURL  string
 	UhuraPort int
 	State     int
 	Instances []InstDescr
@@ -100,7 +100,7 @@ func MakeWindowsScript(i int) {
 	check(err)
 	defer f.Close()
 	FileWriteBytes(f, Uhura.QmstrHdrWin)
-	phoneHome := fmt.Sprintf("$UHURA_MASTER_URL = \"%s\"\n", Uhura.MasterURL)
+	phoneHome := fmt.Sprintf("$UHURA_MASTER_URL = \"%s\"\n", Uhura.URL)
 	phoneHome += fmt.Sprintf("$MY_INSTANCE_NAME = \"%s\"\n", UEnv.Instances[i].InstName)
 	FileWriteString(f, &apps)
 	FileWriteString(f, &phoneHome)
@@ -128,7 +128,7 @@ func MakeLinuxScript(i int) {
 
 	// now we have all wwe need to create and write the file
 	qmstr := EnvDescrScriptName(i)
-	phoneHome := fmt.Sprintf("UHURA_MASTER_URL=%s\n", Uhura.MasterURL)
+	phoneHome := fmt.Sprintf("UHURA_MASTER_URL=%s\n", Uhura.URL)
 	phoneHome += fmt.Sprintf("MY_INSTANCE_NAME=\"%s\"\n", UEnv.Instances[i].InstName)
 	f, err := os.Create(qmstr)
 	check(err)
@@ -218,6 +218,16 @@ func ExecuteDescriptor() {
 	}
 }
 
+func WriteEnvDescr() {
+	// Now generate the env.json file that we'll send to all the instances
+	b, err := json.Marshal(&UEnv)
+	f, err := os.Create("uhura_map.json")
+	check(err)
+	defer f.Close()
+	FileWriteBytes(f, b)
+	f.Sync()
+}
+
 // Parse the environment
 func ParseEnvDescriptor() {
 	// First, see if we can read the file in
@@ -237,6 +247,10 @@ func ParseEnvDescriptor() {
 		check(err)
 	}
 	DPrintEnvDescr("UEnv after initial parse:")
+
+	// Add Uhura's URL to the environment description
+	UEnv.UhuraURL = Uhura.URL
+	WriteEnvDescr()
 
 	// Now that we have the datastructure filled in, we can
 	// begin to execute it.

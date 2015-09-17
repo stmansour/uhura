@@ -109,12 +109,12 @@ func PrintEnvInstance(e *InstDescr, i int) {
 	ulog("    Instance[%d]\n", i)
 	ulog("\tInstName    : %s\n", e.InstName)
 	ulog("\tOS          : %s\n", e.OS)
+	ulog("\t\tHostName   : %s\n", e.HostName)
 	ulog("\tApps        :\n")
 	for j := 0; j < len(e.Apps); j++ {
 		ulog("\t\tUID         : %s\n", e.Apps[j].UID)
 		ulog("\t\tName        : %s\n", e.Apps[j].Name)
 		ulog("\t\tRepo        : %s\n", e.Apps[j].Repo)
-		ulog("\t\tPublicDNS   : %s\n", e.Apps[j].PublicDNS)
 		ulog("\t\tUPort       : %d\n", e.Apps[j].UPort)
 		ulog("\t\tIsTest      : %v\n", e.Apps[j].IsTest)
 		ulog("\t\tState       : %s\n", StateToString(e.Apps[j].State))
