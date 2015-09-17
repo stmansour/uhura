@@ -41,13 +41,14 @@ type InstDescr struct {
 //  UhuraURL is the http url where tgo instances should contact uhura
 //  UhuraPort (may not be needed) is the port on which uhura listens. Default is 8100
 //  ThisInst - when this value is present, it is to inform a tgo instance which instance it is.
+//             The value is the index into the instances array.
 //  State = the overall state of the environment, one of  INIT, READY, TEST, DONE
 //  Instances - an array of instance descriptors that describe each instance in the environment.
 type EnvDescr struct {
 	EnvName   string
 	UhuraURL  string
 	UhuraPort int
-	ThisInst  string
+	ThisInst  int
 	State     int
 	Instances []InstDescr
 }
@@ -153,7 +154,7 @@ func MakeLinuxScript(i int) {
 	// content, err := ioutil.ReadFile(Uhura.EnvDescFname)
 	// check(err)
 	// FileWriteBytes(f, content)
-	UEnv.ThisInst = UEnv.Instances[i].InstName
+	UEnv.ThisInst = i
 	b, err := json.Marshal(&UEnv)
 	FileWriteBytes(f, b)
 
