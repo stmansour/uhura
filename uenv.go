@@ -245,9 +245,24 @@ func ExecuteDescriptor() {
 	// the describe-instances json, then parse it for the public dns names
 	// for each of our instances.
 	if !Uhura.DryRun {
-		if err := exec.Command("aws", "ec2", "describe-instances", "--output", "json", ">descrinst.json").Run(); err != nil {
+		if err := exec.Command("aws", "ec2", "describe-instances", "--output", "json").Run(); err != nil {
 			ulog("*** Error *** running aws ec2 describe-instances --output json:  %v\n", err.Error())
 		}
+		//----------------
+		// args := []string{"ec2", "describe-instances", "--output", "json"}
+		// cmd := exec.Command("aws", args...)
+		// var out bytes.Buffer
+		// cmd.Stdout = &out
+		// if err := cmd.Run(); err != nil {
+		// 	fmt.Printf("*** Error *** running aws ec2 describe-instances:  %v\n", err.Error())
+		// }
+
+		// err := json.Unmarshal(out.Bytes(), &term)
+		// if err != nil {
+		// 	ulog("Error Unmarshaling output from aws ec2 terminate-instances: %s\n", err)
+		// }
+
+		//--------------------
 		for i := 0; i < len(UEnv.Instances); i++ {
 			UEnv.Instances[i].HostName = SearchReservationsForPublicDNS("descrinst.json", UEnv.Instances[i].InstAwsID)
 		}

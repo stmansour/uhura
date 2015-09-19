@@ -109,17 +109,14 @@ type AwsRes struct {
 	} `json:"Instances"`
 }
 
-//type AwsResList map[string]AwsRes
-
 // Return the publicDNS name for the supplied instance
 func SearchReservationsForPublicDNS(fname, instid string) string {
-	file, e := ioutil.ReadFile(fname)
+	b, e := ioutil.ReadFile(fname)
 	if e != nil {
 		fmt.Printf("File error: %v\n", e)
 		os.Exit(1)
 	}
-
-	d := json.NewDecoder(strings.NewReader(string(file)))
+	d := json.NewDecoder(strings.NewReader(string(b)))
 
 	// read the open bracket...
 	_, err := d.Token()
@@ -138,4 +135,5 @@ func SearchReservationsForPublicDNS(fname, instid string) string {
 		}
 	}
 	return ""
+
 }

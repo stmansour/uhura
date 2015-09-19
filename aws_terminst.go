@@ -32,13 +32,13 @@ func AWSTerminateInstances() {
 		var out bytes.Buffer
 		cmd.Stdout = &out
 		if err := cmd.Run(); err != nil {
-			fmt.Printf("*** Error *** running aws ec2 terminate-instaces:  %v\n", err.Error())
+			fmt.Printf("*** Error *** running aws ec2 terminate-instances:  %v\n", err.Error())
 		}
 
 		var term AwsTerm
 		err := json.Unmarshal(out.Bytes(), &term)
 		if err != nil {
-			ulog("Error Unmarshaling output from aws ec2 terminate-instaces: %s\n", err)
+			ulog("Error Unmarshaling output from aws ec2 terminate-instances: %s\n", err)
 		}
 		// TODO:  check to make sure all instances actually got deleted
 	}
