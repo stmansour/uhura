@@ -112,8 +112,18 @@ func ProcessStateChanges() {
 		switch {
 		case UEnv.State == uTEST:
 			ulog("Handle state change to TEST\n")
+			// send message to all tgos that we move to TEST
+
 		case UEnv.State == uDONE:
 			ulog("Handle state change to DONE\n")
+			AWSTerminateInstances()
+			for i := 0; i < len(UEnv.Instances); i++ {
+				for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+					UEnv.Instances[i].Apps[j].State = uTERM
+				}
+			}
+			DPrintEnvDescr("Terminated All Instances")
+
 		default:
 			panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
 		}
@@ -142,7 +152,7 @@ func SetStatus(w http.ResponseWriter, s *StatusReq) error {
 						return err
 					} else {
 						UEnv.Instances[i].Apps[j].State = st
-						DPrintEnvInstance(&UEnv.Instances[i], i) //<<<<<<<<<<<<<<<<<########
+						DPrintEnvInstance(&UEnv.Instances[i], i)
 						ProcessStateChanges()
 						SendOKReply(w)
 					}

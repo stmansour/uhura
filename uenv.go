@@ -17,6 +17,7 @@ const (
 	uREADY
 	uTEST
 	uDONE
+	uTERM
 )
 
 type AppDescr struct {
@@ -30,10 +31,11 @@ type AppDescr struct {
 }
 
 type InstDescr struct {
-	InstName string
-	OS       string
-	HostName string
-	Apps     []AppDescr
+	InstName  string
+	OS        string
+	HostName  string
+	InstAwsID string
+	Apps      []AppDescr
 }
 
 //  Environment Descriptor. This struct defines a test (or production) environment.
@@ -49,7 +51,7 @@ type EnvDescr struct {
 	UhuraURL  string
 	UhuraPort int
 	ThisInst  int
-	State     int
+	State     int // overall state of the environment
 	Instances []InstDescr
 }
 
@@ -226,12 +228,30 @@ func ExecScript(i int) {
 	if err := exec.Command(app, arg0, arg1, arg2).Run(); err != nil {
 		ulog("*** Error *** running %s:  %v\n", app, err.Error())
 	}
+
+	// Read in the response
+	if !Uhura.DryRun {
+		awsinstance := AWSLoadNewInstanceInfo(arg0 + ".json")
+		UEnv.Instances[i].InstAwsID = awsinstance.Instances[0].Instanceid
+	}
 }
 
 // Execute the descriptor.  That means create the environment(s).
 func ExecuteDescriptor() {
 	for i := 0; i < len(UEnv.Instances); i++ {
 		ExecScript(i)
+	}
+	// After all the execs have been done, we need to ask aws for
+	// the describe-instances json, then parse it for the public dns names
+	// for each of our instances.
+	if !Uhura.DryRun {
+		if err := exec.Command("aws", "ec2", "describe-instances", "--output", "json", ">descrinst.json").Run(); err != nil {
+			ulog("*** Error *** running aws ec2 describe-instances --output json:  %v\n", err.Error())
+		}
+		for i := 0; i < len(UEnv.Instances); i++ {
+			UEnv.Instances[i].HostName = SearchReservationsForPublicDNS("descrinst.json", UEnv.Instances[i].InstAwsID)
+		}
+		DPrintEnvDescr("UEnv after launching all instances:")
 	}
 }
 

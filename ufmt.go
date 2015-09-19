@@ -68,6 +68,8 @@ func StateToInt(s string) int {
 		i = uTEST
 	case s == "DONE":
 		i = uDONE
+	case s == "TERM":
+		i = uTERM
 	default:
 		i = -1
 	}
@@ -85,6 +87,8 @@ func StateToString(i int) string {
 		s = "TEST"
 	case i == uDONE:
 		s = "DONE"
+	case i == uTERM:
+		s = "TERM"
 	default:
 		s = "<<unknown state>>"
 	}
