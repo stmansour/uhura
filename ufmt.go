@@ -92,11 +92,13 @@ func StateToString(i int) string {
 }
 
 func PrintStatusMsg(s *StatusReq) {
+	ulog("##########################################\n")
 	ulog("Status Message\n")
-	ulog("\tState: %s\n", s.State)
-	ulog("\tInstName: %s\n", s.InstName)
-	ulog("\tUID: %s\n", s.UID)
-	ulog("\tTstamp: %s\n", s.Tstamp)
+	ulog("\tState:		%s\n", s.State)
+	ulog("\tInstName:	%s\n", s.InstName)
+	ulog("\tUID:		%s\n", s.UID)
+	ulog("\tTstamp:		%s\n", s.Tstamp)
+	ulog("##########################################\n")
 }
 
 func DPrintStatusMsg(s *StatusReq) {
@@ -109,7 +111,7 @@ func PrintEnvInstance(e *InstDescr, i int) {
 	ulog("    Instance[%d]\n", i)
 	ulog("\tInstName    : %s\n", e.InstName)
 	ulog("\tOS          : %s\n", e.OS)
-	ulog("\t\tHostName   : %s\n", e.HostName)
+	ulog("\tHostName    : %s\n", e.HostName)
 	ulog("\tApps        :\n")
 	for j := 0; j < len(e.Apps); j++ {
 		ulog("\t\tUID         : %s\n", e.Apps[j].UID)
@@ -119,7 +121,7 @@ func PrintEnvInstance(e *InstDescr, i int) {
 		ulog("\t\tIsTest      : %v\n", e.Apps[j].IsTest)
 		ulog("\t\tState       : %s\n", StateToString(e.Apps[j].State))
 		ulog("\t\tRunCmd      : %s\n", e.Apps[j].RunCmd)
-		ulog("\t\t--------------\n")
+		ulog("\t\t-------------------------------------\n")
 	}
 }
 

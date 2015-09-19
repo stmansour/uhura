@@ -126,7 +126,7 @@ func ProcessStateChanges() {
 //  the ResponseWriter is passed in to handle the different
 //  error cases we might find.
 func SetStatus(w http.ResponseWriter, s *StatusReq) error {
-	DPrintEnvDescr("Entering SetStatus\n")
+	ulog("Entering SetStatus\n")
 	found := false
 	// Build the quartermaster script to create each environment instance...
 	for i := 0; i < len(UEnv.Instances) && !found; i++ {
@@ -142,7 +142,7 @@ func SetStatus(w http.ResponseWriter, s *StatusReq) error {
 						return err
 					} else {
 						UEnv.Instances[i].Apps[j].State = st
-						DPrintEnvInstance(&UEnv.Instances[i], i)
+						DPrintEnvInstance(&UEnv.Instances[i], i) //<<<<<<<<<<<<<<<<<########
 						ProcessStateChanges()
 						SendOKReply(w)
 					}
@@ -153,10 +153,11 @@ func SetStatus(w http.ResponseWriter, s *StatusReq) error {
 	if !found {
 		err := fmt.Errorf("NO SUCH INSTANCE-UID: %s-%s", s.InstName, s.UID)
 		BadInstUidCombo(w, s)
-		DPrintEnvDescr("Exiting SetStatus with error\n")
+		//DPrintEnvDescr("Exiting SetStatus with error\n")
 		return err
 	}
-	DPrintEnvDescr("Exiting SetStatus\n")
+	// DPrintEnvDescr("Exiting SetStatus\n")
+	ulog("Exiting SetStatus\n")
 	return nil
 }
 
@@ -169,7 +170,6 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	ulog("Status Handler\n")
-	DPrintHttpRequest(r)
 
 	decoder := json.NewDecoder(r.Body)
 	var s StatusReq
