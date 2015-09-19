@@ -117,11 +117,12 @@ func ProcessStateChanges() {
 		case UEnv.State == uDONE:
 			ulog("Handle state change to DONE\n")
 			AWSTerminateInstances()
-			for i := 0; i < len(UEnv.Instances); i++ {
-				for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-					UEnv.Instances[i].Apps[j].State = uTERM
-				}
-			}
+			// for i := 0; i < len(UEnv.Instances); i++ {
+			// 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+			// 		UEnv.Instances[i].Apps[j].State = uTERM
+			// 	}
+			// }
+			// UEnv.State = uTERM
 			DPrintEnvDescr("Terminated All Instances")
 
 		default:
@@ -150,12 +151,11 @@ func SetStatus(w http.ResponseWriter, s *StatusReq) error {
 						DPrintEnvDescr("Exiting SetStatus with error\n")
 						BadState(w, s)
 						return err
-					} else {
-						UEnv.Instances[i].Apps[j].State = st
-						DPrintEnvInstance(&UEnv.Instances[i], i)
-						ProcessStateChanges()
-						SendOKReply(w)
 					}
+					UEnv.Instances[i].Apps[j].State = st
+					DPrintEnvInstance(&UEnv.Instances[i], i)
+					ProcessStateChanges()
+					SendOKReply(w)
 				}
 			}
 		}

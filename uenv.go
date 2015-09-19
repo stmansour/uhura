@@ -17,7 +17,8 @@ const (
 	uREADY
 	uTEST
 	uDONE
-	uTERM
+
+//	uTERM
 )
 
 type AppDescr struct {
@@ -96,7 +97,7 @@ func MakeWindowsScript(i int) {
 	comma := ","
 	apps := ""
 	var eol *string
-	var n int = len(UEnv.Instances[i].Apps)
+	n := len(UEnv.Instances[i].Apps)
 	for j := 0; j < n; j++ {
 		if 1+j == n {
 			eol = &empty
