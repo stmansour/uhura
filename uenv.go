@@ -1,7 +1,7 @@
 package main
 
 // This package is devoted to handling the environment descriptor
-// and making it real.
+// and managing its resources.
 
 import (
 	"encoding/json"

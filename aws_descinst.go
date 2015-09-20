@@ -125,7 +125,6 @@ func ReadAllAwsInstances(fname string) {
 	if e != nil {
 		log.Fatal(e)
 	}
-	fmt.Printf("We read: %d reservations\n", len(AllAwsInstances.Reservations))
 }
 
 func SearchReservationsForPublicDNS(iid string) string {

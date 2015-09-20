@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 //  The application data structure
@@ -132,6 +133,14 @@ func SetUpHttpEnv() {
 	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
 	http.HandleFunc("/status/", makeHandler(StatusHandler))
 	http.HandleFunc("/map/", makeHandler(MapHandler))
+}
+
+func exit_uhura() {
+	time.Sleep(3 * time.Second) // this is a hack until we work out the channel logic
+	ulog("Shutdown Handler\n")
+	ulog("Normal Shutdown\n")
+	ulog("Exiting uhura\n")
+	os.Exit(0)
 }
 
 func main() {

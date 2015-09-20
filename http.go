@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -74,8 +73,6 @@ func BadInstUidCombo(w http.ResponseWriter, s *StatusReq) {
 func ChangeState() bool {
 	change := false // assume nothing changes
 
-	// A state change has occurred. Update the state
-	// of the whole environment...
 	switch {
 	case UEnv.State == uINIT:
 		// is everyone in the READY state now???
@@ -84,6 +81,8 @@ func ChangeState() bool {
 			// Let's transition to the Testing state
 			change = true
 			UEnv.State = uTEST
+			// TODO: send a message to all TGO instances
+			//       informing them to transition to TEST
 			ulog("state changing from INIT to TEST\n")
 		}
 	case UEnv.State == uREADY:
@@ -124,6 +123,7 @@ func ProcessStateChanges() {
 			// }
 			// UEnv.State = uTERM
 			DPrintEnvDescr("Terminated All Instances")
+			exit_uhura()
 
 		default:
 			panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
@@ -163,28 +163,22 @@ func SetStatus(w http.ResponseWriter, s *StatusReq) error {
 	if !found {
 		err := fmt.Errorf("NO SUCH INSTANCE-UID: %s-%s", s.InstName, s.UID)
 		BadInstUidCombo(w, s)
-		//DPrintEnvDescr("Exiting SetStatus with error\n")
 		return err
 	}
-	// DPrintEnvDescr("Exiting SetStatus\n")
 	ulog("Exiting SetStatus\n")
 	return nil
 }
 
 func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 	SendOKReply(w)
-	ulog("Shutdown Handler\n")
-	ulog("Normal Shutdown\n")
-	os.Exit(0)
+	exit_uhura()
 }
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	ulog("Status Handler\n")
-
-	decoder := json.NewDecoder(r.Body)
 	var s StatusReq
-	err := decoder.Decode(&s)
-	if err != nil {
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&s); err != nil {
 		panic(err)
 	}
 	DPrintStatusMsg(&s)
@@ -192,7 +186,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	//  Scan the datastructure, find this instance, mark its status
 	//  As many errors can occur, we pass in the response writer
 	//  and handle the different returns within SetStatus
-	err = SetStatus(w, &s)
+	SetStatus(w, &s)
 }
 
 func MapHandler(w http.ResponseWriter, r *http.Request) {
