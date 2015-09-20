@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
 )
 
 const (
@@ -238,11 +239,12 @@ func ExecScript(i int) {
 }
 
 func SetInstanceHostNames() {
-
+	ReadAllAwsInstances("descrinst.json")
 	for i := 0; i < len(UEnv.Instances); i++ {
-		UEnv.Instances[i].HostName = SearchReservationsForPublicDNS("descrinst.json", UEnv.Instances[i].InstAwsID)
+		ulog("Search for InstAwsID = %s\n", UEnv.Instances[i].InstAwsID)
+		UEnv.Instances[i].HostName = SearchReservationsForPublicDNS(UEnv.Instances[i].InstAwsID)
 	}
-
+	DPrintEnvDescr("UEnv after launching all instances:")
 }
 
 // Execute the descriptor.  That means create the environment(s).
@@ -254,6 +256,14 @@ func ExecuteDescriptor() {
 	// the describe-instances json, then parse it for the public dns names
 	// for each of our instances.
 	if !Uhura.DryRun {
+		// the problem with doing this right away is that it takes
+		// aws some time to get all the public dns stuff worked out.
+		// So, if we call it immediately, things won't work. We need to
+		// wait some (unknown) amount of time.  Let's give it 15 sec and see
+		// how we do.
+		// This is really bad... we need to figure out something else
+		time.Sleep(15 * time.Second)
+
 		args := []string{"ec2", "describe-instances", "--output", "json"}
 		cmd := exec.Command("aws", args...)
 		outfile, err := os.Create("descrinst.json")
@@ -269,7 +279,6 @@ func ExecuteDescriptor() {
 		}
 		cmd.Wait()
 		SetInstanceHostNames()
-		DPrintEnvDescr("UEnv after launching all instances:")
 	}
 }
 
