@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -15,6 +14,7 @@ type StatusReq struct {
 	InstName string
 	UID      string
 	Tstamp   string
+	w        http.ResponseWriter
 }
 
 type UResp struct {
@@ -29,6 +29,18 @@ const (
 	InvalidState
 )
 
+func SendReply(w http.ResponseWriter, rc int, s string) {
+	w.Header().Set("Content-Type", "application/json")
+	m := UResp{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
+	str, err := json.Marshal(m)
+	if nil != err {
+		fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n",
+			"encoding error", time.Now().Format(time.RFC822))
+	} else {
+		fmt.Fprintf(w, string(str))
+	}
+}
+
 //  Check for the state of all sub-environments. If they
 //  have all entered the same state return true. Otherwise
 //  return false;
@@ -42,32 +54,34 @@ func AllAppStatesMatch(es int) bool {
 	return same
 }
 
-func SendReply(w http.ResponseWriter, rc int, s string) {
-	w.Header().Set("Content-Type", "application/json")
-	m := UResp{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
-	str, err := json.Marshal(m)
-	if nil != err {
-		fmt.Fprintf(w, "{\n\"Status\": \"%s\"\n\"Timestamp:\": \"%s\"\n}\n",
-			"encoding error", time.Now().Format(time.RFC822))
-	} else {
-		fmt.Fprintf(w, string(str))
+//  Check for all states being beyond the supplied state.
+//  This can happen during initialization when some instances
+//  are in the READY state before others have gotten past
+//  the UNKNOWN state.
+func AllAppStatesPast(es int) bool {
+	past := true
+	for i := 0; past && i < len(UEnv.Instances); i++ {
+		for j := 0; past && j < len(UEnv.Instances[i].Apps); j++ {
+			past = (es < UEnv.Instances[i].Apps[j].State)
+		}
 	}
+	return past
 }
 
-func SendOKReply(w http.ResponseWriter) {
-	SendReply(w, RespOK, "OK")
+func SendOKReply(s *StatusReq) {
+	SendReply(s.w, RespOK, "OK")
 }
 
-func BadState(w http.ResponseWriter, s *StatusReq) {
+func BadState(s *StatusReq) {
 	r := fmt.Sprintf("BAD STATE: %s", s.State)
 	ulog("%s\n", r)
-	SendReply(w, InvalidState, r)
+	SendReply(s.w, InvalidState, r)
 }
 
-func BadInstUidCombo(w http.ResponseWriter, s *StatusReq) {
+func BadInstUidCombo(s *StatusReq) {
 	r := fmt.Sprintf("BAD INSTANCE-UID: %s-%s", s.InstName, s.UID)
 	ulog("%s\n", r)
-	SendReply(w, RespNoSuchInstance, r)
+	SendReply(s.w, RespNoSuchInstance, r)
 }
 
 // Check the state of all environments and see if a state
@@ -76,9 +90,13 @@ func BadInstUidCombo(w http.ResponseWriter, s *StatusReq) {
 func ChangeState() bool {
 	change := false // assume nothing changes
 
-	// A state change has occurred. Update the state
-	// of the whole environment...
 	switch {
+	case UEnv.State == uUNKNOWN:
+		if AllAppStatesMatch(uINIT) || AllAppStatesPast(uUNKNOWN) {
+			change = true
+			UEnv.State = uINIT
+			ulog("state changing from UNKNOWN to INIT\n")
+		}
 	case UEnv.State == uINIT:
 		// is everyone in the READY state now???
 		if AllAppStatesMatch(uREADY) {
@@ -86,12 +104,13 @@ func ChangeState() bool {
 			// Let's transition to the Testing state
 			change = true
 			UEnv.State = uTEST
+			// TODO: send a message to all TGO instances
+			//       informing them to transition to TEST
 			ulog("state changing from INIT to TEST\n")
 		}
 	case UEnv.State == uREADY:
-		// We should never get here. When all
-		// sub-environments report ready, we move straight
-		// to the testing state
+		ulog("ChangeState: we're in the READY state\n")
+
 	case UEnv.State == uTEST:
 		if AllAppStatesMatch(uDONE) {
 			// Great all environments report testing completed.
@@ -110,81 +129,113 @@ func ChangeState() bool {
 
 // Perform any state changes needed...
 func ProcessStateChanges() {
-	if ChangeState() {
-		switch {
-		case UEnv.State == uTEST:
-			ulog("Handle state change to TEST\n")
-		case UEnv.State == uDONE:
-			ulog("Handle state change to DONE\n")
-		default:
-			panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
+	for change := true; change; {
+		change = ChangeState()
+		if change {
+			switch {
+			case UEnv.State == uINIT:
+				ulog("All environments have reported in.")
+				// nothing to do until they're all in READY state
+
+			case UEnv.State == uTEST:
+				ulog("Handle state change to TEST\n")
+				// send message to all tgos that we move to TEST
+
+			case UEnv.State == uDONE:
+				ulog("Handle state change to DONE\n")
+				if Uhura.KeepEnv {
+					ulog("Will not terminate environment instances, as uhura was run with -k (keep)\n")
+				} else {
+					AWSTerminateInstances()
+					for i := 0; i < len(UEnv.Instances); i++ {
+						for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+							UEnv.Instances[i].Apps[j].State = uTERM
+						}
+					}
+				}
+				UEnv.State = uTERM
+				DPrintEnvDescr("Terminated All Instances")
+				exit_uhura()
+
+			default:
+				ulog("State reported: %d\n", UEnv.State)
+				fmt.Printf("UEnv.State = %d\n", UEnv.State)
+				panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
+			}
 		}
 	}
 }
 
-//  One of the environments has sent status
-//  Update internals and make any state change that
+//  When an http handler has an update to make, it pushes
+//  the status request onto the channel Uhura.TgoStatus .
+//  We read it from the channel and process it here. Other
+//  handlers will block until this routine finishes.
+//
+//	Update internals and make any state change that
 //  result from the status update.
-//  the ResponseWriter is passed in to handle the different
-//  error cases we might find.
-func SetStatus(w http.ResponseWriter, s *StatusReq) error {
-	DPrintEnvDescr("Entering SetStatus\n")
+
+//func SetStatus(w http.ResponseWriter, s *StatusReq) error {
+func HandleSetStatus(s *StatusReq) {
+	DPrintStatusMsg(s) // print what we got
 	found := false
-	// Build the quartermaster script to create each environment instance...
 	for i := 0; i < len(UEnv.Instances) && !found; i++ {
-		if UEnv.Instances[i].InstName == s.InstName {
-			for j := 0; j < len(UEnv.Instances[i].Apps) && !found; j++ {
-				if s.UID == UEnv.Instances[i].Apps[j].UID {
-					found = true
-					st := StateToInt(s.State)
-					if st < 0 {
-						err := fmt.Errorf("Unrecognized State: %s", s.State)
-						DPrintEnvDescr("Exiting SetStatus with error\n")
-						BadState(w, s)
-						return err
-					} else {
-						UEnv.Instances[i].Apps[j].State = st
-						DPrintEnvInstance(&UEnv.Instances[i], i)
-						ProcessStateChanges()
-						SendOKReply(w)
-					}
-				}
+		if UEnv.Instances[i].InstName != s.InstName {
+			continue
+		}
+		for j := 0; j < len(UEnv.Instances[i].Apps) && !found; j++ {
+			if s.UID != UEnv.Instances[i].Apps[j].UID {
+				continue
+			}
+			found = true
+			st := StateToInt(s.State)
+			if st < 0 {
+				_ = fmt.Errorf("Unrecognized State: %s", s.State)
+				DPrintEnvDescr("Exiting SetStatus with error\n")
+				BadState(s)
+			} else {
+				UEnv.Instances[i].Apps[j].State = st
+				DPrintEnvInstance(&UEnv.Instances[i], i)
+				ProcessStateChanges()
+				SendOKReply(s)
 			}
 		}
 	}
 	if !found {
-		err := fmt.Errorf("NO SUCH INSTANCE-UID: %s-%s", s.InstName, s.UID)
-		BadInstUidCombo(w, s)
-		DPrintEnvDescr("Exiting SetStatus with error\n")
-		return err
+		_ = fmt.Errorf("NO SUCH INSTANCE-UID: %s-%s", s.InstName, s.UID)
+		BadInstUidCombo(s)
 	}
-	DPrintEnvDescr("Exiting SetStatus\n")
-	return nil
 }
 
+func SetStatus() {
+	ulog("Entering SetStatus\n")
+	for {
+		// timeout := time.After(1 * time.Minute)
+		select {
+		case s := <-Uhura.TgoStatus:
+			HandleSetStatus(&s)
+			// case <-timeout:
+			// 	fmt.Printf("SetStatus() - 1 min timeout\n")
+			// 	return
+		}
+	}
+}
 func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
-	SendOKReply(w)
-	ulog("Shutdown Handler\n")
-	ulog("Normal Shutdown\n")
-	os.Exit(0)
+	SendReply(w, RespOK, "OK")
+	exit_uhura()
 }
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	ulog("Status Handler\n")
-	DPrintHttpRequest(r)
-
-	decoder := json.NewDecoder(r.Body)
 	var s StatusReq
-	err := decoder.Decode(&s)
-	if err != nil {
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&s); err != nil {
 		panic(err)
 	}
-	DPrintStatusMsg(&s)
 
-	//  Scan the datastructure, find this instance, mark its status
 	//  As many errors can occur, we pass in the response writer
 	//  and handle the different returns within SetStatus
-	err = SetStatus(w, &s)
+	s.w = w
+	Uhura.TgoStatus <- s
 }
 
 func MapHandler(w http.ResponseWriter, r *http.Request) {

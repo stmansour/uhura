@@ -22,6 +22,7 @@ clean:
 
 test:
 	go test
+	cp uhura /usr/local/accord/bin/
 	cd ./test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
 

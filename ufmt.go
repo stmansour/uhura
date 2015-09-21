@@ -60,6 +60,8 @@ func DPrintHttpRequest(r *http.Request) {
 func StateToInt(s string) int {
 	var i int
 	switch {
+	case s == "UNKNOWN":
+		i = uUNKNOWN
 	case s == "INIT":
 		i = uINIT
 	case s == "READY":
@@ -68,6 +70,8 @@ func StateToInt(s string) int {
 		i = uTEST
 	case s == "DONE":
 		i = uDONE
+	case s == "TERM":
+		i = uTERM
 	default:
 		i = -1
 	}
@@ -77,6 +81,8 @@ func StateToInt(s string) int {
 func StateToString(i int) string {
 	var s string
 	switch {
+	case i == uUNKNOWN:
+		s = "UNKNOWN"
 	case i == uINIT:
 		s = "INIT"
 	case i == uREADY:
@@ -85,6 +91,8 @@ func StateToString(i int) string {
 		s = "TEST"
 	case i == uDONE:
 		s = "DONE"
+	case i == uTERM:
+		s = "TERM"
 	default:
 		s = "<<unknown state>>"
 	}
@@ -92,11 +100,13 @@ func StateToString(i int) string {
 }
 
 func PrintStatusMsg(s *StatusReq) {
+	ulog("##########################################\n")
 	ulog("Status Message\n")
-	ulog("\tState: %s\n", s.State)
-	ulog("\tInstName: %s\n", s.InstName)
-	ulog("\tUID: %s\n", s.UID)
-	ulog("\tTstamp: %s\n", s.Tstamp)
+	ulog("\tState:		%s\n", s.State)
+	ulog("\tInstName:	%s\n", s.InstName)
+	ulog("\tUID:		%s\n", s.UID)
+	ulog("\tTstamp:		%s\n", s.Tstamp)
+	ulog("##########################################\n")
 }
 
 func DPrintStatusMsg(s *StatusReq) {
@@ -109,17 +119,18 @@ func PrintEnvInstance(e *InstDescr, i int) {
 	ulog("    Instance[%d]\n", i)
 	ulog("\tInstName    : %s\n", e.InstName)
 	ulog("\tOS          : %s\n", e.OS)
+	ulog("\tHostName    : %s\n", e.HostName)
+	ulog("\tInstAwsID   : %s\n", e.InstAwsID)
 	ulog("\tApps        :\n")
 	for j := 0; j < len(e.Apps); j++ {
 		ulog("\t\tUID         : %s\n", e.Apps[j].UID)
 		ulog("\t\tName        : %s\n", e.Apps[j].Name)
 		ulog("\t\tRepo        : %s\n", e.Apps[j].Repo)
-		ulog("\t\tPublicDNS   : %s\n", e.Apps[j].PublicDNS)
 		ulog("\t\tUPort       : %d\n", e.Apps[j].UPort)
 		ulog("\t\tIsTest      : %v\n", e.Apps[j].IsTest)
 		ulog("\t\tState       : %s\n", StateToString(e.Apps[j].State))
 		ulog("\t\tRunCmd      : %s\n", e.Apps[j].RunCmd)
-		ulog("\t\t--------------\n")
+		ulog("\t\t-------------------------------------\n")
 	}
 }
 

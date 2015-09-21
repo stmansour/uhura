@@ -90,7 +90,7 @@ type AwsNewInstance struct {
 	} `json:"Instances"`
 }
 
-func LoadNewAwsInstanceInfo(fname string) *AwsNewInstance {
+func AWSLoadNewInstanceInfo(fname string) *AwsNewInstance {
 	file, e := ioutil.ReadFile(fname)
 	if e != nil {
 		fmt.Printf("File error: %v\n", e)

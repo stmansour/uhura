@@ -7,20 +7,26 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 //  The application data structure
 type UhuraApp struct {
-	Port           int      // What port are we listening on
-	Debug          bool     // Debug mode -- show ulog messages on screen
-	DebugToScreen  bool     // Send logging info to screen too
-	MasterURL      string   // URL where master can be contacted
-	EnvDescFname   string   // The filename of the Environment Descriptor
-	LogFile        *os.File // Uhura's logfile
-	QmstrBaseLinux []byte   // data for first part of the Linux shell script
-	QmstrHdrWin    []byte   // data for first part of the Windows script
-	QmstrFtrWin    []byte   // data for the last part of the Windows script
+	Port           int            // What port are we listening on
+	Debug          bool           // Debug mode -- show ulog messages on screen
+	DebugToScreen  bool           // Send logging info to screen too
+	DryRun         bool           // when true, scripts it produces skip calls to create new cloud instances
+	KeepEnv        bool           // don't terminate environment instances
+	URL            string         // URL where master can be contacted
+	EnvDescFname   string         // The filename of the Environment Descriptor
+	TgoStatus      chan StatusReq // http status handlers update with this
+	LogFile        *os.File       // Uhura's logfile
+	QmstrBaseLinux []byte         // data for first part of the Linux shell script
+	QmstrHdrWin    []byte         // data for first part of the Windows script
+	QmstrFtrWin    []byte         // data for the last part of the Windows script
 }
 
 var Uhura UhuraApp
@@ -29,20 +35,41 @@ func ProcessCommandLine() {
 	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
 	portPtr := flag.Int("p", 8080, "port on which uhura listens")
-	envdPtr := flag.String("e", "", "environment descriptor filename, required if mode == master")
-	murlPtr := flag.String("t", "localhost", "public dns hostname where master can be contacted")
+	dryrPtr := flag.Bool("n", false, "Dry Run - don't actually create new instances on AWS")
+	envdPtr := flag.String("e", "", "environment descriptor filename, required")
+	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
+	keepPtr := flag.Bool("k", false, "Keep environment after tests complete (don't terminate)")
 	flag.Parse()
 
 	Uhura.Port = *portPtr
 	Uhura.Debug = *dbugPtr
 	Uhura.DebugToScreen = *dtscPtr
+	Uhura.DryRun = *dryrPtr
+	Uhura.KeepEnv = *keepPtr
 
 	if len(*envdPtr) == 0 {
 		fmt.Printf("*** ERROR *** Environment descriptor is required for operation in master mode\n")
 		os.Exit(2)
 	}
 
-	Uhura.MasterURL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port)
+	// It's not as straightforward as you might think to set the hostname
+	// On a home network (like mine), the host name is not in anyone's dns, so
+	// using the hostname as a network address is useless. Here's the logic that
+	// seems to work...
+	s := ""
+	if *murlPtr == "" { // if nothing was specified on the cmd line
+		uname, _ := exec.Command("sh", "-c", "uname").Output() // determine the OS name
+		sysname := string(uname)
+		sysname = strings.TrimRight(sysname, "\n\r")
+		if "Darwin" == string(sysname) { // if a Mac, we almost certainly want to use localhost
+			s = "localhost" // so use localhost
+		} else { // if not, we're probably on AWS, so...
+			s, _ = os.Hostname() // just use the host name
+		}
+		Uhura.URL = fmt.Sprintf("http://%s:%d/", s, Uhura.Port)
+	} else {
+		Uhura.URL = fmt.Sprintf("http://%s:%d/", *murlPtr, Uhura.Port) // use what was specified on the cmd line
+	}
 	Uhura.EnvDescFname = fmt.Sprintf("%s", *envdPtr)
 	fmt.Printf("Uhura.EnvDescFname = %s\n", Uhura.EnvDescFname)
 }
@@ -50,7 +77,7 @@ func ProcessCommandLine() {
 func InitUhura() {
 	log.SetOutput(Uhura.LogFile)
 	ulog("**********   U H U R A   **********\n")
-	ulog("Uhura starting on port %d\n", Uhura.Port)
+	ulog("Uhura starting on: %s\n", Uhura.URL)
 	if Uhura.Debug {
 		ulog("Debug logging enabled\n")
 	}
@@ -63,6 +90,7 @@ func InitUhura() {
 	}
 	ulog("Current working directory = %v\n", dir)
 	ulog("environment descriptor: %s\n", Uhura.EnvDescFname)
+	ulog("Port=%d, Debug=%v, DryRun=%v\n", Uhura.Port, Uhura.Debug, Uhura.DryRun)
 }
 
 func SetUpHttpEnv() {
@@ -105,10 +133,28 @@ func SetUpHttpEnv() {
 	// Environment Descriptor
 	ParseEnvDescriptor()
 
+	// When we return from this function, HTTP calls will be accepted.
+	// They will be handled by go handlers, each of which will need to
+	// make slight modifications to the UEnv data structure.  We need
+	// to control access to avoid bad memory handling. We will serialize
+	// the access.  We'll use an "update" channel. Handlers will have
+	// write-only access to it. The reader, SetStatus() is the only app
+	// that can read UEnv data struct.
+	Uhura.TgoStatus = make(chan StatusReq)
+	go SetStatus()
+
 	// Set up the handler functions for our server...
 	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
 	http.HandleFunc("/status/", makeHandler(StatusHandler))
 	http.HandleFunc("/map/", makeHandler(MapHandler))
+}
+
+func exit_uhura() {
+	time.Sleep(3 * time.Second) // this is a hack until we work out the channel logic
+	ulog("Shutdown Handler\n")
+	ulog("Normal Shutdown\n")
+	ulog("Exiting uhura\n")
+	os.Exit(0)
 }
 
 func main() {
@@ -122,6 +168,7 @@ func main() {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer Uhura.LogFile.Close()
+	log.SetOutput(Uhura.LogFile)
 
 	// OK, now on with the show...
 	ProcessCommandLine()
