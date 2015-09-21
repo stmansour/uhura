@@ -19,6 +19,7 @@ type UhuraApp struct {
 	Debug          bool           // Debug mode -- show ulog messages on screen
 	DebugToScreen  bool           // Send logging info to screen too
 	DryRun         bool           // when true, scripts it produces skip calls to create new cloud instances
+	KeepEnv        bool           // don't terminate environment instances
 	URL            string         // URL where master can be contacted
 	EnvDescFname   string         // The filename of the Environment Descriptor
 	TgoStatus      chan StatusReq // http status handlers update with this
@@ -37,12 +38,14 @@ func ProcessCommandLine() {
 	dryrPtr := flag.Bool("n", false, "Dry Run - don't actually create new instances on AWS")
 	envdPtr := flag.String("e", "", "environment descriptor filename, required")
 	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
+	keepPtr := flag.Bool("k", false, "Keep environment after tests complete (don't terminate)")
 	flag.Parse()
 
 	Uhura.Port = *portPtr
 	Uhura.Debug = *dbugPtr
 	Uhura.DebugToScreen = *dtscPtr
 	Uhura.DryRun = *dryrPtr
+	Uhura.KeepEnv = *keepPtr
 
 	if len(*envdPtr) == 0 {
 		fmt.Printf("*** ERROR *** Environment descriptor is required for operation in master mode\n")

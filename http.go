@@ -107,9 +107,6 @@ func ChangeState() bool {
 			ulog("state changing from INIT to TEST\n")
 		}
 	case UEnv.State == uREADY:
-		// We should never get here. When all
-		// sub-environments report ready, we move straight
-		// to the testing state
 		ulog("ChangeState: we're in the READY state\n")
 
 	case UEnv.State == uTEST:
@@ -144,10 +141,14 @@ func ProcessStateChanges() {
 
 			case UEnv.State == uDONE:
 				ulog("Handle state change to DONE\n")
-				AWSTerminateInstances()
-				for i := 0; i < len(UEnv.Instances); i++ {
-					for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-						UEnv.Instances[i].Apps[j].State = uTERM
+				if Uhura.KeepEnv {
+					ulog("Will not terminate environment instances, as uhura was run with -k (keep)\n")
+				} else {
+					AWSTerminateInstances()
+					for i := 0; i < len(UEnv.Instances); i++ {
+						for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+							UEnv.Instances[i].Apps[j].State = uTERM
+						}
 					}
 				}
 				UEnv.State = uTERM
