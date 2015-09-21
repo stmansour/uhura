@@ -13,5 +13,10 @@ test:
 	cd ./publicdns;make test
 	@echo "*** TEST COMPLETED in test ***"
 
+systest:
+	cd sys0;make test
+	cd sys1;make test
+	@echo "*** SYSTEM TESTS COMPLETED ***"
+
 install:
 	@echo "*** INSTALL COMPLETED in test ***"
