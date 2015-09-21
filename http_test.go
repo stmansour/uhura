@@ -47,7 +47,7 @@ func TestStatusHandler(t *testing.T) {
 		t.Logf("j=%d, Uhura.DebugToScreen=%v, Uhura.Debug=%v", j, Uhura.DebugToScreen, Uhura.Debug)
 		for i := 0; i < len(test1); i++ {
 			test := test1[i]
-			r := StatusReq{test.State, test.InstName, test.InstUID, time.Now().Format(time.RFC822)}
+			r := StatusReq{test.State, test.InstName, test.InstUID, time.Now().Format(time.RFC822), nil}
 			data, _ := json.Marshal(r)
 			body := bytes.NewBuffer(data)
 			reply, _ := http.Post(url, "application/json", body)

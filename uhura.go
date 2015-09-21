@@ -15,16 +15,17 @@ import (
 
 //  The application data structure
 type UhuraApp struct {
-	Port           int      // What port are we listening on
-	Debug          bool     // Debug mode -- show ulog messages on screen
-	DebugToScreen  bool     // Send logging info to screen too
-	DryRun         bool     // when true, scripts it produces skip calls to create new cloud instances
-	URL            string   // URL where master can be contacted
-	EnvDescFname   string   // The filename of the Environment Descriptor
-	LogFile        *os.File // Uhura's logfile
-	QmstrBaseLinux []byte   // data for first part of the Linux shell script
-	QmstrHdrWin    []byte   // data for first part of the Windows script
-	QmstrFtrWin    []byte   // data for the last part of the Windows script
+	Port           int            // What port are we listening on
+	Debug          bool           // Debug mode -- show ulog messages on screen
+	DebugToScreen  bool           // Send logging info to screen too
+	DryRun         bool           // when true, scripts it produces skip calls to create new cloud instances
+	URL            string         // URL where master can be contacted
+	EnvDescFname   string         // The filename of the Environment Descriptor
+	TgoStatus      chan StatusReq // http status handlers update with this
+	LogFile        *os.File       // Uhura's logfile
+	QmstrBaseLinux []byte         // data for first part of the Linux shell script
+	QmstrHdrWin    []byte         // data for first part of the Windows script
+	QmstrFtrWin    []byte         // data for the last part of the Windows script
 }
 
 var Uhura UhuraApp
@@ -128,6 +129,16 @@ func SetUpHttpEnv() {
 	// That everything has been pulled in, we can process the
 	// Environment Descriptor
 	ParseEnvDescriptor()
+
+	// When we return from this function, HTTP calls will be accepted.
+	// They will be handled by go handlers, each of which will need to
+	// make slight modifications to the UEnv data structure.  We need
+	// to control access to avoid bad memory handling. We will serialize
+	// the access.  We'll use an "update" channel. Handlers will have
+	// write-only access to it. The reader, SetStatus() is the only app
+	// that can read UEnv data struct.
+	Uhura.TgoStatus = make(chan StatusReq)
+	go SetStatus()
 
 	// Set up the handler functions for our server...
 	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))

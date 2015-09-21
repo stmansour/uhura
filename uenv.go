@@ -320,4 +320,5 @@ func ParseEnvDescriptor() {
 	// begin to execute it.
 	CreateInstanceScripts()
 	ExecuteDescriptor()
+
 }
