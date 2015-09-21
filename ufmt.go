@@ -82,7 +82,7 @@ func StateToString(i int) string {
 	var s string
 	switch {
 	case i == uUNKNOWN:
-		s = "INIT"
+		s = "UNKNOWN"
 	case i == uINIT:
 		s = "INIT"
 	case i == uREADY:
