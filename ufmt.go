@@ -60,6 +60,8 @@ func DPrintHttpRequest(r *http.Request) {
 func StateToInt(s string) int {
 	var i int
 	switch {
+	case s == "UNKNOWN":
+		i = uUNKNOWN
 	case s == "INIT":
 		i = uINIT
 	case s == "READY":
@@ -68,8 +70,8 @@ func StateToInt(s string) int {
 		i = uTEST
 	case s == "DONE":
 		i = uDONE
-	// case s == "TERM":
-	// 	i = uTERM
+	case s == "TERM":
+		i = uTERM
 	default:
 		i = -1
 	}
@@ -79,6 +81,8 @@ func StateToInt(s string) int {
 func StateToString(i int) string {
 	var s string
 	switch {
+	case i == uUNKNOWN:
+		s = "INIT"
 	case i == uINIT:
 		s = "INIT"
 	case i == uREADY:
@@ -87,8 +91,8 @@ func StateToString(i int) string {
 		s = "TEST"
 	case i == uDONE:
 		s = "DONE"
-	// case i == uTERM:
-	// 	s = "TERM"
+	case i == uTERM:
+		s = "TERM"
 	default:
 		s = "<<unknown state>>"
 	}

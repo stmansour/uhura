@@ -52,6 +52,20 @@ func AllAppStatesMatch(es int) bool {
 	return same
 }
 
+//  Check for all states being beyond the supplied state.
+//  This can happen during initialization when some instances
+//  are in the READY state before others have gotten past
+//  the UNKNOWN state.
+func AllAppStatesPast(es int) bool {
+	past := true
+	for i := 0; past && i < len(UEnv.Instances); i++ {
+		for j := 0; past && j < len(UEnv.Instances[i].Apps); j++ {
+			past = (es < UEnv.Instances[i].Apps[j].State)
+		}
+	}
+	return past
+}
+
 func SendOKReply(s *StatusReq) {
 	SendReply(s.w, RespOK, "OK")
 }
@@ -75,6 +89,12 @@ func ChangeState() bool {
 	change := false // assume nothing changes
 
 	switch {
+	case UEnv.State == uUNKNOWN:
+		if AllAppStatesMatch(uINIT) || AllAppStatesPast(uUNKNOWN) {
+			change = true
+			UEnv.State = uINIT
+			ulog("state changing from UNKNOWN to INIT\n")
+		}
 	case UEnv.State == uINIT:
 		// is everyone in the READY state now???
 		if AllAppStatesMatch(uREADY) {
@@ -90,6 +110,8 @@ func ChangeState() bool {
 		// We should never get here. When all
 		// sub-environments report ready, we move straight
 		// to the testing state
+		ulog("ChangeState: we're in the READY state\n")
+
 	case UEnv.State == uTEST:
 		if AllAppStatesMatch(uDONE) {
 			// Great all environments report testing completed.
@@ -108,26 +130,35 @@ func ChangeState() bool {
 
 // Perform any state changes needed...
 func ProcessStateChanges() {
-	if ChangeState() {
-		switch {
-		case UEnv.State == uTEST:
-			ulog("Handle state change to TEST\n")
-			// send message to all tgos that we move to TEST
+	for change := true; change; {
+		change = ChangeState()
+		if change {
+			switch {
+			case UEnv.State == uINIT:
+				ulog("All environments have reported in.")
+				// nothing to do until they're all in READY state
 
-		case UEnv.State == uDONE:
-			ulog("Handle state change to DONE\n")
-			AWSTerminateInstances()
-			// for i := 0; i < len(UEnv.Instances); i++ {
-			// 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-			// 		UEnv.Instances[i].Apps[j].State = uTERM
-			// 	}
-			// }
-			// UEnv.State = uTERM
-			DPrintEnvDescr("Terminated All Instances")
-			exit_uhura()
+			case UEnv.State == uTEST:
+				ulog("Handle state change to TEST\n")
+				// send message to all tgos that we move to TEST
 
-		default:
-			panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
+			case UEnv.State == uDONE:
+				ulog("Handle state change to DONE\n")
+				AWSTerminateInstances()
+				for i := 0; i < len(UEnv.Instances); i++ {
+					for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
+						UEnv.Instances[i].Apps[j].State = uTERM
+					}
+				}
+				UEnv.State = uTERM
+				DPrintEnvDescr("Terminated All Instances")
+				exit_uhura()
+
+			default:
+				ulog("State reported: %d\n", UEnv.State)
+				fmt.Printf("UEnv.State = %d\n", UEnv.State)
+				panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
+			}
 		}
 	}
 }

@@ -14,12 +14,12 @@ import (
 )
 
 const (
-	uINIT = iota
+	uUNKNOWN = iota
+	uINIT
 	uREADY
 	uTEST
 	uDONE
-
-//	uTERM
+	uTERM
 )
 
 type AppDescr struct {
