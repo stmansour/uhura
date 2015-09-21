@@ -12,6 +12,9 @@ Usage: $0 options...
 Optons:
     -n           dry-run mode.  Do not create new cloud instances.
 
+    -k           Keep the environment (do not terminate the env
+                 instances after testing completes).
+
 Description:     Typically, this program is run with no options. If
                  you want to get at the uhura generated scripts without
                  having them launch aws instances, use the -n switch.
@@ -21,8 +24,12 @@ ZZEOF
 }
 
 
-while getopts ":n" o; do
+while getopts ":nk" o; do
     case "${o}" in
+        k)
+            keeprun=1
+	    KOPTS="-k"
+            ;;
         n)
             DRYRUN=1
 	    DOPTS="-n"
@@ -43,4 +50,4 @@ if [ $(uname) == "Linux" ]; then
 fi
 
 # Start up uhura with env descr: sys0.json
-${ACCORD_BIN}/uhura ${DOPTS} -p ${UHURAPORT} -e ${SYS0_TEST_DIR}/sys0.json -t ${UHURAHOST} -d
+${ACCORD_BIN}/uhura ${DOPTS} ${KOPTS} -p ${UHURAPORT} -e ${SYS0_TEST_DIR}/sys0.json -t ${UHURAHOST} -d
