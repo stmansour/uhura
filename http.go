@@ -197,7 +197,6 @@ func HandleSetStatus(s *StatusReq) {
 		}
 	}
 	if !found {
-		_ = fmt.Errorf("NO SUCH INSTANCE-UID: %s-%s", s.InstName, s.UID)
 		BadInstUidCombo(s)
 	}
 }
