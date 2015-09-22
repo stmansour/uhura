@@ -1,5 +1,5 @@
 {
-    "EnvName": "My Test Environment",
+    "EnvName": "Multiple-Instances Test Environment",
     "Instances": [
 	{
 	    "InstName": "TGO-0",

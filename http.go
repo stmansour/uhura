@@ -90,29 +90,27 @@ func ChangeState() bool {
 
 	switch {
 	case UEnv.State == uUNKNOWN:
+		// This is the exception case.  Some environments may init
+		// and transition to READY before other environments have
+		// even gotten out of the UNKNONW state.
 		if AllAppStatesMatch(uINIT) || AllAppStatesPast(uUNKNOWN) {
 			change = true
 			UEnv.State = uINIT
-			ulog("state changing from UNKNOWN to INIT\n")
 		}
 	case UEnv.State == uINIT:
-		// is everyone in the READY state now???
+		ulog("ChangeState: All instances have reported in\n")
 		if AllAppStatesMatch(uREADY) {
-			// Great all environments report READY.
-			// Let's transition to the Testing state
 			change = true
-			UEnv.State = uTEST
-			// TODO: send a message to all TGO instances
-			//       informing them to transition to TEST
-			ulog("state changing from INIT to TEST\n")
+			UEnv.State = uREADY
 		}
 	case UEnv.State == uREADY:
 		ulog("ChangeState: we're in the READY state\n")
-
+		if AllAppStatesMatch(uTEST) {
+			change = true
+			UEnv.State = uTEST
+		}
 	case UEnv.State == uTEST:
 		if AllAppStatesMatch(uDONE) {
-			// Great all environments report testing completed.
-			// We're done. Transition to the DONE state
 			change = true
 			UEnv.State = uDONE
 			ulog("state change to DONE\n")
@@ -133,14 +131,14 @@ func ProcessStateChanges() {
 			switch {
 			case UEnv.State == uINIT:
 				ulog("All environments have reported in.")
-				// nothing to do until they're all in READY state
-
+				// nothing else to do until everybody is READY
+			case UEnv.State == uREADY:
+				CommsSendTestNow()
 			case UEnv.State == uTEST:
-				ulog("Handle state change to TEST\n")
-				// send message to all tgos that we move to TEST
-
+				ulog("All environments are now in TEST\n")
+				// nothing else to do until everybody is DONE
 			case UEnv.State == uDONE:
-				ulog("Handle state change to DONE\n")
+				ulog("All environments DONE\n")
 				if Uhura.KeepEnv {
 					ulog("Will not terminate environment instances, as uhura was run with -k (keep)\n")
 				} else {
