@@ -23,6 +23,7 @@ type UhuraApp struct {
 	URL            string         // URL where master can be contacted
 	EnvDescFname   string         // The filename of the Environment Descriptor
 	TgoStatus      chan StatusReq // http status handlers update with this
+	AckDone        chan int       // this is how we know the http handler is done
 	LogFile        *os.File       // Uhura's logfile
 	QmstrBaseLinux []byte         // data for first part of the Linux shell script
 	QmstrHdrWin    []byte         // data for first part of the Windows script
@@ -139,8 +140,11 @@ func SetUpHttpEnv() {
 	// to control access to avoid bad memory handling. We will serialize
 	// the access.  We'll use an "update" channel. Handlers will have
 	// write-only access to it. The reader, SetStatus() is the only app
-	// that can read UEnv data struct.
+	// that can read UEnv data struct.  When SetStatus is completed, it
+	// writes a response back on AckDone. For now, it will just send 0.
+	// Without this ack, the message actually doesn't send.
 	Uhura.TgoStatus = make(chan StatusReq)
+	Uhura.AckDone = make(chan int)
 	go SetStatus()
 
 	// Set up the handler functions for our server...

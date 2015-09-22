@@ -235,6 +235,7 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 	#     *  fail if there are any other differences
 	#---------------------------------------------------------------------
 
+
 	#---------------------------------------------------------------------
 	#  Deal with the timestamps by essentially filtering out timestamps in 
 	#  both gold log and this run's log:
@@ -251,31 +252,23 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 	#          other constraints on days, hrs, mins, secs are in these regexps.  They're probably
 	#          fine, but if we see any miscompares in timestamps, look closely at the regexps.
 	#---------------------------------------------------------------------
-	#           |     year     /   month   /   day  | |   hr    :    min   :    sec  |   everything else
-	perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1.gold   \
-	| perl -pe 's/Tstamp:.*/Tstamp: TIMESTAMP/' > x
-	#                     |     dow    |   month      |   dom    |    hour  :    min   :   sec    |   TZ   |  year     |
 
-	perl -pe 's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/' state_test1.log   \
-	| perl -pe 's/Tstamp:.*/Tstamp: TIMESTAMP/' > y
-
-	#---------------------------------------------------------------------
-	#  Now deal with any port differences
-	#---------------------------------------------------------------------
-	perl -pe 's/master mode on port [0-9]+/Current working directory = SOMEdirectory/' x > x1; mv x1 x
-	perl -pe 's/master mode on port [0-9]+/Current working directory = SOMEdirectory/' y > y1; mv y1 y
-
-	#---------------------------------------------------------------------
-	#  Now deal with any working directory differences
-	#---------------------------------------------------------------------
-	perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' x > x1; mv x1 x
-	perl -pe 's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/' y > y1; mv y1 y
-
-	perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' x > x1; mv x1 x
-	perl -pe 's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g' y > y1; mv y1 y
-
-	perl -pe 's/^Uhura starting on:.*/URL: somehost:someport/' x > x1; mv x1 x
-	perl -pe 's/^Uhura starting on:.*/URL: somehost:someport/' y > y1; mv y1 y
+	declare -a uhura_filters=(
+		's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
+		's/Tstamp:.*/Tstamp: TIMESTAMP/'
+		's/master mode on port [0-9]+/Current working directory = SOMEDIRECTORY/'
+		's/^Current working directory = [\/a-zA-Z0-9]+/master mode on port SOMEPORT/'
+		's/^exec [\/_\.a-zA-Z0-9]+ [\/_\.\-a-zA-Z0-9]+ [\/\._a-zA-Z0-9]+.*/exec SOMEPATH/g'
+		's/^Uhura starting on:.*/URL: somehost:someport/'
+	)
+	echo "Validating output..." >>${SCRIPTLOG} 2>&1
+	cp state_test1.gold x
+	cp state_test1.log y
+	for f in "${uhura_filters[@]}"
+	do
+		perl -pe "$f" x > x1; mv x1 x
+		perl -pe "$f" y > y1; mv y1 y
+	done
 
 	#---------------------------------------------------------------------
 	#  Now see how they compare...
@@ -288,14 +281,51 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 
 	if [ ${DIFFS} -eq 0 ]; then
 		if [ ${VERBOSE} -gt 0 ]; then
-			echo "PASSED"
+			echo "VALIDATION 1 PASSED"
 		fi
-		exit 0
 	else
 		if [ ${VERBOSE} -gt 0 ]; then
-			echo "FAILED:  differences are as follows:"
+			echo "VALIDATION 1 FAILED:  differences are as follows:"
 			diff x y
 		fi
 		exit 1
 	fi
+
+	#---------------------------------------------------------------------
+	#  Now check the script output...
+	#---------------------------------------------------------------------
+	declare -a scriptout_filters=(
+		's/\"Timestamp\":.*/Timestamp: TIMESTAMP/'
+	)
+	cp state_test1_script.gold v
+	cp state_test1_script.log w
+	for f in "${scriptout_filters[@]}"
+	do
+		perl -pe "$f" v > v1; mv v1 v
+		perl -pe "$f" w > w1; mv w1 w
+	done
+
+	DIFFS=$(diff v w | wc -l)
+
+	if [ ${VERBOSE} -gt 0 ]; then
+		echo "Functional differences between reference log and this test log: ${DIFFS}"
+	fi
+
+	if [ ${DIFFS} -eq 0 ]; then
+		if [ ${VERBOSE} -gt 0 ]; then
+			echo "VALIDATION 2 PASSED"
+		fi
+	else
+		if [ ${VERBOSE} -gt 0 ]; then
+			echo "VALIDATION 2 FAILED:  differences are as follows:"
+			diff v w
+		fi
+		exit 1
+	fi
+
+	if [ ${VERBOSE} -gt 0 ]; then
+		echo "ALL VALIDATIONS PASSED"
+	fi
+	exit 0
+
 fi

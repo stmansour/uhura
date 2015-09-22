@@ -208,6 +208,7 @@ func SetStatus() {
 		select {
 		case s := <-Uhura.TgoStatus:
 			HandleSetStatus(&s)
+			Uhura.AckDone <- 0 // tell the caller we're done
 			// case <-timeout:
 			// 	fmt.Printf("SetStatus() - 1 min timeout\n")
 			// 	return
@@ -226,11 +227,10 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&s); err != nil {
 		panic(err)
 	}
-
-	//  As many errors can occur, we pass in the response writer
-	//  and handle the different returns within SetStatus
 	s.w = w
-	Uhura.TgoStatus <- s
+	Uhura.TgoStatus <- s // let StatusHandler take over
+	e := <-Uhura.AckDone // StatusHandler lets us know when it is done
+	ulog("StatusHandler: msg sent: %d\n", e)
 }
 
 func MapHandler(w http.ResponseWriter, r *http.Request) {
