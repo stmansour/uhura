@@ -15,19 +15,29 @@ import (
 
 //  The application data structure
 type UhuraApp struct {
-	Port           int            // What port are we listening on
-	Debug          bool           // Debug mode -- show ulog messages on screen
-	DebugToScreen  bool           // Send logging info to screen too
-	DryRun         bool           // when true, scripts it produces skip calls to create new cloud instances
-	KeepEnv        bool           // don't terminate environment instances
-	URL            string         // URL where master can be contacted
-	EnvDescFname   string         // The filename of the Environment Descriptor
-	TgoStatus      chan StatusReq // http status handlers update with this
-	AckDone        chan int       // this is how we know the http handler is done
-	LogFile        *os.File       // Uhura's logfile
-	QmstrBaseLinux []byte         // data for first part of the Linux shell script
-	QmstrHdrWin    []byte         // data for first part of the Windows script
-	QmstrFtrWin    []byte         // data for the last part of the Windows script
+	Port           int             // What port are we listening on
+	Debug          bool            // Debug mode -- show ulog messages on screen
+	DebugToScreen  bool            // Send logging info to screen too
+	DryRun         bool            // when true, scripts it produces skip calls to create new cloud instances
+	KeepEnv        bool            // don't terminate environment instances
+	InternalTest   bool            // do unit tests...
+	StateChg       chan AppStatChg // Http requests mem state update
+	StateChgAck    chan int        // acknowledge when done
+	LogStatus      chan StatusReq  // http requests to log status message
+	LogStatusAck   chan int        // Ack channel
+	HReqMem        chan int        // request to access Env Descr memory
+	HReqMemAck     chan int        // done with memory
+	LogEnvDescr    chan int        // request for EnvDescr to be printed
+	LogEnvDescrAck chan int        // EnvDescr ack channel
+	LogString      chan string     // log a string to ulog
+	LogStringAck   chan int        // log string ack channel
+	URL            string          // URL where master can be contacted
+	EnvDescFname   string          // The filename of the Environment Descriptor
+	LogFile        *os.File        // Uhura's logfile
+	QmstrBaseLinux []byte          // data for first part of the Linux shell script
+	QmstrHdrWin    []byte          // data for first part of the Windows script
+	QmstrFtrWin    []byte          // data for the last part of the Windows script
+	// LogEnvDescrDone chan int        // done printing
 }
 
 var Uhura UhuraApp
@@ -35,11 +45,12 @@ var Uhura UhuraApp
 func ProcessCommandLine() {
 	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
-	portPtr := flag.Int("p", 8080, "port on which uhura listens")
+	portPtr := flag.Int("p", 8100, "port on which uhura listens")
 	dryrPtr := flag.Bool("n", false, "Dry Run - don't actually create new instances on AWS")
-	envdPtr := flag.String("e", "", "environment descriptor filename, required")
+	envdPtr := flag.String("e", "", "environment descriptor filename")
 	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
 	keepPtr := flag.Bool("k", false, "Keep environment after tests complete (don't terminate)")
+	unitPtr := flag.Bool("u", false, "invoke internal tests")
 	flag.Parse()
 
 	Uhura.Port = *portPtr
@@ -47,10 +58,10 @@ func ProcessCommandLine() {
 	Uhura.DebugToScreen = *dtscPtr
 	Uhura.DryRun = *dryrPtr
 	Uhura.KeepEnv = *keepPtr
+	Uhura.InternalTest = *unitPtr
 
-	if len(*envdPtr) == 0 {
-		fmt.Printf("*** ERROR *** Environment descriptor is required for operation in master mode\n")
-		os.Exit(2)
+	if Uhura.InternalTest {
+		Uhura.DryRun = true // force this for internal tests
 	}
 
 	// It's not as straightforward as you might think to set the hostname
@@ -92,9 +103,6 @@ func InitUhura() {
 	ulog("Current working directory = %v\n", dir)
 	ulog("environment descriptor: %s\n", Uhura.EnvDescFname)
 	ulog("Port=%d, Debug=%v, DryRun=%v\n", Uhura.Port, Uhura.Debug, Uhura.DryRun)
-}
-
-func SetUpHttpEnv() {
 	// Pull in the data we need to build the cloud initialization scripts.
 	// The data we pull in for Linux is the first half of the script. For
 	// Windows we pull in the "header" and the "footer" of the script and we
@@ -121,7 +129,6 @@ func SetUpHttpEnv() {
 	}
 
 	// Linux...
-	var err error
 	Uhura.QmstrBaseLinux, err = ioutil.ReadFile(qmbasefname)
 	check(err)
 	Uhura.QmstrHdrWin, err = ioutil.ReadFile(fmt.Sprintf("%s/qmaster.scr1", qmdir))
@@ -129,30 +136,13 @@ func SetUpHttpEnv() {
 	Uhura.QmstrFtrWin, err = ioutil.ReadFile(fmt.Sprintf("%s/qmaster.scr2", qmdir))
 	check(err)
 
-	// Very last step in the initialization process.  Now
-	// That everything has been pulled in, we can process the
-	// Environment Descriptor
-	ParseEnvDescriptor()
-
-	// When we return from this function, HTTP calls will be accepted.
-	// They will be handled by go handlers, each of which will need to
-	// make slight modifications to the UEnv data structure.  We need
-	// to control access to avoid bad memory handling. We will serialize
-	// the access.  We'll use an "update" channel. Handlers will have
-	// write-only access to it. The reader, SetStatus() is the only app
-	// that can read UEnv data struct.  When SetStatus is completed, it
-	// writes a response back on AckDone. For now, it will just send 0.
-	// Without this ack, the message actually doesn't send.
-	Uhura.TgoStatus = make(chan StatusReq)
-	Uhura.AckDone = make(chan int)
-	go SetStatus()
-
-	// Set up the handler functions for our server...
-	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
-	http.HandleFunc("/status/", makeHandler(StatusHandler))
-	http.HandleFunc("/map/", makeHandler(MapHandler))
 }
 
+func InitEnv() {
+	ParseEnvDescriptor()
+}
+
+// This whole routine is a hack until I work out something better
 func exit_uhura() {
 	time.Sleep(3 * time.Second) // this is a hack until we work out the channel logic
 	ulog("Shutdown Handler\n")
@@ -177,8 +167,15 @@ func main() {
 	// OK, now on with the show...
 	ProcessCommandLine()
 	InitUhura()
-	SetUpHttpEnv()
+	DispatcherCreateChannels()
 
+	if Uhura.InternalTest {
+		BeatOnTheChannelMessaging()
+		os.Exit(0)
+	}
+	InitEnv()
+	InitHTTP()
+	go Dispatcher() // get the dispatcher going
 	err = http.ListenAndServe(fmt.Sprintf(":%d", Uhura.Port), nil)
 	if nil != err {
 		ulog(string(err.Error()))

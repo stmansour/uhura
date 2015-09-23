@@ -36,6 +36,8 @@ func SendTgoCommand(url string, cmd *UCommand, reply *UResp) (int, error) {
 	}
 	defer resp.Body.Close()
 
+	ulog("Tgo response received\n")
+
 	// pull out the HTTP response code
 	var rc int
 	var more string

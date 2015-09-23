@@ -1,3 +1,6 @@
+// This code handles the incoming http requests. It must communicate with Dispatcher
+// in order to read / write shared memory (the EnvDescriptor). It must also communicate
+// with the Dispatcher in order to log messages
 package main
 
 import (
@@ -8,11 +11,13 @@ import (
 )
 
 type StatusReq struct {
-	State    string
-	InstName string
-	UID      string
-	Tstamp   string
-	w        http.ResponseWriter
+	State     string              // new status
+	InstName  string              // instance name
+	UID       string              // uid of app
+	Tstamp    string              // when was it sent
+	w         http.ResponseWriter // where to write the response
+	updateEnv bool                // send this request on to StateOrchestrator and update EnvDescr
+	logmsgs   []string            // we'll need to save these until it's safe to print them
 }
 
 type UResp struct {
@@ -27,6 +32,19 @@ const (
 	InvalidState
 )
 
+/***********************************************************************************************
+ ***********************************************************************************************
+ ****   * * * * BEGIN * * * *
+ ****   ALL CODE BETWEEN HERE AND THE END MARKER BELOW WILL BLOCK EVERYTHING
+ ****   IF THEY MAKE ANY DISPATCHER CHANNEL REQUEST.  DO NOT MAKE CHANNEL REQUESTS OR PRINT
+ ****   TO FILES OR THE SCREEN
+ ***********************************************************************************************
+ ***********************************************************************************************/
+
+func httplog(s *StatusReq, format string, a ...interface{}) {
+	s.logmsgs = append(s.logmsgs, fmt.Sprintf(format, a...))
+}
+
 func SendReply(w http.ResponseWriter, rc int, s string) {
 	w.Header().Set("Content-Type", "application/json")
 	m := UResp{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
@@ -39,205 +57,125 @@ func SendReply(w http.ResponseWriter, rc int, s string) {
 	}
 }
 
-//  Check for the state of all sub-environments. If they
-//  have all entered the same state return true. Otherwise
-//  return false;
-func AllAppStatesMatch(es int) bool {
-	same := true
-	for i := 0; same && i < len(UEnv.Instances); i++ {
-		for j := 0; same && j < len(UEnv.Instances[i].Apps); j++ {
-			same = (es == UEnv.Instances[i].Apps[j].State)
-		}
-	}
-	return same
-}
-
-//  Check for all states being beyond the supplied state.
-//  This can happen during initialization when some instances
-//  are in the READY state before others have gotten past
-//  the UNKNOWN state.
-func AllAppStatesPast(es int) bool {
-	past := true
-	for i := 0; past && i < len(UEnv.Instances); i++ {
-		for j := 0; past && j < len(UEnv.Instances[i].Apps); j++ {
-			past = (es < UEnv.Instances[i].Apps[j].State)
-		}
-	}
-	return past
-}
-
 func SendOKReply(s *StatusReq) {
 	SendReply(s.w, RespOK, "OK")
 }
 
 func BadState(s *StatusReq) {
 	r := fmt.Sprintf("BAD STATE: %s", s.State)
-	ulog("%s\n", r)
+	httplog(s, "%s\n", r)
 	SendReply(s.w, InvalidState, r)
 }
 
 func BadInstUidCombo(s *StatusReq) {
 	r := fmt.Sprintf("BAD INSTANCE-UID: %s-%s", s.InstName, s.UID)
-	ulog("%s\n", r)
+	httplog(s, "%s\n", r)
 	SendReply(s.w, RespNoSuchInstance, r)
 }
 
-// Check the state of all environments and see if a state
-// change is needed. If so, make the state change and return
-// true. Otherwise, return false.
-func ChangeState() bool {
-	change := false // assume nothing changes
-
-	switch {
-	case UEnv.State == uUNKNOWN:
-		// This is the exception case.  Some environments may init
-		// and transition to READY before other environments have
-		// even gotten out of the UNKNONW state.
-		if AllAppStatesMatch(uINIT) || AllAppStatesPast(uUNKNOWN) {
-			change = true
-			UEnv.State = uINIT
-		}
-	case UEnv.State == uINIT:
-		ulog("ChangeState: All instances have reported in\n")
-		if AllAppStatesMatch(uREADY) {
-			change = true
-			UEnv.State = uREADY
-		}
-	case UEnv.State == uREADY:
-		ulog("ChangeState: we're in the READY state\n")
-		if AllAppStatesMatch(uTEST) {
-			change = true
-			UEnv.State = uTEST
-		}
-	case UEnv.State == uTEST:
-		if AllAppStatesMatch(uDONE) {
-			change = true
-			UEnv.State = uDONE
-			ulog("state change to DONE\n")
-		}
-	case UEnv.State == uDONE:
-		ulog("state change check: %s\n", StateToString(UEnv.State))
-	default:
-		panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
-	}
-	return change
-}
-
-// Perform any state changes needed...
-func ProcessStateChanges() {
-	for change := true; change; {
-		change = ChangeState()
-		if change {
-			switch {
-			case UEnv.State == uINIT:
-				ulog("All environments have reported in.")
-				// nothing else to do until everybody is READY
-			case UEnv.State == uREADY:
-				CommsSendTestNow()
-			case UEnv.State == uTEST:
-				ulog("All environments are now in TEST\n")
-				// nothing else to do until everybody is DONE
-			case UEnv.State == uDONE:
-				ulog("All environments DONE\n")
-				if Uhura.KeepEnv {
-					ulog("Will not terminate environment instances, as uhura was run with -k (keep)\n")
-				} else {
-					AWSTerminateInstances()
-					for i := 0; i < len(UEnv.Instances); i++ {
-						for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
-							UEnv.Instances[i].Apps[j].State = uTERM
-						}
-					}
-				}
-				UEnv.State = uTERM
-				DPrintEnvDescr("Terminated All Instances")
-				exit_uhura()
-
-			default:
-				ulog("State reported: %d\n", UEnv.State)
-				fmt.Printf("UEnv.State = %d\n", UEnv.State)
-				panic(fmt.Errorf("ProcessStateChanges: Should never happen"))
-			}
-		}
-	}
-}
-
 //  When an http handler has an update to make, it pushes
-//  the status request onto the channel Uhura.TgoStatus .
+//  the status request onto the channel Uhura.httpDataLock .
 //  We read it from the channel and process it here. Other
 //  handlers will block until this routine finishes.
 //
 //	Update internals and make any state change that
 //  result from the status update.
 
-//func SetStatus(w http.ResponseWriter, s *StatusReq) error {
-func HandleSetStatus(s *StatusReq) {
-	DPrintStatusMsg(s) // print what we got
+func HandleSetStatus(s *StatusReq, asc *AppStatChg) {
 	found := false
 	for i := 0; i < len(UEnv.Instances) && !found; i++ {
 		if UEnv.Instances[i].InstName != s.InstName {
 			continue
 		}
+		asc.inst = i // found the instance
 		for j := 0; j < len(UEnv.Instances[i].Apps) && !found; j++ {
 			if s.UID != UEnv.Instances[i].Apps[j].UID {
 				continue
 			}
 			found = true
+			asc.app = j // found the app index
 			st := StateToInt(s.State)
 			if st < 0 {
-				_ = fmt.Errorf("Unrecognized State: %s", s.State)
-				DPrintEnvDescr("Exiting SetStatus with error\n")
+				s.updateEnv = false
+				httplog(s, "Unrecognized State: %s", s.State)
 				BadState(s)
 			} else {
-				UEnv.Instances[i].Apps[j].State = st
-				DPrintEnvInstance(&UEnv.Instances[i], i)
-				ProcessStateChanges()
+				asc.state = st
 				SendOKReply(s)
 			}
 		}
 	}
 	if !found {
+		s.updateEnv = false
 		BadInstUidCombo(s)
 	}
 }
 
-func SetStatus() {
-	ulog("Entering SetStatus\n")
-	for {
-		// timeout := time.After(1 * time.Minute)
-		select {
-		case s := <-Uhura.TgoStatus:
-			HandleSetStatus(&s)
-			Uhura.AckDone <- 0 // tell the caller we're done
-			// case <-timeout:
-			// 	fmt.Printf("SetStatus() - 1 min timeout\n")
-			// 	return
-		}
+/***********************************************************************************************
+ ***********************************************************************************************
+ ****   * * * * END * * * *
+ ****   ALL CODE ABOVE THIS MARKER TO THE BEGIN MARKER COMMENTS BELOW WILL BLOCK EVERYTHING
+ ****   IF THEY MAKE ANY DISPATCHER CHANNEL REQUEST.  DO NOT MAKE ANY CHANNEL REQUESTS
+ ***********************************************************************************************
+ ***********************************************************************************************/
+
+func SendHttpLogMsgs(s *StatusReq) {
+	for i := 0; i < len(s.logmsgs); i++ {
+		Uhura.LogString <- s.logmsgs[i]
+		<-Uhura.LogStringAck
 	}
 }
-func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
-	SendReply(w, RespOK, "OK")
-	exit_uhura()
-}
 
+// A status request has arrived. Notify the Dispatcher that
+// we want access to the shared memory. Block until it has been
+// granted. Then process the request and send the reply, but
+// do not update the shared memory here. Instead, build the
+// structure of data indicating the change, and send it to the
+// dispatcher, who will, in turn, send it to the state orchestrator.
+// The idea here is to read enough info to determine the proper
+// reply to this status update, then let the StateOrchestrator make
+// the changes to the memory and take any appropriate actions.
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	ulog("Status Handler\n")
 	var s StatusReq
+	var asc AppStatChg
+	s.logmsgs = make([]string, 1)
+	s.logmsgs[0] = "Status Handler\n"
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&s); err != nil {
 		panic(err)
 	}
-	s.w = w
-	Uhura.TgoStatus <- s // let StatusHandler take over
-	e := <-Uhura.AckDone // StatusHandler lets us know when it is done
-	ulog("StatusHandler: msg sent: %d\n", e)
+	Uhura.LogStatus <- s // log status message before we start
+	<-Uhura.LogStatusAck // make sure it was done
+	s.w = w              // send response here
+	s.updateEnv = true   // assume we update, set to false if error
+
+	Uhura.HReqMem <- 1        // ask to access the shared mem, blocks until granted
+	<-Uhura.HReqMemAck        // make sure we got it
+	HandleSetStatus(&s, &asc) // handle the status req
+	Uhura.HReqMemAck <- 1     // tell Dispatcher we're done with the data
+
+	SendHttpLogMsgs(&s)
+	if !s.updateEnv {
+		return // exit now if we don't update
+	}
+	Uhura.StateChg <- asc  // otherwise, send the struct describing the update
+	<-Uhura.StateChgAck    // wait for confirmation and we're done
+	Uhura.LogEnvDescr <- 1 // dump env descr
+	<-Uhura.LogEnvDescrAck // make sure it got done
 }
 
+func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
+	SendReply(w, RespOK, "OK")
+	exit_uhura()
+}
 func MapHandler(w http.ResponseWriter, r *http.Request) {
-	ulog("Map Handler\n")
-	DPrintHttpRequest(r)
-
+	Uhura.LogString <- "Map Handler\n"
+	<-Uhura.LogString
+	// DPrintHttpRequest(r)
 	// This is a temporary hack until I can create the real one...
+	// we really need to generate the json from our in-memory
+	// Environment Descriptor - it has all the PublicDNS values
+	// for the instances.
 	http.ServeFile(w, r, "test/stateflow_normal/env.json")
 }
 
@@ -245,4 +183,12 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fn(w, r)
 	}
+}
+
+func InitHTTP() {
+	// Set up the handler functions for our server...
+	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
+	http.HandleFunc("/status/", makeHandler(StatusHandler))
+	http.HandleFunc("/map/", makeHandler(MapHandler))
+
 }

@@ -255,7 +255,12 @@ func ExecuteDescriptor() {
 	// After all the execs have been done, we need to ask aws for
 	// the describe-instances json, then parse it for the public dns names
 	// for each of our instances.
-	if !Uhura.DryRun {
+	if Uhura.DryRun {
+		// this is a bit of a hack, but it helps with testing
+		for i := 0; i < len(UEnv.Instances); i++ {
+			UEnv.Instances[i].HostName = "localhost"
+		}
+	} else {
 		// the problem with doing this right away is that it takes
 		// aws some time to get all the public dns stuff worked out.
 		// So, if we call it immediately, things won't work. We need to
@@ -301,7 +306,6 @@ func ParseEnvDescriptor() {
 		ulog("File error on Environment Descriptor file: %v\n", e)
 		os.Exit(1) // no recovery from this
 	}
-	ulog("%s\n", string(content))
 
 	// OK, now we have the json describing the environment in content (a string)
 	// Parse it into an internal data structure...

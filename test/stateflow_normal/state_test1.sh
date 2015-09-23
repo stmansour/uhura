@@ -208,7 +208,8 @@ sendStatus "prog2" "DONE"
 
 if [ ${SKIP_UHURA} -eq 0 ]; then
 
-	shutdown
+	sleep 1
+	shutdown  ## should not need to shutdown, when all are in DONE state it will shutdown automatically
 	if [ ! -e uhura.log ]; then
 		echo "*** ERROR:  could not find uhura.log."
 		exit 1
