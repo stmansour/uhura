@@ -166,7 +166,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 
 func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 	SendReply(w, RespOK, "OK")
-	exit_uhura()
+	UhuraShutdown()
 }
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 	Uhura.LogString <- "Map Handler\n"

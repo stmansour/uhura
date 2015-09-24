@@ -143,7 +143,8 @@ func InitEnv() {
 }
 
 // This whole routine is a hack until I work out something better
-func exit_uhura() {
+func UhuraShutdown() {
+
 	time.Sleep(3 * time.Second) // this is a hack until we work out the channel logic
 	ulog("Shutdown Handler\n")
 	ulog("Normal Shutdown\n")

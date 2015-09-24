@@ -52,7 +52,8 @@ func Dispatcher() {
 			ulog("TestNow\n")
 		case act == actionShutdown:
 			ulog("SHUTDOWN\n")
-			exit_uhura() // this is an unceremonious shutdown, a hack for now
+			AWSTerminateInstances() // calling this here guarantees no one else is accessing the data
+			UhuraShutdown()         // this is an unceremonious shutdown, a hack for now
 		}
 	}
 }
