@@ -10,7 +10,7 @@ install: uhura
 
 uhura: *.go
 	go fmt
-	golint
+	gl=$(which golint);if [ "x${gl}" != "x" ]; then golint; fi
 	go vet
 	go build
 	@echo "*** BUILD COMPLETED ***"
