@@ -28,6 +28,10 @@ test:
 	cd test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
 
+systest:
+	cd test;make systest
+	@echo "*** SYSTEM TESTS COMPLETE - ALL TESTS PASSED ***"
+
 coverage:
 	go test -coverprofile=c.out
 	go tool cover -func=c.out

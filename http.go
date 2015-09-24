@@ -41,6 +41,10 @@ const (
  ***********************************************************************************************
  ***********************************************************************************************/
 
+// Since we cannot call the logging func in this area
+// we'll just save up the strings that the routines were going
+// to log and send them later when we use the channels to guarantee
+// we're the only function writing.  See
 func httplog(s *StatusReq, format string, a ...interface{}) {
 	s.logmsgs = append(s.logmsgs, fmt.Sprintf(format, a...))
 }

@@ -22,7 +22,7 @@ type AwsTerm struct {
 }
 
 func AWSTerminateInstances() {
-	if !Uhura.DryRun {
+	if !Uhura.DryRun && !Uhura.KeepEnv {
 		app := "aws"
 		args := []string{"ec2", "terminate-instances", "--output", "json", "--instance-ids"}
 		for i := 0; i < len(UEnv.Instances); i++ {
@@ -40,6 +40,7 @@ func AWSTerminateInstances() {
 		if err != nil {
 			ulog("Error Unmarshaling output from aws ec2 terminate-instances: %s\n", err)
 		}
+
 		// TODO:  check to make sure all instances actually got deleted
 	}
 }
