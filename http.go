@@ -190,7 +190,8 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 // the StateOrchestrator for handling this request
 func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 	SendReply(w, RespOK, "OK")
-	UhuraShutdown()
+	Uhura.ShutdownReq <- 1
+	<-Uhura.ShutdownReqAck
 }
 
 // MapHandler handles an http message sent to "/map/"

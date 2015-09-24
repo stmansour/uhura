@@ -28,9 +28,15 @@ func AWSTerminateInstances() {
 	if !Uhura.DryRun && !Uhura.KeepEnv {
 		app := "aws"
 		args := []string{"ec2", "terminate-instances", "--output", "json", "--instance-ids"}
+
+		// access shared memory... use the channel
+		Uhura.HReqMem <- 1 // ask to access the shared mem, blocks until granted
+		<-Uhura.HReqMemAck // make sure we got it
 		for i := 0; i < len(UEnv.Instances); i++ {
 			args = append(args, UEnv.Instances[i].InstAwsID)
 		}
+		Uhura.HReqMemAck <- 1 // tell Dispatcher we're done with the data
+
 		cmd := exec.Command(app, args...)
 		var out bytes.Buffer
 		cmd.Stdout = &out

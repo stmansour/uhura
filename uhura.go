@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 // UhuraApp is the structure of data associated with the application
@@ -31,6 +30,8 @@ type UhuraApp struct {
 	LogEnvDescrAck chan int        // EnvDescr ack channel
 	LogString      chan string     // log a string to ulog
 	LogStringAck   chan int        // log string ack channel
+	ShutdownReq    chan int        // request a shutdown
+	ShutdownReqAck chan int        // Ack channel for shutdown
 	URL            string          // URL where master can be contacted
 	EnvDescFname   string          // The filename of the Environment Descriptor
 	LogFile        *os.File        // Uhura's logfile
@@ -141,17 +142,6 @@ func initUhura() {
 
 func initEnv() {
 	ParseEnvDescriptor()
-}
-
-// UhuraShutdown is the routine that stops Uhura. This implementation needs to
-// be revisited... but it does the job for now...
-func UhuraShutdown() {
-
-	time.Sleep(3 * time.Second) // this is a hack until we work out the channel logic
-	ulog("Shutdown Handler\n")
-	ulog("Normal Shutdown\n")
-	ulog("Exiting uhura\n")
-	os.Exit(0)
 }
 
 func main() {

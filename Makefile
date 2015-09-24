@@ -1,4 +1,4 @@
-all: clean uhura test
+all: clean uhura test install
 	@echo "*** COMPLETED ***"
 
 .PHONY:  test

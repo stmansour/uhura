@@ -4,6 +4,13 @@
 // to ulog needs to be funneled through the dispatcher.
 package main
 
+import (
+	"fmt"
+	"math/rand"
+	"os"
+	"time"
+)
+
 // DispatcherCreateChannels creates all the channels used by the different
 // go routines that need to access shared resources
 func DispatcherCreateChannels() {
@@ -17,6 +24,24 @@ func DispatcherCreateChannels() {
 	Uhura.LogStringAck = make(chan int)
 	Uhura.LogStatus = make(chan StatusReq)
 	Uhura.LogStatusAck = make(chan int)
+	Uhura.ShutdownReq = make(chan int)
+	Uhura.ShutdownReqAck = make(chan int)
+}
+
+// This is a go routine, it runs asynchronously.
+// It starts a timer to give the last few things in motion a chance to finish
+// cleanly before exiting.
+// So, before the timer is up, it needs to access the log just like any
+// other routine.  When it finishes, execute the shutdown. This
+func simpleShutdown() {
+	ttl := 5 // seconds
+	Uhura.LogString <- fmt.Sprintf("SHUTDOWN will commence in a few seconds\n")
+	<-Uhura.LogStringAck
+	time.Sleep(time.Duration(rand.Intn(ttl)) * time.Second)
+	AWSTerminateInstances()                   // terminate the aws instances
+	ulog("Shutdown Handler - Exiting NOW!\n") // ok, all bets are off now
+	ulog("Exiting uhura\n")                   // just blast the log
+	os.Exit(0)                                // and exit
 }
 
 // Dispatcher directs the operation of uhura in steady state. It controls
@@ -24,6 +49,7 @@ func DispatcherCreateChannels() {
 // StateOrchestrator.
 func Dispatcher() {
 	var act int
+	startedShutdown := false
 	ulog("Started Dispatcher\n")
 	for {
 		act = actionNone // don't do anything unless orchestrator tells us
@@ -48,6 +74,10 @@ func Dispatcher() {
 		case s := <-Uhura.LogString:
 			Uhura.LogStringAck <- 1
 			ulog(s)
+
+		case <-Uhura.ShutdownReq:
+			act = actionShutdown // we assume the code only calls this when it should
+			Uhura.ShutdownReqAck <- 1
 		}
 
 		switch {
@@ -56,9 +86,11 @@ func Dispatcher() {
 		case act == actionTestNow:
 			ulog("TestNow\n")
 		case act == actionShutdown:
-			ulog("SHUTDOWN\n")
-			AWSTerminateInstances() // calling this here guarantees no one else is accessing the data
-			UhuraShutdown()         // TODO: this is an unceremonious shutdown, a hack for now
+			if !startedShutdown {
+				ulog("Normal Shutdown - all TGO instances report DONE\n")
+				go simpleShutdown()    // this will give us a few seconds for things to quiesce
+				startedShutdown = true // don't call it again
+			}
 		}
 	}
 }
