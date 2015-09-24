@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// StatusReq is the structure of data used by the http code to process
+// a status message from tgo
 type StatusReq struct {
 	State     string              // new status
 	InstName  string              // instance name
@@ -20,16 +22,20 @@ type StatusReq struct {
 	logmsgs   []string            // we'll need to save these until it's safe to print them
 }
 
+// UResp is uhura's reply message to the status message from tgo
 type UResp struct {
 	Status    string
 	ReplyCode int
 	Timestamp string
 }
 
+// RespOK and the rest are response codes to tgo status messages is
+// RespNoSuchInstance is the reply code when
+// Invalid
 const (
-	RespOK = iota
-	RespNoSuchInstance
-	InvalidState
+	RespOK             = iota // the reply code to a successfully handled status message from Tgo
+	RespNoSuchInstance        // instance-uid combination could not be found in the current environment
+	InvalidState              // the supplied state is invalid
 )
 
 /***********************************************************************************************
@@ -49,6 +55,7 @@ func httplog(s *StatusReq, format string, a ...interface{}) {
 	s.logmsgs = append(s.logmsgs, fmt.Sprintf(format, a...))
 }
 
+// SendReply is the generic response sender for Uhura
 func SendReply(w http.ResponseWriter, rc int, s string) {
 	w.Header().Set("Content-Type", "application/json")
 	m := UResp{Status: s, ReplyCode: rc, Timestamp: time.Now().Format(time.RFC822)}
@@ -61,30 +68,30 @@ func SendReply(w http.ResponseWriter, rc int, s string) {
 	}
 }
 
+// SendOKReply is a convenience routine for sending a reply of OK
 func SendOKReply(s *StatusReq) {
 	SendReply(s.w, RespOK, "OK")
 }
 
+// BadState is a convenience routine for sending a reply to the caller
+// indicating that the status message they sent has an invalid state
 func BadState(s *StatusReq) {
 	r := fmt.Sprintf("BAD STATE: %s", s.State)
 	httplog(s, "%s\n", r)
 	SendReply(s.w, InvalidState, r)
 }
 
-func BadInstUidCombo(s *StatusReq) {
+// BadInstUIDCombo is a convenience routine for sending a reply to a
+// caller indicating that the instance-name, UID pair provided was not
+// found in the currently running environment
+func BadInstUIDCombo(s *StatusReq) {
 	r := fmt.Sprintf("BAD INSTANCE-UID: %s-%s", s.InstName, s.UID)
 	httplog(s, "%s\n", r)
 	SendReply(s.w, RespNoSuchInstance, r)
 }
 
-//  When an http handler has an update to make, it pushes
-//  the status request onto the channel Uhura.httpDataLock .
-//  We read it from the channel and process it here. Other
-//  handlers will block until this routine finishes.
-//
-//	Update internals and make any state change that
-//  result from the status update.
-
+// HandleSetStatus does the actual work involved in updating the internal
+// data structures based on the status received.
 func HandleSetStatus(s *StatusReq, asc *AppStatChg) {
 	found := false
 	for i := 0; i < len(UEnv.Instances) && !found; i++ {
@@ -98,7 +105,7 @@ func HandleSetStatus(s *StatusReq, asc *AppStatChg) {
 			}
 			found = true
 			asc.app = j // found the app index
-			st := StateToInt(s.State)
+			st := stateToInt(s.State)
 			if st < 0 {
 				s.updateEnv = false
 				httplog(s, "Unrecognized State: %s", s.State)
@@ -111,7 +118,7 @@ func HandleSetStatus(s *StatusReq, asc *AppStatChg) {
 	}
 	if !found {
 		s.updateEnv = false
-		BadInstUidCombo(s)
+		BadInstUIDCombo(s)
 	}
 }
 
@@ -123,19 +130,29 @@ func HandleSetStatus(s *StatusReq, asc *AppStatChg) {
  ***********************************************************************************************
  ***********************************************************************************************/
 
-func SendHttpLogMsgs(s *StatusReq) {
+// sendHTTPLogMsgs sends the log messages that were saved during the
+// execution area where we had a memory lock.
+func sendHTTPLogMsgs(s *StatusReq) {
 	for i := 0; i < len(s.logmsgs); i++ {
 		Uhura.LogString <- s.logmsgs[i]
 		<-Uhura.LogStringAck
 	}
 }
 
-// A status request has arrived. Notify the Dispatcher that
-// we want access to the shared memory. Block until it has been
-// granted. Then process the request and send the reply, but
-// do not update the shared memory here. Instead, build the
-// structure of data indicating the change, and send it to the
-// dispatcher, who will, in turn, send it to the state orchestrator.
+// StatusHandler is called when the http listener receives a requests
+// specifying the "/status/" path. This routine coordinates with the
+// Dispatcher to gain access to memory and other shared resources. It
+// calls HandleStatus to actually process the status message.
+// Steps are as follows
+//
+//     *) Notify the Dispatcher that we want access to the shared
+//        memory. Block until it has been granted.
+//     *) Process the request and send the reply, but
+//        do not update the shared memory here. Instead, build the
+//        structure of data describing the change.
+//     *) Send it to the dispatcher, who will, in turn, send it to
+//        the state orchestrator.
+//
 // The idea here is to read enough info to determine the proper
 // reply to this status update, then let the StateOrchestrator make
 // the changes to the memory and take any appropriate actions.
@@ -158,7 +175,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	HandleSetStatus(&s, &asc) // handle the status req
 	Uhura.HReqMemAck <- 1     // tell Dispatcher we're done with the data
 
-	SendHttpLogMsgs(&s)
+	sendHTTPLogMsgs(&s)
 	if !s.updateEnv {
 		return // exit now if we don't update
 	}
@@ -168,10 +185,17 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	<-Uhura.LogEnvDescrAck // make sure it got done
 }
 
+// ShutdownHandler handles an http message sent to "/shutdown/"
+// TODO: Current implementation is a bit of a hack.  It needs to contact
+// the StateOrchestrator for handling this request
 func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 	SendReply(w, RespOK, "OK")
 	UhuraShutdown()
 }
+
+// MapHandler handles an http message sent to "/map/"
+// TODO: Current implementation is a total a hack.  It needs to
+// reply with a JSON version of the internal envDescr.
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 	Uhura.LogString <- "Map Handler\n"
 	<-Uhura.LogString
@@ -189,7 +213,7 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	}
 }
 
-func InitHTTP() {
+func initHTTP() {
 	// Set up the handler functions for our server...
 	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
 	http.HandleFunc("/status/", makeHandler(StatusHandler))

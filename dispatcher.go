@@ -4,6 +4,8 @@
 // to ulog needs to be funneled through the dispatcher.
 package main
 
+// DispatcherCreateChannels creates all the channels used by the different
+// go routines that need to access shared resources
 func DispatcherCreateChannels() {
 	Uhura.HReqMem = make(chan int)
 	Uhura.HReqMemAck = make(chan int)
@@ -17,6 +19,9 @@ func DispatcherCreateChannels() {
 	Uhura.LogStatusAck = make(chan int)
 }
 
+// Dispatcher directs the operation of uhura in steady state. It controls
+// the access to shared resources. It handles actions requested by the
+// StateOrchestrator.
 func Dispatcher() {
 	var act int
 	ulog("Started Dispatcher\n")
@@ -34,11 +39,11 @@ func Dispatcher() {
 
 		case sm := <-Uhura.LogStatus:
 			Uhura.LogStatusAck <- 1 // let caller continue because http uses memory in Read-Only mode...
-			DPrintStatusMsg(&sm)    // any change will need to come through StateOrchestrator via Dispatcher
+			dPrintStatusMsg(&sm)    // any change will need to come through StateOrchestrator via Dispatcher
 
 		case <-Uhura.LogEnvDescr:
 			Uhura.LogEnvDescrAck <- 1    // tell caller we're done
-			DPrintEnvDescr("Dispatcher") // performing the print
+			dPrintEnvDescr("Dispatcher") // performing the print
 
 		case s := <-Uhura.LogString:
 			Uhura.LogStringAck <- 1
@@ -53,7 +58,7 @@ func Dispatcher() {
 		case act == actionShutdown:
 			ulog("SHUTDOWN\n")
 			AWSTerminateInstances() // calling this here guarantees no one else is accessing the data
-			UhuraShutdown()         // this is an unceremonious shutdown, a hack for now
+			UhuraShutdown()         // TODO: this is an unceremonious shutdown, a hack for now
 		}
 	}
 }

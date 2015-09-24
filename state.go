@@ -1,5 +1,8 @@
 package main
 
+// AppStatChg is a struct of data describing an application status change
+// it is sent to the Dispatcher (who in turn sends it to the state orchestrator) via
+// a channel.
 type AppStatChg struct {
 	inst  int // which instance
 	app   int // which app
@@ -12,10 +15,10 @@ const (
 	actionShutdown
 )
 
-//  Check for all states being beyond the supplied state.
-//  This can happen during initialization when some instances
-//  are in the READY state before others have gotten past
-//  the UNKNOWN state.
+// AllAppStatesPast checks for all states being beyond the supplied state.
+// This can happen during initialization when some instances
+// are in the READY state before others have gotten past
+// the UNKNOWN state.
 func AllAppStatesPast(es int) bool {
 	past := true
 	for i := 0; past && i < len(UEnv.Instances); i++ {
@@ -32,7 +35,7 @@ func hasStateChanged() bool {
 	return AllAppStatesPast(UEnv.State)
 }
 
-// the orchestrator applies the applications status change to the datastore
+// StateOrchestarator applies the applications status change to the datastore
 // then performs any state change necessary
 func StateOrchestarator(asc *AppStatChg) int {
 	UEnv.Instances[asc.inst].Apps[asc.app].State = asc.state
@@ -44,10 +47,9 @@ func StateOrchestarator(asc *AppStatChg) int {
 		if AllAppStatesPast(uINIT) {
 			UEnv.State = uREADY
 			return actionTestNow
-		} else {
-			UEnv.State = uINIT
-			return actionNone
 		}
+		UEnv.State = uINIT
+		return actionNone
 	case UEnv.State == uINIT:
 		UEnv.State = uREADY
 		return actionTestNow
@@ -55,10 +57,9 @@ func StateOrchestarator(asc *AppStatChg) int {
 		if AllAppStatesPast(uTEST) {
 			UEnv.State = uDONE
 			return actionShutdown
-		} else {
-			UEnv.State = uTEST
-			return actionNone
 		}
+		UEnv.State = uTEST
+		return actionNone
 	case UEnv.State == uTEST:
 		UEnv.State = uDONE
 		return actionShutdown
@@ -69,7 +70,7 @@ func StateOrchestarator(asc *AppStatChg) int {
 		return actionShutdown
 	default:
 		ulog("ChangeState unhandled: UEnv.State = %s, don't know what the netx state is\n",
-			StateToString(UEnv.State))
+			stateToString(UEnv.State))
 		return actionNone
 	}
 }

@@ -15,12 +15,16 @@ const (
 	cmdSTOP
 )
 
+// UCommand is a data structure type containing a command
+// that uhura sends to tgo instances
 type UCommand struct {
 	Command   string
 	CmdCode   int
 	Timestamp string
 }
 
+// SendTgoCommand is used to send an HTTP message to a tgo instance asking
+// it to perform some action
 func SendTgoCommand(url string, cmd *UCommand, reply *UResp) (int, error) {
 	b, err := json.Marshal(cmd)
 	if err != nil {
@@ -49,6 +53,9 @@ func SendTgoCommand(url string, cmd *UCommand, reply *UResp) (int, error) {
 	return rc, err
 }
 
+// CommsSendTestNow is invoked by the StateOrchestrator when all instances
+// have reported that they are in the READY state. TESTNOW tells the instances
+// that they can begin testing.
 func CommsSendTestNow() {
 	// the UResp struct has what we need to send a command to Tgo
 	ulog("Comms: sending TESTNOW\n")

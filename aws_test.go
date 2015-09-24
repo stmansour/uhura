@@ -16,12 +16,12 @@ func TestNewInstParse(t *testing.T) {
 func TestLoadAwsInstances(t *testing.T) {
 	ReadAllAwsInstances("./test/publicdns/describe-instances.json")
 
-	pubDNS := SearchReservationsForPublicDNS("i-3c601794")
+	pubDNS := searchReservationsForPublicDNS("i-3c601794")
 	if "ec2-52-6-164-191.compute-1.amazonaws.com" != pubDNS {
 		t.Errorf("PubDNS: expected ec2-52-6-164-191.compute-1.amazonaws.com, got %s", pubDNS)
 	}
 
-	pubDNS = SearchReservationsForPublicDNS("total-garbage")
+	pubDNS = searchReservationsForPublicDNS("total-garbage")
 	if "" != pubDNS {
 		t.Errorf("PubDNS: expected empty string, got %s", pubDNS)
 	}

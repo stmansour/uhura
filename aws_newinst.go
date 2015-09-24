@@ -12,6 +12,9 @@ import (
 	"time"
 )
 
+// AwsNewInstance is the json output from the aws command 'aws ec2 run-instances'
+// We basically use this info to determine the Instanceid of each instance we create.
+// This is necessary to destroy the instance later.
 type AwsNewInstance struct {
 	Ownerid       string        `json:"OwnerId"`
 	Reservationid string        `json:"ReservationId"`
@@ -90,6 +93,8 @@ type AwsNewInstance struct {
 	} `json:"Instances"`
 }
 
+// AWSLoadNewInstanceInfo loads the json output from the command
+// 'aws ec2 run-instances...' We need this to determine the instanceID.
 func AWSLoadNewInstanceInfo(fname string) *AwsNewInstance {
 	file, e := ioutil.ReadFile(fname)
 	if e != nil {

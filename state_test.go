@@ -15,8 +15,8 @@ func TestStatusHandler(t *testing.T) {
 	// func TestStatusHandler() {
 	Uhura.EnvDescFname = "./test/utdata/ut1.json"
 	Uhura.DryRun = true
-	InitUhura()
-	InitEnv()
+	initUhura()
+	initEnv()
 
 	// env descr = ./test/utdata/ut1.json
 	//            inst, app, state, ENVSTATE, ACTION
@@ -33,12 +33,12 @@ func TestStatusHandler(t *testing.T) {
 	// fmt.Printf("Test 1\n\n")
 	for i := 0; i < len(test1a); i++ {
 		test := test1a[i]
-		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, StateToString(test.asc.state))
+		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, stateToString(test.asc.state))
 		act := StateOrchestarator(&test.asc)
-		DPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
+		dPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
 		if test.act != act || test.state != UEnv.State {
 			t.Errorf("TEST 1a, step %d, Action -  expected: %d, found: %d", i, test.act, act)
-			t.Errorf("                 State - expected: %s, found: %s", StateToString(test.state), StateToString(UEnv.State))
+			t.Errorf("                 State - expected: %s, found: %s", stateToString(test.state), stateToString(UEnv.State))
 		}
 	}
 
@@ -52,19 +52,19 @@ func TestStatusHandler(t *testing.T) {
 		{AppStatChg{0, 0, uTERM}, uTERM, actionShutdown},
 	}
 	Uhura.EnvDescFname = "./test/utdata/ut1.json"
-	InitEnv()
+	initEnv()
 	UEnv.State = uUNKNOWN
 
 	// fmt.Printf("\n#####################################################\n")
 	// fmt.Printf("Test 1\n\n")
 	for i := 0; i < len(test1b); i++ {
 		test := test1b[i]
-		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, StateToString(test.asc.state))
+		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, stateToString(test.asc.state))
 		act := StateOrchestarator(&test.asc)
-		DPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
+		dPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
 		if test.act != act || test.state != UEnv.State {
 			t.Errorf("TEST 1, step %d, Action -  expected: %d, found: %d", i, test.act, act)
-			t.Errorf("                State - expected: %s, found: %s", StateToString(test.state), StateToString(UEnv.State))
+			t.Errorf("                State - expected: %s, found: %s", stateToString(test.state), stateToString(UEnv.State))
 		}
 	}
 
@@ -91,17 +91,17 @@ func TestStatusHandler(t *testing.T) {
 	// fmt.Printf("Test 2\n\n")
 
 	Uhura.EnvDescFname = "./test/utdata/ut2.json"
-	InitEnv()
+	initEnv()
 	UEnv.State = uUNKNOWN
 
 	for i := 0; i < len(test2); i++ {
 		test := test2[i]
-		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, StateToString(test.asc.state))
+		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, stateToString(test.asc.state))
 		act := StateOrchestarator(&test.asc)
-		DPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
+		dPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
 		if test.act != act || test.state != UEnv.State {
 			t.Errorf("TEST 2, step %d, Action -  expected: %d, found: %d", i, test.act, act)
-			t.Errorf("                State - expected: %s, found: %s", StateToString(test.state), StateToString(UEnv.State))
+			t.Errorf("                State - expected: %s, found: %s", stateToString(test.state), stateToString(UEnv.State))
 		}
 	}
 
@@ -126,17 +126,17 @@ func TestStatusHandler(t *testing.T) {
 	// fmt.Printf("Test 3\n\n")
 
 	Uhura.EnvDescFname = "./test/utdata/ut2.json"
-	InitEnv()
+	initEnv()
 	UEnv.State = uUNKNOWN
 
 	for i := 0; i < len(test3); i++ {
 		test := test3[i]
-		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, StateToString(test.asc.state))
+		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, stateToString(test.asc.state))
 		act := StateOrchestarator(&test.asc)
-		DPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
+		dPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
 		if test.act != act || test.state != UEnv.State {
 			t.Errorf("TEST 3, step %d, Action -  expected: %d, found: %d", i, test.act, act)
-			t.Errorf("                State - expected: %s, found: %s", StateToString(test.state), StateToString(UEnv.State))
+			t.Errorf("                State - expected: %s, found: %s", stateToString(test.state), stateToString(UEnv.State))
 		}
 	}
 
@@ -160,17 +160,17 @@ func TestStatusHandler(t *testing.T) {
 	// fmt.Printf("Test 4\n\n")
 
 	Uhura.EnvDescFname = "./test/utdata/ut2.json"
-	InitEnv()
+	initEnv()
 	UEnv.State = uUNKNOWN
 
 	for i := 0; i < len(test4); i++ {
 		test := test4[i]
-		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, StateToString(test.asc.state))
+		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, stateToString(test.asc.state))
 		act := StateOrchestarator(&test.asc)
-		DPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
+		dPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
 		if test.act != act || test.state != UEnv.State {
 			t.Errorf("TEST 4, step %d, Action -  expected: %d, found: %d", i, test.act, act)
-			t.Errorf("                State - expected: %s, found: %s", StateToString(test.state), StateToString(UEnv.State))
+			t.Errorf("                State - expected: %s, found: %s", stateToString(test.state), stateToString(UEnv.State))
 		}
 	}
 
@@ -195,17 +195,17 @@ func TestStatusHandler(t *testing.T) {
 	// fmt.Printf("Test 4\n\n")
 
 	Uhura.EnvDescFname = "./test/utdata/ut2.json"
-	InitEnv()
+	initEnv()
 	UEnv.State = uUNKNOWN
 
 	for i := 0; i < len(test5); i++ {
 		test := test5[i]
-		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, StateToString(test.asc.state))
+		ulog("Change: Inst=%d, App=%d, State->%s\n", test.asc.inst, test.asc.app, stateToString(test.asc.state))
 		act := StateOrchestarator(&test.asc)
-		DPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
+		dPrintEnvDescr(fmt.Sprintf("After processing %+v\n", test.asc))
 		if test.act != act || test.state != UEnv.State {
 			t.Errorf("TEST 5, step %d, Action -  expected: %d, found: %d", i, test.act, act)
-			t.Errorf("                State - expected: %s, found: %s", StateToString(test.state), StateToString(UEnv.State))
+			t.Errorf("                State - expected: %s, found: %s", stateToString(test.state), stateToString(UEnv.State))
 		}
 	}
 }

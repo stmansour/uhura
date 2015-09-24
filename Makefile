@@ -10,6 +10,7 @@ install: uhura
 
 uhura: *.go
 	go fmt
+	golint
 	go vet
 	go build
 	@echo "*** BUILD COMPLETED ***"

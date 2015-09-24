@@ -32,12 +32,12 @@ var htest1 = []httptTestStep{
 }
 
 func TestStatusHandler2(t *testing.T) {
-	InitUhura()
+	initUhura()
 	Uhura.Debug = true
 	Uhura.DebugToScreen = true
 	Uhura.EnvDescFname = "./test/stateflow_normal/env1.json"
 	Uhura.DryRun = true
-	InitEnv()
+	initEnv()
 	ResetUEnv()
 	DispatcherCreateChannels()
 	go Dispatcher() // get the dispatcher going

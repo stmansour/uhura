@@ -18,7 +18,8 @@ func ulog(format string, a ...interface{}) {
 	}
 }
 
-func StateToInt(s string) int {
+// stateToInt returns the state code associated with a string that represents the status
+func stateToInt(s string) int {
 	var i int
 	switch {
 	case s == "UNKNOWN":
@@ -39,7 +40,9 @@ func StateToInt(s string) int {
 	return i
 }
 
-func StateToString(i int) string {
+// stateToInt returns a string associated with a status code
+// TODO: should be implemented as a map
+func stateToString(i int) string {
 	var s string
 	switch {
 	case i == uUNKNOWN:
@@ -60,7 +63,7 @@ func StateToString(i int) string {
 	return fmt.Sprintf("%d (%s)", i, s)
 }
 
-func PrintEnvInstance(e *InstDescr, i int) {
+func printEnvInstance(e *InstDescr, i int) {
 	ulog("    Instance[%d]:  InstName(%s)\n", i, e.InstName)
 	ulog("\tApps:\n")
 	for j := 0; j < len(e.Apps); j++ {
@@ -68,36 +71,30 @@ func PrintEnvInstance(e *InstDescr, i int) {
 		ulog("\t\tName        : %s\n", e.Apps[j].Name)
 		ulog("\t\tUPort       : %d\n", e.Apps[j].UPort)
 		ulog("\t\tIsTest      : %v\n", e.Apps[j].IsTest)
-		ulog("\t\tState       : %s\n", StateToString(e.Apps[j].State))
+		ulog("\t\tState       : %s\n", stateToString(e.Apps[j].State))
 		ulog("\t\t------------------------------------\n")
 	}
 }
 
-func DPrintEnvInstance(e *InstDescr, i int) {
-	if Uhura.Debug {
-		PrintEnvInstance(e, i)
-	}
-}
-
-func PrintEnvDescr() {
+func printEnvDescr() {
 	ulog("----------------------  UEnv  ----------------------\n")
 	ulog("EnvName  : %s\n", UEnv.EnvName)
-	ulog("State    : %s\n", StateToString(UEnv.State))
+	ulog("State    : %s\n", stateToString(UEnv.State))
 	ulog("UhuraPort: %d\n", UEnv.UhuraPort)
 	ulog("Instances: %d\n", len(UEnv.Instances))
 	for i := 0; i < len(UEnv.Instances); i++ {
-		PrintEnvInstance(&UEnv.Instances[i], i)
+		printEnvInstance(&UEnv.Instances[i], i)
 	}
 	ulog("----------------------------------------------------\n")
 }
-func DPrintEnvDescr(s string) {
+func dPrintEnvDescr(s string) {
 	if Uhura.Debug {
 		ulog(s)
-		PrintEnvDescr()
+		printEnvDescr()
 	}
 }
 
-func PrintStatusMsg(s *StatusReq) {
+func printStatusMsg(s *StatusReq) {
 	ulog("##########################################\n")
 	ulog("Status Message\n")
 	ulog("\tState:		%s\n", s.State)
@@ -107,8 +104,8 @@ func PrintStatusMsg(s *StatusReq) {
 	ulog("##########################################\n")
 }
 
-func DPrintStatusMsg(s *StatusReq) {
+func dPrintStatusMsg(s *StatusReq) {
 	if Uhura.Debug {
-		PrintStatusMsg(s)
+		printStatusMsg(s)
 	}
 }

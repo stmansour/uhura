@@ -11,7 +11,8 @@ import (
 	"time"
 )
 
-// This must only be used for testing.
+// ResetUEnv sets the entire internal environment definition back to the
+// UKNOWN state. This must only be used for testing.
 func ResetUEnv() {
 	Uhura.HReqMem <- 1 // ask to access the shared mem, blocks until granted
 	<-Uhura.HReqMemAck // make sure we got it
@@ -24,7 +25,7 @@ func ResetUEnv() {
 	Uhura.HReqMemAck <- 1 // tell Dispatcher we're done with the data
 }
 
-func InternalStateTest(inst int, c chan int) {
+func internalStateTest(inst int, c chan int) {
 	// env descr = ./test/utdata/ut2.json
 	//            inst, app, state,  ENV STATE, action
 	// This case - they go straight from READY to DONE - because they test
@@ -51,13 +52,13 @@ func InternalStateTest(inst int, c chan int) {
 
 	for i := 0; i < len(intTest5); i++ {
 		time.Sleep(time.Duration(rand.Intn(300)) * time.Millisecond)
-		Uhura.LogString <- fmt.Sprintf("InternalStateTest[%d]\n", inst)
+		Uhura.LogString <- fmt.Sprintf("internalStateTest[%d]\n", inst)
 		<-Uhura.LogStringAck // wait for confirmation
 		test := intTest5[i]
 		Uhura.StateChg <- test.asc
 		reply := <-Uhura.StateChgAck
 		if reply != 1 {
-			Uhura.LogString <- fmt.Sprintf("InternalStateTest[%d] -Curious... dispatcher ack'd with value %d instead of 1\n",
+			Uhura.LogString <- fmt.Sprintf("internalStateTest[%d] -Curious... dispatcher ack'd with value %d instead of 1\n",
 				inst, reply)
 			<-Uhura.LogStringAck // wait for confirmation
 		}
@@ -65,16 +66,19 @@ func InternalStateTest(inst int, c chan int) {
 	c <- 1 // signal that we're done
 }
 
-func EnvDump(i int, c chan int) {
+// envDump sends dump the env
+func envDump(i int, c chan int) {
 	time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
-	Uhura.LogString <- fmt.Sprintf("EnvDump[%d]\n", i) // update ulog
+	Uhura.LogString <- fmt.Sprintf("envDump[%d]\n", i) // update ulog
 	<-Uhura.LogStringAck                               // wait for confirmation
 	Uhura.LogEnvDescr <- 1                             // request a log dump
 	<-Uhura.LogEnvDescrAck                             // wait for it to complete
 	c <- 1                                             // signal that we're done
 }
 
-func PoundTheStatusHandler(inst int, c chan int) {
+// poundTheStatusHandler simulates a thundering-herd of http requestors sending
+// status messages.
+func poundTheStatusHandler(inst int, c chan int) {
 	var intTest5 = []StatusReq{
 		StatusReq{"UNKNOWN", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
 		StatusReq{"UNKNOWN", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
@@ -100,16 +104,20 @@ func PoundTheStatusHandler(inst int, c chan int) {
 		response, _ := ioutil.ReadAll(reply.Body)
 		resp := new(UResp)
 		json.Unmarshal(response, resp)
-		Uhura.LogString <- fmt.Sprintf("PoundTheStatusHandler[%d] - http response: Status: %s, ReplyCode: %d, Timestamp: %s\n",
+		Uhura.LogString <- fmt.Sprintf("poundTheStatusHandler[%d] - http response: Status: %s, ReplyCode: %d, Timestamp: %s\n",
 			inst, resp.Status, resp.ReplyCode, resp.Timestamp)
 		<-Uhura.LogStringAck // wait for confirmation
 	}
 	c <- 1 // signal that we're done
 }
 
-func BeatOnTheChannelMessaging() {
+// beatOnTheChannelMessaging simulates a thundering-herd of requestors sending
+// status messages and requesting envDescr dumps and shared memory changes all
+// at once. It validates the operation of the channels that share memory between
+// all the different requestors.
+func beatOnTheChannelMessaging() {
 	Uhura.EnvDescFname = "./test/utdata/ut2.json" // here's the env to load
-	InitEnv()                                     // make sure we have it before starting dispatcher
+	initEnv()                                     // make sure we have it before starting dispatcher
 	go Dispatcher()                               // get the dispatcher going
 	c := make(chan int)                           // comm channel for tests to indicat completion
 	n := 5                                        // how many of each go routine?
@@ -117,11 +125,11 @@ func BeatOnTheChannelMessaging() {
 	for j := 0; j < 10; j++ {
 		ResetUEnv()
 		for i := 0; i < n; i++ { // blast away at the Orchestrator
-			go InternalStateTest(i, c)     // update status at random intervals
+			go internalStateTest(i, c)     // update status at random intervals
 			m++                            // another read
-			go EnvDump(i, c)               // dump the env descr at random intervals
+			go envDump(i, c)               // dump the env descr at random intervals
 			m++                            // another read
-			go PoundTheStatusHandler(i, c) // do a bunch of http stuff at the same time
+			go poundTheStatusHandler(i, c) // do a bunch of http stuff at the same time
 			m++                            // another read
 		}
 	}

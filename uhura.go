@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-//  The application data structure
+// UhuraApp is the structure of data associated with the application
 type UhuraApp struct {
 	Port           int             // What port are we listening on
 	Debug          bool            // Debug mode -- show ulog messages on screen
@@ -40,9 +40,10 @@ type UhuraApp struct {
 	// LogEnvDescrDone chan int        // done printing
 }
 
+// Uhura is our app. This is the data that defines it
 var Uhura UhuraApp
 
-func ProcessCommandLine() {
+func processCommandLine() {
 	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
 	portPtr := flag.Int("p", 8100, "port on which uhura listens")
@@ -86,7 +87,7 @@ func ProcessCommandLine() {
 	fmt.Printf("Uhura.EnvDescFname = %s\n", Uhura.EnvDescFname)
 }
 
-func InitUhura() {
+func initUhura() {
 	log.SetOutput(Uhura.LogFile)
 	ulog("**********   U H U R A   **********\n")
 	ulog("Uhura starting on: %s\n", Uhura.URL)
@@ -138,11 +139,12 @@ func InitUhura() {
 
 }
 
-func InitEnv() {
+func initEnv() {
 	ParseEnvDescriptor()
 }
 
-// This whole routine is a hack until I work out something better
+// UhuraShutdown is the routine that stops Uhura. This implementation needs to
+// be revisited... but it does the job for now...
 func UhuraShutdown() {
 
 	time.Sleep(3 * time.Second) // this is a hack until we work out the channel logic
@@ -166,16 +168,16 @@ func main() {
 	log.SetOutput(Uhura.LogFile)
 
 	// OK, now on with the show...
-	ProcessCommandLine()
-	InitUhura()
+	processCommandLine()
+	initUhura()
 	DispatcherCreateChannels()
 
 	if Uhura.InternalTest {
-		BeatOnTheChannelMessaging()
+		beatOnTheChannelMessaging()
 		os.Exit(0)
 	}
-	InitEnv()
-	InitHTTP()
+	initEnv()
+	initHTTP()
 	go Dispatcher() // get the dispatcher going
 	err = http.ListenAndServe(fmt.Sprintf(":%d", Uhura.Port), nil)
 	if nil != err {

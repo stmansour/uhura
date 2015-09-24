@@ -7,6 +7,7 @@ import (
 	"os/exec"
 )
 
+// AwsTerm describes the json ouptut from the command 'aws ec2 terminate-instances'
 type AwsTerm struct {
 	Terminatinginstances []struct {
 		Instanceid   string `json:"InstanceId"`
@@ -21,6 +22,8 @@ type AwsTerm struct {
 	} `json:"TerminatingInstances"`
 }
 
+// AWSTerminateInstances terminates the compute instances that we created
+// to make a test/deployment environment.
 func AWSTerminateInstances() {
 	if !Uhura.DryRun && !Uhura.KeepEnv {
 		app := "aws"
