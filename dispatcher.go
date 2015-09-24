@@ -52,6 +52,7 @@ func Dispatcher() {
 			ulog("TestNow\n")
 		case act == actionShutdown:
 			ulog("SHUTDOWN\n")
+			exit_uhura() // this is an unceremonious shutdown, a hack for now
 		}
 	}
 }

@@ -1,10 +1,10 @@
 ../../uhura -p 8100 -d  -n -e env.json >uhura.out 2>&1 &
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 14:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"23 Sep 15 19:26 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s DONE
 Validating output...
