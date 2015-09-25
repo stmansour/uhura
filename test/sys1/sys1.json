@@ -10,7 +10,7 @@
 	    		"UID": "tgo0",
 	    		"Name": "tgo",
 	    		"Repo": "jenkins-snapshot/tgo/latest",
-	    		"UPort": 8082,
+	    		"UPort": 8102,
 	    		"IsTest": false
 	    	}
 	    ]
@@ -24,7 +24,7 @@
 	    		"UID": "tgo0",
 	    		"Name": "tgo",
 	    		"Repo": "jenkins-snapshot/tgo/latest",
-	    		"UPort": 8082,
+	    		"UPort": 8102,
 	    		"IsTest": false
 	    	}
 	    ]
@@ -38,7 +38,7 @@
 	    		"UID": "tgo0",
 	    		"Name": "tgo",
 	    		"Repo": "jenkins-snapshot/tgo/latest",
-	    		"UPort": 8082,
+	    		"UPort": 8102,
 	    		"IsTest": false
 	    	}
 	    ]
