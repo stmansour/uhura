@@ -52,11 +52,11 @@ func StateOrchestarator(asc *AppStatChg) int {
 		return actionNone
 	case UEnv.State == uINIT:
 		UEnv.State = uREADY
-		return actionTestNow
+		return actionTestNow // EMAIL ALL TGOs
 	case UEnv.State == uREADY:
 		if AllAppStatesPast(uTEST) {
 			UEnv.State = uDONE
-			return actionShutdown
+			return actionShutdown // They're all done, shutdown
 		}
 		UEnv.State = uTEST
 		return actionNone

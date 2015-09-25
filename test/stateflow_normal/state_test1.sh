@@ -276,6 +276,14 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 	#---------------------------------------------------------------------
 	DIFFS=$(diff x y | wc -l)
 
+	#---------------------------------------------------------------------
+	# some randomness in where go routines get their timeslice...
+	#---------------------------------------------------------------------
+	if [ ${DIFFS} -gt 0 -a ${DIFFS} -lt 5 ]; then
+		diff x y | grep "^[<>]" | perl -pe "s/^[<>]//" >z
+		DIFFS=$(grep -v "Comms: sending TESTNOW" z | wc -l)
+	fi
+
 	if [ ${VERBOSE} -gt 0 ]; then
 		echo "Functional differences between reference log and this test log: ${DIFFS}"
 	fi

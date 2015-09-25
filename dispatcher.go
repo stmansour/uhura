@@ -50,6 +50,7 @@ func simpleShutdown() {
 func Dispatcher() {
 	var act int
 	startedShutdown := false
+	startedTestNow := false
 	ulog("Started Dispatcher\n")
 	for {
 		act = actionNone // don't do anything unless orchestrator tells us
@@ -82,9 +83,12 @@ func Dispatcher() {
 
 		switch {
 		case act == actionNone:
-			// nothing to do
+			// nothing to do, just wanted to explicitly show it
 		case act == actionTestNow:
-			ulog("TestNow\n")
+			if !startedTestNow {
+				go CommsSendTestNow()
+				startedTestNow = true
+			}
 		case act == actionShutdown:
 			if !startedShutdown {
 				ulog("Normal Shutdown - all TGO instances report DONE\n")
