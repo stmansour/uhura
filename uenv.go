@@ -129,12 +129,12 @@ func makeLinuxScript(i int) {
 		dirs += fmt.Sprintf("mkdir ~ec2-user/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 		apps += fmt.Sprintf("artf_get %s %s.tar.gz\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
 
-		//TODO:                       vvvvvv---should be IsController
 		if !UEnv.Instances[i].Apps[j].IsTest {
 			app := UEnv.Instances[i].Apps[j].Name
-			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar;cd %s\n", app, app, app)
+			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar\n", app, app)
 		}
 	}
+	ctrl += fmt.Sprintf("cd tgo\n")
 
 	// now we have all wwe need to create and write the file
 	qmstr := envDescrScriptName(i)
