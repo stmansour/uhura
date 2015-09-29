@@ -311,6 +311,7 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 	#---------------------------------------------------------------------
 	declare -a scriptout_filters=(
 		's/\"Timestamp\":.*/Timestamp: TIMESTAMP/'
+		's/"UhuraURL":"http:\/\/[^\/]+\/"/"UhuraURL":"SOMEURL:SOMEPORT"/'
 	)
 	cp state_test1_script.gold v
 	cp state_test1_script.log w
