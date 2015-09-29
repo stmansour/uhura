@@ -128,11 +128,8 @@ func makeLinuxScript(i int) {
 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
 		dirs += fmt.Sprintf("mkdir ~ec2-user/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 		apps += fmt.Sprintf("artf_get %s %s.tar.gz\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
-
-		if !UEnv.Instances[i].Apps[j].IsTest {
-			app := UEnv.Instances[i].Apps[j].Name
-			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar\n", app, app)
-		}
+		app := UEnv.Instances[i].Apps[j].Name
+		ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar\n", app, app)
 	}
 	ctrl += fmt.Sprintf("cd tgo\n")
 
