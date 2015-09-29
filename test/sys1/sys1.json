@@ -1,0 +1,47 @@
+{
+    "EnvName": "Multiple-Instances Test Environment",
+    "Instances": [
+	{
+	    "InstName": "TGO-0",
+	    "OS":       "Linux",
+	    "Count":    1,
+	    "Apps": [
+	    	{
+	    		"UID": "tgo0",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8102,
+	    		"IsTest": false
+	    	}
+	    ]
+	},
+	{
+	    "InstName": "TGO-1",
+	    "OS":       "Linux",
+	    "Count":    1,
+	    "Apps": [
+	    	{
+	    		"UID": "tgo0",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8102,
+	    		"IsTest": false
+	    	}
+	    ]
+	},
+	{
+	    "InstName": "TGO-2",
+	    "OS":       "Linux",
+	    "Count":    1,
+	    "Apps": [
+	    	{
+	    		"UID": "tgo0",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8102,
+	    		"IsTest": false
+	    	}
+	    ]
+	}
+    ]
+} 

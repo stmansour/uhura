@@ -22,6 +22,8 @@ const (
 	uTERM
 )
 
+// AppDescr is an application description that provides information
+// about an application that we deploy.
 type AppDescr struct {
 	UID    string
 	Name   string
@@ -32,6 +34,8 @@ type AppDescr struct {
 	RunCmd string
 }
 
+// InstDescr is a structure of data describing every Instance (virtual
+// computer) that we deploy in the cloud
 type InstDescr struct {
 	InstName  string
 	OS        string
@@ -40,21 +44,14 @@ type InstDescr struct {
 	Apps      []AppDescr
 }
 
-//  Environment Descriptor. This struct defines a test (or production) environment.
-//  EnvName is the name associated with the collection of Instances
-//  UhuraURL is the http url where tgo instances should contact uhura
-//  UhuraPort (may not be needed) is the port on which uhura listens. Default is 8100
-//  ThisInst - when this value is present, it is to inform a tgo instance which instance it is.
-//             The value is the index into the instances array.
-//  State = the overall state of the environment, one of  INIT, READY, TEST, DONE
-//  Instances - an array of instance descriptors that describe each instance in the environment.
+// EnvDescr is a struct that defines a test (or production) environment.
 type EnvDescr struct {
-	EnvName   string
-	UhuraURL  string
-	UhuraPort int
-	ThisInst  int
-	State     int // overall state of the environment
-	Instances []InstDescr
+	EnvName   string      // the name associated with the collection of Instances
+	UhuraURL  string      // the http url where tgo instances should contact uhura
+	UhuraPort int         // (may not be needed) is the port on which uhura listens. Default is 8100
+	ThisInst  int         // informs a tgo instance which Instance index it is.
+	State     int         // overall state of the environment
+	Instances []InstDescr // the array of InstDescr describing each instance in the env.
 }
 
 //  The main data object for this module
@@ -68,18 +65,18 @@ func check(e error) {
 }
 
 // just reduces the lines of code
-func FileWriteString(f *os.File, s *string) {
+func fileWriteString(f *os.File, s *string) {
 	_, err := f.WriteString(*s)
 	check(err)
 }
 
-func FileWriteBytes(f *os.File, b []byte) {
+func fileWriteBytes(f *os.File, b []byte) {
 	_, err := f.Write(b)
 	check(err)
 }
 
 // Create a deterministic unique name for each script
-func EnvDescrScriptName(i int) string {
+func envDescrScriptName(i int) string {
 	var ftype string
 	if UEnv.Instances[i].OS == "Windows" {
 		ftype = "scr"
@@ -90,7 +87,7 @@ func EnvDescrScriptName(i int) string {
 }
 
 // Make a Windows init script for the ith Instance
-func MakeWindowsScript(i int) {
+func makeWindowsScript(i int) {
 	// First, build up a string with all the apps to deploy to this instance
 	// Now build a script for each instance.  We assume for Windows that everything
 	// is in "ext-tools/utils"
@@ -108,21 +105,21 @@ func MakeWindowsScript(i int) {
 		apps += fmt.Sprintf("\t\t\"%s\"%s\n", UEnv.Instances[i].Apps[j].Name, *eol)
 	}
 	apps += ")\n"
-	qmstr := EnvDescrScriptName(i)
+	qmstr := envDescrScriptName(i)
 	f, err := os.Create(qmstr)
 	check(err)
 	defer f.Close()
-	FileWriteBytes(f, Uhura.QmstrHdrWin)
+	fileWriteBytes(f, Uhura.QmstrHdrWin)
 	phoneHome := fmt.Sprintf("$UHURA_MASTER_URL = \"%s\"\n", Uhura.URL)
 	phoneHome += fmt.Sprintf("$MY_INSTANCE_NAME = \"%s\"\n", UEnv.Instances[i].InstName)
-	FileWriteString(f, &apps)
-	FileWriteString(f, &phoneHome)
-	FileWriteBytes(f, Uhura.QmstrFtrWin)
+	fileWriteString(f, &apps)
+	fileWriteString(f, &phoneHome)
+	fileWriteBytes(f, Uhura.QmstrFtrWin)
 	f.Sync()
 }
 
 // Make a linux init script for the ith Instance
-func MakeLinuxScript(i int) {
+func makeLinuxScript(i int) {
 	// First, build up a string with all the apps to deploy to this instance
 	// Now build a script for each instance
 	apps := ""
@@ -131,69 +128,66 @@ func MakeLinuxScript(i int) {
 	for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
 		dirs += fmt.Sprintf("mkdir ~ec2-user/apps/%s\n", UEnv.Instances[i].Apps[j].Name)
 		apps += fmt.Sprintf("artf_get %s %s.tar.gz\n", UEnv.Instances[i].Apps[j].Repo, UEnv.Instances[i].Apps[j].Name)
-
-		//TODO:                       vvvvvv---should be IsController
-		if !UEnv.Instances[i].Apps[j].IsTest {
-			app := UEnv.Instances[i].Apps[j].Name
-			ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar;cd %s\n", app, app, app)
-		}
+		app := UEnv.Instances[i].Apps[j].Name
+		ctrl += fmt.Sprintf("gunzip %s.tar.gz;tar xf %s.tar\n", app, app)
 	}
+	ctrl += fmt.Sprintf("cd tgo\n")
 
 	// now we have all wwe need to create and write the file
-	qmstr := EnvDescrScriptName(i)
+	qmstr := envDescrScriptName(i)
 	phoneHome := fmt.Sprintf("UHURA_MASTER_URL=%s\n", Uhura.URL)
 	phoneHome += fmt.Sprintf("MY_INSTANCE_NAME=\"%s\"\n", UEnv.Instances[i].InstName)
 	f, err := os.Create(qmstr)
 	check(err)
 	defer f.Close()
-	FileWriteBytes(f, Uhura.QmstrBaseLinux)
-	FileWriteString(f, &phoneHome)
-	FileWriteString(f, &dirs)
-	FileWriteString(f, &apps)
-	FileWriteString(f, &ctrl)
+	fileWriteBytes(f, Uhura.QmstrBaseLinux)
+	fileWriteString(f, &phoneHome)
+	fileWriteString(f, &dirs)
+	fileWriteString(f, &apps)
+	fileWriteString(f, &ctrl)
 
 	s := "cat >uhura_map.json <<ZZEOF\n"
-	FileWriteString(f, &s)
+	fileWriteString(f, &s)
 
 	// content, err := ioutil.ReadFile(Uhura.EnvDescFname)
 	// check(err)
-	// FileWriteBytes(f, content)
+	// fileWriteBytes(f, content)
 	UEnv.ThisInst = i
 	b, err := json.Marshal(&UEnv)
-	FileWriteBytes(f, b)
+	fileWriteBytes(f, b)
 
 	s = "\nZZEOF\n"
-	FileWriteString(f, &s)
+	fileWriteString(f, &s)
 
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
 	// started up, then change the ownership.
 	startitup := fmt.Sprint("./activate.sh START > activate.log 2>&1\n")
-	FileWriteString(f, &startitup)
+	fileWriteString(f, &startitup)
 	s = fmt.Sprintf("sleep 1;cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
-	FileWriteString(f, &s)
+	fileWriteString(f, &s)
 
 	f.Sync()
 }
 
 // Unmarshal the data in descriptor.
 // The machine bring-up scripts are created at the same time.
-func CreateInstanceScripts() {
+func createInstanceScripts() {
 	if 0 == UEnv.UhuraPort {
 		UEnv.UhuraPort = 8100 // default port for Uhura
 	}
 	// Build the quartermaster script to create each environment instance...
 	for i := 0; i < len(UEnv.Instances); i++ {
 		if UEnv.Instances[i].OS == "Windows" {
-			MakeWindowsScript(i)
+			makeWindowsScript(i)
 		} else {
-			MakeLinuxScript(i)
+			makeLinuxScript(i)
 		}
 	}
 }
 
 //  Create the environments
 //  Note:  the scripts must be in either
-func ExecScript(i int) {
+func execScript(i int) {
 	var script string
 	// determine where the scripts exist
 	path := "/c/Accord/bin"
@@ -215,7 +209,7 @@ func ExecScript(i int) {
 
 	// Gather the args...
 	app := fmt.Sprintf("%s/%s", path, script)
-	arg0 := EnvDescrScriptName(i)
+	arg0 := envDescrScriptName(i)
 	arg1, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -238,24 +232,29 @@ func ExecScript(i int) {
 	}
 }
 
-func SetInstanceHostNames() {
+func setInstanceHostNames() {
 	ReadAllAwsInstances("descrinst.json")
 	for i := 0; i < len(UEnv.Instances); i++ {
 		ulog("Search for InstAwsID = %s\n", UEnv.Instances[i].InstAwsID)
-		UEnv.Instances[i].HostName = SearchReservationsForPublicDNS(UEnv.Instances[i].InstAwsID)
+		UEnv.Instances[i].HostName = searchReservationsForPublicDNS(UEnv.Instances[i].InstAwsID)
 	}
-	DPrintEnvDescr("UEnv after launching all instances:")
+	dPrintEnvDescr("UEnv after launching all instances:")
 }
 
-// Execute the descriptor.  That means create the environment(s).
+// ExecuteDescriptor - i.e., create the environment.
 func ExecuteDescriptor() {
 	for i := 0; i < len(UEnv.Instances); i++ {
-		ExecScript(i)
+		execScript(i)
 	}
 	// After all the execs have been done, we need to ask aws for
 	// the describe-instances json, then parse it for the public dns names
 	// for each of our instances.
-	if !Uhura.DryRun {
+	if Uhura.DryRun {
+		// this is a bit of a hack, but it helps with testing
+		for i := 0; i < len(UEnv.Instances); i++ {
+			UEnv.Instances[i].HostName = "localhost"
+		}
+	} else {
 		// the problem with doing this right away is that it takes
 		// aws some time to get all the public dns stuff worked out.
 		// So, if we call it immediately, things won't work. We need to
@@ -278,21 +277,22 @@ func ExecuteDescriptor() {
 			panic(err)
 		}
 		cmd.Wait()
-		SetInstanceHostNames()
+		setInstanceHostNames()
 	}
 }
 
-func WriteEnvDescr() {
+func writeEnvDescr() {
 	// Now generate the env.json file that we'll send to all the instances
 	b, err := json.Marshal(&UEnv)
 	f, err := os.Create("uhura_map.json")
 	check(err)
 	defer f.Close()
-	FileWriteBytes(f, b)
+	fileWriteBytes(f, b)
 	f.Sync()
 }
 
-// Parse the environment
+// ParseEnvDescriptor - parse the json file that describes the environment
+// we are to build up and manage
 func ParseEnvDescriptor() {
 	// First, see if we can read the file in
 	ulog("ParseEnvDescriptor - Loading %s\n", Uhura.EnvDescFname)
@@ -301,7 +301,6 @@ func ParseEnvDescriptor() {
 		ulog("File error on Environment Descriptor file: %v\n", e)
 		os.Exit(1) // no recovery from this
 	}
-	ulog("%s\n", string(content))
 
 	// OK, now we have the json describing the environment in content (a string)
 	// Parse it into an internal data structure...
@@ -310,15 +309,15 @@ func ParseEnvDescriptor() {
 		ulog("Error unmarshaling Environment Descriptor json: %s\n", err)
 		check(err)
 	}
-	DPrintEnvDescr("UEnv after initial parse:")
+	dPrintEnvDescr("UEnv after initial parse:")
 
 	// Add Uhura's URL to the environment description
 	UEnv.UhuraURL = Uhura.URL
-	// WriteEnvDescr()   // removed -- I think we'll write it from memory each time because we need to set ThisInst name.
+	// writeEnvDescr()   // removed -- I think we'll write it from memory each time because we need to set ThisInst name.
 
 	// Now that we have the datastructure filled in, we can
 	// begin to execute it.
-	CreateInstanceScripts()
+	createInstanceScripts()
 	ExecuteDescriptor()
 
 }

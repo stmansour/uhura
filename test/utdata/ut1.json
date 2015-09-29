@@ -10,7 +10,7 @@
 	    		"UID": "tgo0",
 	    		"Name": "tgo",
 	    		"Repo": "jenkins-snapshot/tgo/latest",
-	    		"UPort": 8102,
+	    		"UPort": 8082,
 	    		"IsTest": false
 	    	}
 	    ]

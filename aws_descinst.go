@@ -12,6 +12,11 @@ import (
 	"time"
 )
 
+// AwsDescribeInstances is a type definition of the
+// data we get back from the command 'aws ec2 describe-instances'.
+// Uhura uses this data to determine the publicDNS of the instances
+// it creates. I validated with AWS support... this is the best way
+// to do it.
 type AwsDescribeInstances struct {
 	Reservations []struct {
 		Ownerid       string        `json:"OwnerId"`
@@ -112,9 +117,12 @@ type AwsDescribeInstances struct {
 	} `json:"Reservations"`
 }
 
+// AllAwsInstances contains all the information from 'aws ec2 describe-instances'.
+// knowing the InstanceID of the instances we create, we use this call to determine
+// their publicDNS address.
 var AllAwsInstances AwsDescribeInstances
 
-// Return the publicDNS name for the supplied instance
+// ReadAllAwsInstances injests the json output 'aws ec2 describe-instances'
 func ReadAllAwsInstances(fname string) {
 	b, e := ioutil.ReadFile(fname)
 	if e != nil {
@@ -127,7 +135,7 @@ func ReadAllAwsInstances(fname string) {
 	}
 }
 
-func SearchReservationsForPublicDNS(iid string) string {
+func searchReservationsForPublicDNS(iid string) string {
 	for i := 0; i < len(AllAwsInstances.Reservations); i++ {
 		for j := 0; j < len(AllAwsInstances.Reservations[i].Instances); j++ {
 			if iid == AllAwsInstances.Reservations[i].Instances[j].Instanceid {
