@@ -76,6 +76,11 @@ sendStatus() {
 	echo >>${SCRIPTLOG} 2>&1
 }
 
+mapRequest() {
+	# using ThisInst = 7 just to make sure it's parsed and returned properly
+	curl -s -H "content-Type: application/json" -X POST -d "{\"ThisInst\":7}" http://${UHOST}:${UPORT}/map/ >>${SCRIPTLOG} 2>&1
+}
+
 #---------------------------------------------------------------------
 #  optspec begins with ':', option letters follow, if the
 #  option takes a param then it is followed by ':'
@@ -197,6 +202,7 @@ fi
 # through their states.  This is just a straight functional test.
 # There are no random pauses or timing tricks.
 #---------------------------------------------------------------------
+mapRequest
 sendStatus "prog1" "INIT"
 sendStatus "prog2" "INIT"
 sendStatus "prog1" "READY"

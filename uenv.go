@@ -49,7 +49,7 @@ type EnvDescr struct {
 	EnvName   string      // the name associated with the collection of Instances
 	UhuraURL  string      // the http url where tgo instances should contact uhura
 	UhuraPort int         // (may not be needed) is the port on which uhura listens. Default is 8100
-	ThisInst  int         // informs a tgo instance which Instance index it is.
+	ThisInst  int         // informs a tgo instance which Instance index it is. Basically ignored within uhura
 	State     int         // overall state of the environment
 	Instances []InstDescr // the array of InstDescr describing each instance in the env.
 }

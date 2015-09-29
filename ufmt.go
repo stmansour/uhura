@@ -64,7 +64,7 @@ func stateToString(i int) string {
 }
 
 func printEnvInstance(e *InstDescr, i int) {
-	ulog("    Instance[%d]:  InstName(%s)\n", i, e.InstName)
+	ulog("    Instance[%d]:  InstName(%s)  HostName(%s)\n", i, e.InstName, e.HostName)
 	ulog("\tApps:\n")
 	for j := 0; j < len(e.Apps); j++ {
 		ulog("\t[%d]\tUID         : %s\n", j, e.Apps[j].UID)

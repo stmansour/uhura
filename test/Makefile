@@ -16,6 +16,7 @@ test:
 systest:
 	cd sys0;make test
 	cd sys1;make test
+	cd sys2;make test
 	@echo "*** SYSTEM TESTS COMPLETED ***"
 
 install:

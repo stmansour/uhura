@@ -22,6 +22,14 @@ type StatusReq struct {
 	logmsgs   []string            // we'll need to save these until it's safe to print them
 }
 
+// MapReq is a request from a tgo to respond with
+// an updated version of the environment descriptor that
+// includes the PublicDNS host names for all instances
+// ThisInst identifies which instance is asking for the map
+type MapReq struct {
+	ThisInst int
+}
+
 // UResp is uhura's reply message to the status message from tgo
 type UResp struct {
 	Status    string
@@ -165,11 +173,10 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&s); err != nil {
 		panic(err)
 	}
-	Uhura.LogStatus <- s // log status message before we start
-	<-Uhura.LogStatusAck // make sure it was done
-	s.w = w              // send response here
-	s.updateEnv = true   // assume we update, set to false if error
-
+	Uhura.LogStatus <- s      // log status message before we start
+	<-Uhura.LogStatusAck      // make sure it was done
+	s.w = w                   // send response here
+	s.updateEnv = true        // assume we update, set to false if error
 	Uhura.HReqMem <- 1        // ask to access the shared mem, blocks until granted
 	<-Uhura.HReqMemAck        // make sure we got it
 	HandleSetStatus(&s, &asc) // handle the status req
@@ -195,17 +202,23 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // MapHandler handles an http message sent to "/map/"
-// TODO: Current implementation is a total a hack.  It needs to
-// reply with a JSON version of the internal envDescr.
+// Only one modification is made to the internal datastructure... that is
+// the instance that is asking for the map is set in UEnv.ThisInst
 func MapHandler(w http.ResponseWriter, r *http.Request) {
-	Uhura.LogString <- "Map Handler\n"
-	<-Uhura.LogString
-	// DPrintHttpRequest(r)
-	// This is a temporary hack until I can create the real one...
-	// we really need to generate the json from our in-memory
-	// Environment Descriptor - it has all the PublicDNS values
-	// for the instances.
-	http.ServeFile(w, r, "test/stateflow_normal/env.json")
+	Uhura.LogString <- "Map Handler\n"         // send to log
+	<-Uhura.LogStringAck                       // wait for confirmation
+	var m MapReq                               // caller identifies "ThisInst"
+	decoder := json.NewDecoder(r.Body)         // read it in
+	if err := decoder.Decode(&m); err != nil { // if there are problems...
+		panic(err)
+	}
+	Uhura.HReqMem <- 1                                 // ask to access the shared mem, blocks until granted
+	<-Uhura.HReqMemAck                                 // make sure we got it
+	UEnv.ThisInst = m.ThisInst                         // don't change this tgo's instance pointer
+	b, _ := json.Marshal(&UEnv)                        // marshal the environment into bytes
+	w.Header().Set("Content-Type", "application/json") // response type is app/json
+	w.Write(b)                                         // send the bytes
+	Uhura.HReqMemAck <- 1                              // tell Dispatcher we're done with the data
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
@@ -219,5 +232,4 @@ func initHTTP() {
 	http.HandleFunc("/shutdown/", makeHandler(ShutdownHandler))
 	http.HandleFunc("/status/", makeHandler(StatusHandler))
 	http.HandleFunc("/map/", makeHandler(MapHandler))
-
 }
