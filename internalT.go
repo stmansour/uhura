@@ -37,17 +37,19 @@ func internalStateTest(inst int, c chan int) {
 		act   int
 	}
 
+	var kvm = KVMsg{"", []KeyVal{}}
+
 	var intTest5 = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{0, 0, uDONE}, uREADY, actionNone},    // uhura moves to DONE right after telling the apps to test
-		{AppStatChg{1, 0, uDONE}, uREADY, actionNone},    // when uhura asks, this app is already done testing
-		{AppStatChg{2, 0, uDONE}, uDONE, actionShutdown}, // when uhura asks, this app is already done testing
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uREADY, actionNone},    // uhura moves to DONE right after telling the apps to test
+		{AppStatChg{1, 0, uDONE, kvm}, uREADY, actionNone},    // when uhura asks, this app is already done testing
+		{AppStatChg{2, 0, uDONE, kvm}, uDONE, actionShutdown}, // when uhura asks, this app is already done testing
 	}
 
 	for i := 0; i < len(intTest5); i++ {
@@ -79,17 +81,18 @@ func envDump(i int, c chan int) {
 // poundTheStatusHandler simulates a thundering-herd of http requestors sending
 // status messages.
 func poundTheStatusHandler(inst int, c chan int) {
+	var kvm = KVMsg{"", []KeyVal{}}
 	var intTest5 = []StatusReq{
-		StatusReq{"UNKNOWN", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"UNKNOWN", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"UNKNOWN", "TGO-2", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"READY", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"READY", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"READY", "TGO-2", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"TEST", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil},
-		StatusReq{"DONE", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil}, // uhura moves to DONE right after telling the apps to test
-		StatusReq{"DONE", "TGO-2", "tgo0", time.Now().Format(time.RFC822), nil, false, nil}, // when uhura asks, this app is already done testing
-		StatusReq{"DONE", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil}, // when uhura asks, this app is already done testing
+		StatusReq{"UNKNOWN", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"UNKNOWN", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"UNKNOWN", "TGO-2", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"READY", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"READY", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"READY", "TGO-2", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"TEST", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm},
+		StatusReq{"DONE", "TGO-1", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm}, // uhura moves to DONE right after telling the apps to test
+		StatusReq{"DONE", "TGO-2", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm}, // when uhura asks, this app is already done testing
+		StatusReq{"DONE", "TGO-0", "tgo0", time.Now().Format(time.RFC822), nil, false, nil, kvm}, // when uhura asks, this app is already done testing
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(StatusHandler))

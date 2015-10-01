@@ -22,6 +22,12 @@ const (
 	uTERM
 )
 
+// KeyVal is a generic key/value pair struct
+type KeyVal struct {
+	Key string
+	Val string
+}
+
 // AppDescr is an application description that provides information
 // about an application that we deploy.
 type AppDescr struct {
@@ -32,6 +38,7 @@ type AppDescr struct {
 	IsTest bool
 	State  int
 	RunCmd string // if present overrides "activate.sh startr"
+	KVs    []KeyVal
 }
 
 // InstDescr is a structure of data describing every Instance (virtual

@@ -10,6 +10,13 @@ import (
 	"time"
 )
 
+// KVMsg is a named structure of key/value pairs for clients to
+// add to a status message as needed
+type KVMsg struct {
+	Name string
+	KVs  []KeyVal
+}
+
 // StatusReq is the structure of data used by the http code to process
 // a status message from tgo
 type StatusReq struct {
@@ -20,6 +27,7 @@ type StatusReq struct {
 	w         http.ResponseWriter // where to write the response
 	updateEnv bool                // send this request on to StateOrchestrator and update EnvDescr
 	logmsgs   []string            // we'll need to save these until it's safe to print them
+	KV        KVMsg               // clients can add messages, like test results, etc.
 }
 
 // MapReq is a request from a tgo to respond with
@@ -120,6 +128,9 @@ func HandleSetStatus(s *StatusReq, asc *AppStatChg) {
 				BadState(s)
 			} else {
 				asc.state = st
+				for k := 0; k < len(s.KV.KVs); k++ {
+					asc.KV.KVs = append(asc.KV.KVs, KeyVal{s.KV.KVs[k].Key, s.KV.KVs[k].Val})
+				}
 				SendOKReply(s)
 			}
 		}

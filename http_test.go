@@ -42,13 +42,15 @@ func TestStatusHandler2(t *testing.T) {
 	DispatcherCreateChannels()
 	go Dispatcher() // get the dispatcher going
 
+	kvm := KVMsg{"", []KeyVal{}}
+
 	ts := httptest.NewServer(http.HandlerFunc(StatusHandler))
 	defer ts.Close()
 
 	url := fmt.Sprintf("%s/status/", ts.URL)
 	for i := 0; i < len(htest1); i++ {
 		test := htest1[i]
-		r := StatusReq{test.State, test.InstName, test.InstUID, time.Now().Format(time.RFC822), nil, false, nil}
+		r := StatusReq{test.State, test.InstName, test.InstUID, time.Now().Format(time.RFC822), nil, false, nil, kvm}
 		data, _ := json.Marshal(r)
 		body := bytes.NewBuffer(data)
 		reply, _ := http.Post(url, "application/json", body)

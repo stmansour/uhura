@@ -18,15 +18,17 @@ func TestStatusHandler(t *testing.T) {
 	initUhura()
 	initEnv()
 
+	var kvm = KVMsg{"", []KeyVal{}}
+
 	// env descr = ./test/utdata/ut1.json
 	//            inst, app, state, ENVSTATE, ACTION
 	var test1a = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uINIT}, uINIT, actionNone},
-		{AppStatChg{0, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uTEST, actionNone},
-		{AppStatChg{0, 0, uDONE}, uDONE, actionShutdown},
-		{AppStatChg{0, 0, uTERM}, uTERM, actionShutdown},
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uINIT, kvm}, uINIT, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uTEST, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uDONE, actionShutdown},
+		{AppStatChg{0, 0, uTERM, kvm}, uTERM, actionShutdown},
 	}
 
 	// fmt.Printf("\n#####################################################\n")
@@ -45,11 +47,11 @@ func TestStatusHandler(t *testing.T) {
 	// env descr = ./test/utdata/ut1.json
 	//            inst, app, state, ENVSTATE, ACTION
 	var test1b = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uTEST, actionNone},
-		{AppStatChg{0, 0, uDONE}, uDONE, actionShutdown},
-		{AppStatChg{0, 0, uTERM}, uTERM, actionShutdown},
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uTEST, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uDONE, actionShutdown},
+		{AppStatChg{0, 0, uTERM, kvm}, uTERM, actionShutdown},
 	}
 	Uhura.EnvDescFname = "./test/utdata/ut1.json"
 	initEnv()
@@ -71,21 +73,21 @@ func TestStatusHandler(t *testing.T) {
 	// env descr = ./test/utdata/ut2.json
 	//            inst, app, state
 	var test2 = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uINIT}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uINIT}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uINIT}, uINIT, actionNone},
-		{AppStatChg{0, 0, uREADY}, uINIT, actionNone},
-		{AppStatChg{1, 0, uREADY}, uINIT, actionNone},
-		{AppStatChg{2, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{1, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{2, 0, uTEST}, uTEST, actionNone},
-		{AppStatChg{0, 0, uDONE}, uTEST, actionNone},
-		{AppStatChg{1, 0, uDONE}, uTEST, actionNone},
-		{AppStatChg{2, 0, uDONE}, uDONE, actionShutdown},
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uINIT, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uINIT, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uINIT, kvm}, uINIT, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uINIT, actionNone},
+		{AppStatChg{1, 0, uREADY, kvm}, uINIT, actionNone},
+		{AppStatChg{2, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{1, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{2, 0, uTEST, kvm}, uTEST, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uTEST, actionNone},
+		{AppStatChg{1, 0, uDONE, kvm}, uTEST, actionNone},
+		{AppStatChg{2, 0, uDONE, kvm}, uDONE, actionShutdown},
 	}
 	// fmt.Printf("\n#####################################################\n")
 	// fmt.Printf("Test 2\n\n")
@@ -108,19 +110,19 @@ func TestStatusHandler(t *testing.T) {
 	// env descr = ./test/utdata/ut2.json
 	//            inst, app, state,  ENV STATE, action
 	var test3 = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uINIT}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uREADY}, uINIT, actionNone},
-		{AppStatChg{0, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{1, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{2, 0, uTEST}, uTEST, actionNone},
-		{AppStatChg{0, 0, uDONE}, uTEST, actionNone},
-		{AppStatChg{1, 0, uDONE}, uTEST, actionNone},
-		{AppStatChg{2, 0, uDONE}, uDONE, actionShutdown},
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uINIT, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uREADY, kvm}, uINIT, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{1, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{2, 0, uTEST, kvm}, uTEST, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uTEST, actionNone},
+		{AppStatChg{1, 0, uDONE, kvm}, uTEST, actionNone},
+		{AppStatChg{2, 0, uDONE, kvm}, uDONE, actionShutdown},
 	}
 	// fmt.Printf("\n#####################################################\n")
 	// fmt.Printf("Test 3\n\n")
@@ -143,18 +145,18 @@ func TestStatusHandler(t *testing.T) {
 	// env descr = ./test/utdata/ut2.json
 	//            inst, app, state,  ENV STATE, action
 	var test4 = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{1, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{2, 0, uTEST}, uTEST, actionNone},
-		{AppStatChg{0, 0, uDONE}, uTEST, actionNone},
-		{AppStatChg{1, 0, uDONE}, uTEST, actionNone},
-		{AppStatChg{2, 0, uDONE}, uDONE, actionShutdown},
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{1, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{2, 0, uTEST, kvm}, uTEST, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uTEST, actionNone},
+		{AppStatChg{1, 0, uDONE, kvm}, uTEST, actionNone},
+		{AppStatChg{2, 0, uDONE, kvm}, uDONE, actionShutdown},
 	}
 	// fmt.Printf("\n#####################################################\n")
 	// fmt.Printf("Test 4\n\n")
@@ -180,16 +182,16 @@ func TestStatusHandler(t *testing.T) {
 	// extremely fast.  Uhura tells them to test. They finish testing before
 	// uhura samples their state after informing them to test
 	var test5 = []TestStep{
-		{AppStatChg{0, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uUNKNOWN}, uUNKNOWN, actionNone},
-		{AppStatChg{1, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{2, 0, uREADY}, uUNKNOWN, actionNone},
-		{AppStatChg{0, 0, uREADY}, uREADY, actionTestNow},
-		{AppStatChg{0, 0, uTEST}, uREADY, actionNone},
-		{AppStatChg{0, 0, uDONE}, uREADY, actionNone},    // uhura moves to DONE right after telling the apps to test
-		{AppStatChg{1, 0, uDONE}, uREADY, actionNone},    // when uhura asks, this app is already done testing
-		{AppStatChg{2, 0, uDONE}, uDONE, actionShutdown}, // when uhura asks, this app is already done testing
+		{AppStatChg{0, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uUNKNOWN, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{1, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{2, 0, uREADY, kvm}, uUNKNOWN, actionNone},
+		{AppStatChg{0, 0, uREADY, kvm}, uREADY, actionTestNow},
+		{AppStatChg{0, 0, uTEST, kvm}, uREADY, actionNone},
+		{AppStatChg{0, 0, uDONE, kvm}, uREADY, actionNone},    // uhura moves to DONE right after telling the apps to test
+		{AppStatChg{1, 0, uDONE, kvm}, uREADY, actionNone},    // when uhura asks, this app is already done testing
+		{AppStatChg{2, 0, uDONE, kvm}, uDONE, actionShutdown}, // when uhura asks, this app is already done testing
 	}
 	// fmt.Printf("\n#####################################################\n")
 	// fmt.Printf("Test 4\n\n")

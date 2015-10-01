@@ -221,8 +221,6 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 		exit 1
 	fi
 
-	mv uhura.log state_test1.log
-
 	#---------------------------------------------------------------------
 	#  Files produced:
 	#     * state_test1.log  - uhura log file from this test run
@@ -269,8 +267,8 @@ if [ ${SKIP_UHURA} -eq 0 ]; then
 		's/^Uhura starting on:.*/URL: somehost:someport/'
 	)
 	echo "Validating output..." >>${SCRIPTLOG} 2>&1
-	cp state_test1.gold x
-	cp state_test1.log y
+	cp uhura.gold x
+	cp uhura.log y
 	for f in "${uhura_filters[@]}"
 	do
 		perl -pe "$f" x > x1; mv x1 x

@@ -72,6 +72,11 @@ func printEnvInstance(e *InstDescr, i int) {
 		ulog("\t\tUPort       : %d\n", e.Apps[j].UPort)
 		ulog("\t\tIsTest      : %v\n", e.Apps[j].IsTest)
 		ulog("\t\tState       : %s\n", stateToString(e.Apps[j].State))
+		ulog("\t\tRepo        : %s\n", e.Apps[j].Repo)
+		ulog("\t\tRunCmd      : %s\n", e.Apps[j].RunCmd)
+		for k := 0; k < len(e.Apps[j].KVs); k++ {
+			ulog("\t\t\t%s = %s\n", e.Apps[j].KVs[k].Key, e.Apps[j].KVs[k].Val)
+		}
 		ulog("\t\t------------------------------------\n")
 	}
 }
@@ -101,6 +106,9 @@ func printStatusMsg(s *StatusReq) {
 	ulog("\tInstName:	%s\n", s.InstName)
 	ulog("\tUID:		%s\n", s.UID)
 	ulog("\tTstamp:		%s\n", s.Tstamp)
+	for k := 0; k < len(s.KV.KVs); k++ {
+		ulog("\t\t\t%s = %s\n", s.KV.KVs[k].Key, s.KV.KVs[k].Val)
+	}
 	ulog("##########################################\n")
 }
 

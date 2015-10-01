@@ -7,6 +7,7 @@ type AppStatChg struct {
 	inst  int // which instance
 	app   int // which app
 	state int // what state
+	KV    KVMsg
 }
 
 const (
@@ -38,7 +39,12 @@ func hasStateChanged() bool {
 // StateOrchestarator applies the applications status change to the datastore
 // then performs any state change necessary
 func StateOrchestarator(asc *AppStatChg) int {
-	UEnv.Instances[asc.inst].Apps[asc.app].State = asc.state
+	a := &UEnv.Instances[asc.inst].Apps[asc.app]
+	a.State = asc.state
+	for i := 0; i < len(asc.KV.KVs); i++ {
+		a.KVs = append(a.KVs, KeyVal{asc.KV.KVs[i].Key, asc.KV.KVs[i].Val})
+	}
+
 	if !hasStateChanged() {
 		return actionNone
 	}
