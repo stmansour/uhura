@@ -17,7 +17,7 @@
 	    		"UID": "echosrv",
 	    		"Name": "echosrv",
 	    		"Repo": "jenkins-snapshot/echosrv/latest",
-	    		"UPort": 8103,
+	    		"UPort": 8200,
 	    		"IsTest": false
 	    	}
 
@@ -36,11 +36,12 @@
 	    		"IsTest": false
 	    	},
 	    	{
-	    		"UID": "echosrv",
-	    		"Name": "echosrv",
+	    		"UID": "test1",
+	    		"Name": "echosrv_test",
 	    		"Repo": "jenkins-snapshot/echosrv_test/latest",
 	    		"UPort": 8103,
-	    		"IsTest": false
+	    		"IsTest": true,
+	    		"RunCmd": "activate.sh -h {TGO-0.HostName} -p {TGO-0.echosrv.UPort} test"
 	    	}
 	    ]
 	},
@@ -55,15 +56,16 @@
 	    		"Repo": "jenkins-snapshot/tgo/latest",
 	    		"UPort": 8102,
 	    		"IsTest": false
-	    	}
+	    	},
 	    	{
-	    		"UID": "echosrv",
-	    		"Name": "echosrv",
+	    		"UID": "test2",
+	    		"Name": "echosrv_test",
 	    		"Repo": "jenkins-snapshot/echosrv_test/latest",
 	    		"UPort": 8103,
-	    		"IsTest": false
+	    		"IsTest": true,
+	    		"RunCmd": "activate.sh -h {TGO-0.HostName} -p {TGO-0.echosrv.UPort} test"
 	    	}
 	    ]
 	}
     ]
-} 
+}

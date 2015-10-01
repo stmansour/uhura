@@ -31,7 +31,7 @@ type AppDescr struct {
 	UPort  int
 	IsTest bool
 	State  int
-	RunCmd string
+	RunCmd string // if present overrides "activate.sh startr"
 }
 
 // InstDescr is a structure of data describing every Instance (virtual
