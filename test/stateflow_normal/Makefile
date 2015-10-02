@@ -2,7 +2,7 @@ all: clean test
 	@echo "*** TEST COMPLETE in test/master_statechg_test ***"
 
 clean:
-	rm -f qm* *.log *.out [u-z] descrinst.json
+	rm -f qm* *.log *.out [u-z] descrinst.json EnvShutdownStatus.json
 	@echo "*** CLEAN COMPLETE in test/master_statechg_test ***"
 
 test:

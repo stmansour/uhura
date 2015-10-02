@@ -5,6 +5,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -28,6 +29,19 @@ func DispatcherCreateChannels() {
 	Uhura.ShutdownReqAck = make(chan int)
 }
 
+func generateEnvDesrReport() {
+	f, err := os.Create("EnvShutdownStatus.json")
+	check(err)
+	defer f.Close()
+	b, err := json.MarshalIndent(&UEnv, "", "    ")
+	if err != nil {
+		fmt.Printf("Cannot marshal UEnv! Error: %v\n", err)
+		os.Exit(2) // no recovery from this
+	}
+	fileWriteBytes(f, b)
+	f.Sync()
+}
+
 // This is a go routine, it runs asynchronously.
 // It starts a timer to give the last few things in motion a chance to finish
 // cleanly before exiting.
@@ -37,11 +51,12 @@ func simpleShutdown() {
 	ttl := 5 // seconds
 	Uhura.LogString <- fmt.Sprintf("SHUTDOWN will commence in a few seconds\n")
 	<-Uhura.LogStringAck
-	time.Sleep(time.Duration(rand.Intn(ttl)) * time.Second)
-	AWSTerminateInstances()                   // terminate the aws instances
-	ulog("Shutdown Handler - Exiting NOW!\n") // ok, all bets are off now
-	ulog("Exiting uhura\n")                   // just blast the log
-	os.Exit(0)                                // and exit
+	time.Sleep(time.Duration(rand.Intn(ttl)) * time.Second) // let the dust settle
+	AWSTerminateInstances()                                 // terminate the aws instances
+	generateEnvDesrReport()                                 // generate env status file
+	ulog("Shutdown Handler - Exiting NOW!\n")               // ok, all bets are off now
+	ulog("Exiting uhura\n")                                 // just blast the log
+	os.Exit(0)                                              // and exit
 }
 
 // Dispatcher directs the operation of uhura in steady state. It controls

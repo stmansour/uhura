@@ -71,9 +71,9 @@ func CommsSendTestNow() {
 
 	// Since we access memory, we'll save all the urls as we process the
 	// shared memory and then invoke the sends afterward...
-	urls := make([]string, 0) // add a url for every tgo
-	Uhura.HReqMem <- 1        // ask to access the shared mem, blocks until granted
-	<-Uhura.HReqMemAck        // make sure we got it
+	var urls []string  // add a url for every tgo
+	Uhura.HReqMem <- 1 // ask to access the shared mem, blocks until granted
+	<-Uhura.HReqMemAck // make sure we got it
 	for i := 0; i < len(UEnv.Instances); i++ {
 		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
 			if UEnv.Instances[i].Apps[j].Name == "tgo" {

@@ -2,7 +2,7 @@ all: clean test
 	echo "*** COMPLETE in sys0 ***"
 
 clean:
-	rm -f *.log qmstr* descr*
+	rm -f *.log qmstr* descr* EnvShutdownStatus.json
 
 test:	clean
 	@echo "*** SYSTEM TEST 1 - full life cycle, 3 Tgo instances ***"
