@@ -245,7 +245,7 @@ func setInstanceHostNames() {
 		ulog("Search for InstAwsID = %s\n", UEnv.Instances[i].InstAwsID)
 		UEnv.Instances[i].HostName = searchReservationsForPublicDNS(UEnv.Instances[i].InstAwsID)
 	}
-	dPrintEnvDescr("UEnv after launching all instances:")
+	dPrintEnvDescr("UEnv after launching all instances:\n")
 }
 
 // ExecuteDescriptor - i.e., create the environment.

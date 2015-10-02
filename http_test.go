@@ -35,13 +35,13 @@ func TestStatusHandler2(t *testing.T) {
 	initUhura()
 	Uhura.Debug = true
 	Uhura.DebugToScreen = true
-	Uhura.EnvDescFname = "./test/stateflow_normal/env1.json"
+	Uhura.EnvDescFname = "./test/utdata/http_test.json"
 	Uhura.DryRun = true
 	initEnv()
-	ResetUEnv()
 	DispatcherCreateChannels()
 	go Dispatcher() // get the dispatcher going
-
+	ResetUEnv()
+	dPrintEnvDescr("ready to start TestStatusHanlder2")
 	kvm := KVMsg{"", []KeyVal{}}
 
 	ts := httptest.NewServer(http.HandlerFunc(StatusHandler))

@@ -30,7 +30,8 @@ func TestStatusHandler(t *testing.T) {
 		{AppStatChg{0, 0, uDONE, kvm}, uDONE, actionShutdown},
 		{AppStatChg{0, 0, uTERM, kvm}, uTERM, actionShutdown},
 	}
-
+	rawResetUEnv()
+	dPrintEnvDescr("Start: TestStatusHandler - test 1a")
 	// fmt.Printf("\n#####################################################\n")
 	// fmt.Printf("Test 1\n\n")
 	for i := 0; i < len(test1a); i++ {

@@ -11,17 +11,22 @@ import (
 	"time"
 )
 
-// ResetUEnv sets the entire internal environment definition back to the
-// UKNOWN state. This must only be used for testing.
-func ResetUEnv() {
-	Uhura.HReqMem <- 1 // ask to access the shared mem, blocks until granted
-	<-Uhura.HReqMemAck // make sure we got it
+// Does the work without checking with the dispatcher for memory access
+func rawResetUEnv() {
 	UEnv.State = uUNKNOWN
 	for i := 0; i < len(UEnv.Instances); i++ {
 		for j := 0; j < len(UEnv.Instances[i].Apps); j++ {
 			UEnv.Instances[i].Apps[j].State = uUNKNOWN
 		}
 	}
+}
+
+// ResetUEnv sets the entire internal environment definition back to the
+// UKNOWN state. This must only be used for testing.
+func ResetUEnv() {
+	Uhura.HReqMem <- 1 // ask to access the shared mem, blocks until granted
+	<-Uhura.HReqMemAck // make sure we got it
+	rawResetUEnv()
 	Uhura.HReqMemAck <- 1 // tell Dispatcher we're done with the data
 }
 
