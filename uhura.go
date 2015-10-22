@@ -163,6 +163,7 @@ func main() {
 	DispatcherCreateChannels()
 
 	if Uhura.InternalTest {
+		TestResourceParsing()
 		beatOnTheChannelMessaging()
 		os.Exit(0)
 	}

@@ -23,7 +23,7 @@ clean:
 
 test:
 	go test
-	@./uhura -u -d -D;echo "Internal stress tests PASS"
+	@./uhura -u -d -D;echo "Internal stress tests PASS\nInternal resource loading tests PASS"
 	cd test;make test
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED ***"
 

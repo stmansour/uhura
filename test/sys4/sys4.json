@@ -1,0 +1,29 @@
+{
+    "EnvName": "MySql Resource Test",
+    "Instances": [
+	{
+	    "InstName": "mysql0",
+	    "OS":       "Linux",
+	    "Count":    1,
+		"Resources": {
+			"MySql": true
+		},
+	    "Apps": [
+	    	{
+	    		"UID": "t01",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8102,
+	    		"IsTest": false
+	    	},
+	    	{
+	    		"UID": "test01",
+	    		"Name": "mysqltest",
+	    		"Repo": "jenkins-snapshot/mysqltest/latest",
+	    		"UPort": 8103,
+	    		"IsTest": true
+	    	}
+	    ]
+	}
+	]
+} 

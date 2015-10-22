@@ -41,6 +41,12 @@ type AppDescr struct {
 	KVs    []KeyVal
 }
 
+// ResourceDescr is a structure of data defining what optional resources
+// each instance needs.
+type ResourceDescr struct {
+	MySql bool // if true, mysql will be started
+}
+
 // InstDescr is a structure of data describing every Instance (virtual
 // computer) that we deploy in the cloud
 type InstDescr struct {
@@ -48,6 +54,7 @@ type InstDescr struct {
 	OS        string
 	HostName  string
 	InstAwsID string
+	Resources ResourceDescr
 	Apps      []AppDescr
 }
 
@@ -127,8 +134,14 @@ func makeWindowsScript(i int) {
 
 // Make a linux init script for the ith Instance
 func makeLinuxScript(i int) {
-	// First, build up a string with all the apps to deploy to this instance
-	// Now build a script for each instance
+	// First, install any resources needed (such as a database)
+	resources := ""
+	if UEnv.Instances[i].Resources.MySql {
+		resources += "install_mysql()\n"
+	}
+
+	// Next, build up a string with all the apps to deploy to this instance
+	// Build a script for each instance
 	apps := ""
 	dirs := "mkdir ~ec2-user/apps;cd apps\n"
 	ctrl := ""
@@ -148,22 +161,15 @@ func makeLinuxScript(i int) {
 	check(err)
 	defer f.Close()
 	fileWriteBytes(f, Uhura.QmstrBaseLinux)
+	if len(resources) > 0 {
+		fileWriteString(f, &resources)
+	}
 	fileWriteString(f, &phoneHome)
 	fileWriteString(f, &dirs)
 	fileWriteString(f, &apps)
 	fileWriteString(f, &ctrl)
 
-	s := "cat >uhura_map.json <<ZZEOF\n"
-	fileWriteString(f, &s)
-
-	// content, err := ioutil.ReadFile(Uhura.EnvDescFname)
-	// check(err)
-	// fileWriteBytes(f, content)
-	UEnv.ThisInst = i
-	b, err := json.Marshal(&UEnv)
-	fileWriteBytes(f, b)
-
-	s = "\nZZEOF\n"
+	s := "\nZZEOF\n"
 	fileWriteString(f, &s)
 
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
@@ -298,12 +304,8 @@ func writeEnvDescr() {
 	f.Sync()
 }
 
-// ParseEnvDescriptor - parse the json file that describes the environment
-// we are to build up and manage
-func ParseEnvDescriptor() {
-	// First, see if we can read the file in
-	ulog("ParseEnvDescriptor - Loading %s\n", Uhura.EnvDescFname)
-	content, e := ioutil.ReadFile(Uhura.EnvDescFname)
+func LoadEnvDescriptor(fname string) {
+	content, e := ioutil.ReadFile(fname)
 	if e != nil {
 		ulog("File error on Environment Descriptor file: %v\n", e)
 		os.Exit(1) // no recovery from this
@@ -316,6 +318,15 @@ func ParseEnvDescriptor() {
 		ulog("Error unmarshaling Environment Descriptor json: %s\n", err)
 		check(err)
 	}
+
+}
+
+// ParseEnvDescriptor - parse the json file that describes the environment
+// we are to build up and manage
+func ParseEnvDescriptor() {
+	// First, see if we can read the file in
+	ulog("ParseEnvDescriptor - Loading %s\n", Uhura.EnvDescFname)
+	LoadEnvDescriptor(Uhura.EnvDescFname)
 	dPrintEnvDescr("UEnv after initial parse:")
 
 	// Add Uhura's URL to the environment description
