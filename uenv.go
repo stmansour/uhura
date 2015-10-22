@@ -169,7 +169,17 @@ func makeLinuxScript(i int) {
 	fileWriteString(f, &apps)
 	fileWriteString(f, &ctrl)
 
-	s := "\nZZEOF\n"
+	s := "cat >uhura_map.json <<ZZEOF\n"
+	fileWriteString(f, &s)
+
+	// content, err := ioutil.ReadFile(Uhura.EnvDescFname)
+	// check(err)
+	// fileWriteBytes(f, content)
+	UEnv.ThisInst = i
+	b, err := json.Marshal(&UEnv)
+	fileWriteBytes(f, b)
+
+	s = "\nZZEOF\n"
 	fileWriteString(f, &s)
 
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
