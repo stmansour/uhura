@@ -6,7 +6,8 @@
 	    "OS":       "Linux",
 	    "Count":    1,
 		"Resources": {
-			"MySql": true
+			"MySql": true,
+			"RestoreDB": "testdb.sql"
 		},
 	    "Apps": [
 	    	{

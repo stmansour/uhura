@@ -164,6 +164,7 @@ func main() {
 
 	if Uhura.InternalTest {
 		TestResourceParsing()
+		fmt.Printf("TestResourceParsing: Passed\n")
 		beatOnTheChannelMessaging()
 		os.Exit(0)
 	}
