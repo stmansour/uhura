@@ -44,7 +44,8 @@ type AppDescr struct {
 // ResourceDescr is a structure of data defining what optional resources
 // each instance needs.
 type ResourceDescr struct {
-	MySql bool // if true, mysql will be started
+	MySql     bool   // if true, mysql will be started
+	RestoreDB string // name of database to restore. Expects to be found int ext-tools/testing
 }
 
 // InstDescr is a structure of data describing every Instance (virtual
@@ -138,6 +139,9 @@ func makeLinuxScript(i int) {
 	resources := ""
 	if UEnv.Instances[i].Resources.MySql {
 		resources += "install_mysql\n"
+	}
+	if len(UEnv.Instances[i].Resources.RestoreDB) > 0 {
+		resources += fmt.Sprintf("restoredb \"%s\"\n", UEnv.Instances[i].Resources.RestoreDB)
 	}
 
 	// Next, build up a string with all the apps to deploy to this instance

@@ -124,6 +124,10 @@ func poundTheStatusHandler(inst int, c chan int) {
 // at once. It validates the operation of the channels that share memory between
 // all the different requestors.
 func beatOnTheChannelMessaging() {
+	bsave1 := Uhura.Debug
+	bsave2 := Uhura.DebugToScreen
+	Uhura.DebugToScreen = false                   // shut off the noise
+	Uhura.Debug = false                           // shut off the noise
 	Uhura.EnvDescFname = "./test/utdata/ut2.json" // here's the env to load
 	initEnv()                                     // make sure we have it before starting dispatcher
 	go Dispatcher()                               // get the dispatcher going
@@ -144,4 +148,6 @@ func beatOnTheChannelMessaging() {
 	for i := 0; i < m; i++ {
 		<-c // make sure that all of the go routines completed
 	}
+	Uhura.Debug = bsave1
+	Uhura.DebugToScreen = bsave2
 }

@@ -12,5 +12,9 @@ func TestResourceParsing() {
 		fmt.Printf("Resource callout for mysql is wrong, expected true, found %v", UEnv.Instances[0].Resources.MySql)
 		os.Exit(1)
 	}
+	if UEnv.Instances[0].Resources.RestoreDB != "testdb.sql" {
+		fmt.Printf("Resource callout for RestoreDB is wrong, expected testdb.sql, found %s", UEnv.Instances[0].Resources.RestoreDB)
+		os.Exit(1)
+	}
 	fmt.Printf("Resource load tests: PASS\n")
 }
