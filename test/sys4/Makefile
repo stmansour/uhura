@@ -8,7 +8,7 @@ mysqltest:
 	go build
 	mv sys4 mysqltest; ./mysqltest -u ec2-user
 
-test: clean mysqltest
+test: clean
 	@echo "*** SYSTEM TEST 4 - verify mysql database provisioning  ***"
 	./systest.sh
 	@echo "*** SYSTEM TEST 4 COMPLETE in test/sys4 ***"

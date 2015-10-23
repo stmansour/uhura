@@ -137,7 +137,7 @@ func makeLinuxScript(i int) {
 	// First, install any resources needed (such as a database)
 	resources := ""
 	if UEnv.Instances[i].Resources.MySql {
-		resources += "install_mysql()\n"
+		resources += "install_mysql\n"
 	}
 
 	// Next, build up a string with all the apps to deploy to this instance

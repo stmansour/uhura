@@ -49,5 +49,4 @@ if [ $(uname) == "Linux" ]; then
         UHURAHOST=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
 fi
 
-echo "${ACCORD_BIN}/uhura ${DOPTS} ${KOPTS} -p ${UHURAPORT} -e ${SYS_TEST_DIR}/sys4.json -t ${UHURAHOST} -d"
 ${ACCORD_BIN}/uhura ${DOPTS} ${KOPTS} -p ${UHURAPORT} -e ${SYS_TEST_DIR}/sys4.json -t ${UHURAHOST} -d
