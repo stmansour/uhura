@@ -191,7 +191,7 @@ func makeLinuxScript(i int) {
 
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
 	// started up, then change the ownership.
-	startitup := fmt.Sprint("sleep 60;./activate.sh START > activate.log 2>&1\n")
+	startitup := fmt.Sprint("sleep 180;./activate.sh START > activate.log 2>&1\n")
 	fileWriteString(f, &startitup)
 	s = fmt.Sprintf("sleep 1;cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
 	fileWriteString(f, &s)
