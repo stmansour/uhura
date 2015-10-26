@@ -2,7 +2,7 @@
 
 ACCORD_BIN=/usr/local/accord/bin
 ACCORD_TOOLS=/usr/local/accord/testtools
-UHURAPORT=8100
+UHURAPORT=8113
 SYS0_TEST_DIR=$(pwd)
 UHURAHOST=localhost
 

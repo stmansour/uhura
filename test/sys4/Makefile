@@ -1,4 +1,4 @@
-all: clean mysqltest test
+all: clean publish test
 	echo "*** COMPLETE in sys4 ***"
 
 clean:
