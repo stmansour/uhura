@@ -186,9 +186,12 @@ func makeLinuxScript(i int) {
 	s = "\nZZEOF\n"
 	fileWriteString(f, &s)
 
+	// adding sleep 300 (5 min) to address a miming issue. It looks like it takes a while
+	// for the ports to be open.  Let's see if this addresses the problem
+
 	// We want all the files to be owned by ec2-user.  Wait 1 second for everything to get
 	// started up, then change the ownership.
-	startitup := fmt.Sprint("./activate.sh START > activate.log 2>&1\n")
+	startitup := fmt.Sprint("sleep 300;./activate.sh START > activate.log 2>&1\n")
 	fileWriteString(f, &startitup)
 	s = fmt.Sprintf("sleep 1;cd ~ec2-user/;chown -R ec2-user:ec2-user *\n")
 	fileWriteString(f, &s)
@@ -250,6 +253,7 @@ func execScript(i int) {
 	ulog("exec %s %s %s %s", app, arg0, arg1, arg2)
 	if err := exec.Command(app, arg0, arg1, arg2).Run(); err != nil {
 		ulog("*** Error *** running %s:  %v\n", app, err.Error())
+		ulog("*** Check the 'aws' command, does it need to be configured?\n")
 	}
 
 	// Read in the response
