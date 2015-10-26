@@ -14,10 +14,10 @@ test:
 	@echo "*** TEST COMPLETED in test ***"
 
 systest:
-	# cd sys0;make test
-	# cd sys1;make test
-	# cd sys2;make test
-	# cd sys3;make test
+	cd sys0;make test
+	cd sys1;make test
+	cd sys2;make test
+	cd sys3;make test
 	cd sys4;make test
 	@echo "*** SYSTEM TESTS COMPLETED ***"
 
