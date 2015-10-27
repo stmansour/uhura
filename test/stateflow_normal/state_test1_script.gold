@@ -1,10 +1,10 @@
 ../../uhura -p 8100 -d  -n -e env.json >uhura.out 2>&1 &
-{"EnvName":"My Test Environment","UhuraURL":"http://localhost:8100/","UhuraPort":8100,"ThisInst":7,"State":0,"Instances":[{"InstName":"MainTestInstance","OS":"Linux","HostName":"localhost","InstAwsID":"","Resources":{"MySql":false,"RestoreDB":""},"Apps":[{"UID":"prog1","Name":"myapp","Repo":"ext-tools/utils","UPort":8081,"IsTest":false,"State":0,"RunCmd":"","KVs":null},{"UID":"prog2","Name":"mytest","Repo":"ext-tools/utils","UPort":8082,"IsTest":false,"State":0,"RunCmd":"","KVs":null}]}]}bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
-bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"23 Oct 15 12:42 PDT"}
+{"EnvName":"My Test Environment","UhuraURL":"http://localhost:8100/","UhuraPort":8100,"ThisInst":7,"State":0,"Instances":[{"InstName":"MainTestInstance","OS":"Linux","HostName":"localhost","InstAwsID":"","Resources":{"MySQL":false,"RestoreMySQLdb":"","DBname":""},"Apps":[{"UID":"prog1","Name":"myapp","Repo":"ext-tools/utils","UPort":8081,"IsTest":false,"State":0,"RunCmd":"","KVs":null},{"UID":"prog2","Name":"mytest","Repo":"ext-tools/utils","UPort":8082,"IsTest":false,"State":0,"RunCmd":"","KVs":null}]}]}bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s INIT{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s READY{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s TEST{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog1 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
+bash /usr/local/accord/testtools/clientsim.sh -h localhost -p 8100 -n MainTestInstance -u prog2 -s DONE{"Status":"OK","ReplyCode":0,"Timestamp":"27 Oct 15 13:02 PDT"}
 Validating output...

@@ -42,5 +42,5 @@ func main() {
 		fmt.Printf("db.Ping: Error = %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("MySql availability test: Passed.\n")
+	fmt.Printf("MySQL availability test: Passed.\n")
 }
