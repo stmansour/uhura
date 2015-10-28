@@ -28,6 +28,13 @@ type KeyVal struct {
 	Val string
 }
 
+// AppResourceDescr is a structure of data defining what optional resources
+// each application needs.
+type AppResourceDescr struct {
+	RestoreMySQLdb string // name of file with sql cmds to restore.
+	DBname         string // name of database to restore. Expects to be found int ext-tools/testing
+}
+
 // AppDescr is an application description that provides information
 // about an application that we deploy.
 type AppDescr struct {
@@ -38,15 +45,14 @@ type AppDescr struct {
 	IsTest bool
 	State  int
 	RunCmd string // if present overrides "activate.sh startr"
+	AppRes AppResourceDescr
 	KVs    []KeyVal
 }
 
 // ResourceDescr is a structure of data defining what optional resources
 // each instance needs.
-type ResourceDescr struct {
-	MySQL          bool   // if true, mysql will be started
-	RestoreMySQLdb string // name of file with sql cmds to restore.
-	DBname         string // name of database to restore. Expects to be found int ext-tools/testing
+type InstanceResourceDescr struct {
+	MySQL bool // if true, mysql will be started
 }
 
 // InstDescr is a structure of data describing every Instance (virtual
@@ -56,7 +62,7 @@ type InstDescr struct {
 	OS        string
 	HostName  string
 	InstAwsID string
-	Resources ResourceDescr
+	Resources InstanceResourceDescr
 	Apps      []AppDescr
 }
 
@@ -140,9 +146,6 @@ func makeLinuxScript(i int) {
 	resources := ""
 	if UEnv.Instances[i].Resources.MySQL {
 		resources += "install_mysql\n"
-	}
-	if len(UEnv.Instances[i].Resources.RestoreMySQLdb) > 0 {
-		resources += fmt.Sprintf("restoredb \"%s\"\n", UEnv.Instances[i].Resources.RestoreMySQLdb)
 	}
 
 	// Next, build up a string with all the apps to deploy to this instance

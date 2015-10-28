@@ -6,9 +6,7 @@
 	    "OS":       "Linux",
 	    "Count":    1,
 		"Resources": {
-			"MySql": true,
-			"RestoreMySQLdb": "testdb.sql",
-			"DBname": "accord"
+			"MySql": true
 		},
 	    "Apps": [
 	    	{
@@ -23,7 +21,11 @@
 	    		"Name": "mysqltest",
 	    		"Repo": "jenkins-snapshot/mysqltest/latest",
 	    		"UPort": 8103,
-	    		"IsTest": true
+	    		"IsTest": true,
+				"AppRes": {
+					"RestoreMySQLdb": "testdb.sql",
+					"DBname": "accord"
+				}
 	    	}
 	    ]
 	}

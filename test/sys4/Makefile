@@ -4,7 +4,7 @@ all: clean publish test
 clean:
 	rm -rf *.log ./tmp qmstr* descr* EnvShutdownStatus.json mysqltest sys4 *.txt
 
-mysqltest:
+mysqltest: *.go
 	go build
 	mv sys4 mysqltest; ./mysqltest -u ec2-user
 
@@ -16,10 +16,8 @@ test: clean
 package: mysqltest
 	rm -rf ./tmp
 	mkdir -p ./tmp/mysqltest
-	cp mysqltest ./tmp/mysqltest/
-	cp activate.* ./tmp/mysqltest/
+	cp mysqltest testdb.sql activate.sh ./tmp/mysqltest/
 	cd ./tmp;tar cvf mysqltest.tar mysqltest;gzip mysqltest.tar
 
 publish: package
 	cd ./tmp;deployfile.sh mysqltest.tar.gz jenkins-snapshot/mysqltest/latest
-
