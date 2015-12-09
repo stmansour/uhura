@@ -31,6 +31,7 @@ type KeyVal struct {
 // AppResourceDescr is a structure of data defining what optional resources
 // each application needs.
 type AppResourceDescr struct {
+	Cmd            string // general purpose command
 	RestoreMySQLdb string // name of file with sql cmds to restore.
 	DBname         string // name of database to restore. Expects to be found int ext-tools/testing
 }
