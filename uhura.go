@@ -20,6 +20,7 @@ type UhuraApp struct {
 	DryRun         bool            // when true, scripts it produces skip calls to create new cloud instances
 	KeepEnv        bool            // don't terminate environment instances
 	InternalTest   bool            // do unit tests...
+	RetryRun       bool            // when true, try rerunning the app without regenerating the tgo scripts - for debugging only!!
 	StateChg       chan AppStatChg // Http requests mem state update
 	StateChgAck    chan int        // acknowledge when done
 	LogStatus      chan StatusReq  // http requests to log status message
@@ -53,6 +54,7 @@ func processCommandLine() {
 	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
 	keepPtr := flag.Bool("k", false, "Keep environment after tests complete (don't terminate)")
 	unitPtr := flag.Bool("u", false, "invoke internal tests")
+	retrPtr := flag.Bool("R", false, "don't regenerate tgo scripts, run based on current json descriptor, for debugging only")
 	flag.Parse()
 
 	Uhura.Port = *portPtr
@@ -61,6 +63,7 @@ func processCommandLine() {
 	Uhura.DryRun = *dryrPtr
 	Uhura.KeepEnv = *keepPtr
 	Uhura.InternalTest = *unitPtr
+	Uhura.RetryRun = *retrPtr
 
 	if Uhura.InternalTest {
 		Uhura.DryRun = true // force this for internal tests

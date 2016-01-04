@@ -358,7 +358,9 @@ func ParseEnvDescriptor() {
 
 	// Now that we have the datastructure filled in, we can
 	// begin to execute it.
-	createInstanceScripts()
-	ExecuteDescriptor()
+	if !Uhura.RetryRun {
+		createInstanceScripts()
+		ExecuteDescriptor()
+	}
 
 }
