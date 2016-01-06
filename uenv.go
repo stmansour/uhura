@@ -39,15 +39,16 @@ type AppResourceDescr struct {
 // AppDescr is an application description that provides information
 // about an application that we deploy.
 type AppDescr struct {
-	UID    string
-	Name   string
-	Repo   string
-	UPort  int
-	IsTest bool
-	State  int
-	RunCmd string // if present overrides "activate.sh startr"
-	AppRes AppResourceDescr
-	KVs    []KeyVal
+	UID          string
+	Name         string
+	Repo         string
+	UPort        int
+	IsTest       bool
+	State        int
+	RunCmd       string // if present overrides "activate.sh start"
+	ActivateOpts string // any options to pass to "activate.sh" on start
+	AppRes       AppResourceDescr
+	KVs          []KeyVal
 }
 
 // ResourceDescr is a structure of data defining what optional resources
