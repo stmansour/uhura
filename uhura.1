@@ -1,0 +1,227 @@
+'\" t
+.\"     Title: \fBuhura\fR
+.\"    Author: Steve Mansour
+.\"      Date: 10/07/2015
+.\"    Manual: Plum
+.\"    Source: Uhura 1.0
+.\"  Language: English
+.\"
+.TH uhura 1 "October 5, 2015" "Version 0.9" "USER COMMANDS"
+.SH NAME
+uhura \- Plum's test environment automation
+.SH SYNOPSIS
+.B uhura
+[\fB\-d\fR]
+[\fB\-D\fR]
+[\fB\-e\fR \fIenvDescriptor\fR]
+[\fB\-k\fR]
+[\fB\-n\fR]
+[\fB\-p\fR \fIport\fR]
+[\fB\-R\fR]
+[\fB\-t\fR \fIurl\fR]
+[\fB\-u\fR]
+
+.SH DESCRIPTION
+.B uhura(1)
+is a the main communication server of the Plum system. The purpose of the Plum system is to 
+automate the testing process by creating ephemeral test environments, automatically running
+tests, and destroying the test environments when testing completes. It is designed to be a 
+part of a Continuous Integration system.
+.B uhura
+is the hub service for Plum. It initiates the creation of one or more ephemeral
+test endpoints (think: virtual machines) and coordinates all activities across these
+endpoints. Uhura interacts with a cloud infrastructure (currently Amazon AWS) to create and
+manage endpoints. It manages endpoints by through communication with
+.B tgo(1),
+which manages applications on the endpoints.
+As each endpoint comes online, the
+.B tgo
+instance contacts
+.B uhura
+as it initializes each application. When all applications on all endpoints have been
+initialized and are ready to receive commands,
+.B uhura
+sends a message to all endpoints telling them to begin testing. All test
+programs on all endpoints will then commence testing. As each test program completes completes
+its testing it sends results back to \fBuhura\fR until all tests on all endpoints have completed. Then
+\fBuhura\fR destroys all the endpoints. Note that with option -k the endpoints will not be
+destroyed.
+
+The test environment topology is specified with
+an enviroment descriptor. The environment descriptor is a json-format text file that describes
+each endpoint and what must run on each endpoint. An environment descriptor is best explained
+by examining a sample.  Here is a simple environment descriptor:
+.P
+.RS 5n
+.nf
+{
+    "EnvName": "Phonebook QA",
+    "Instances": [
+	{
+	    "InstName": "phone",
+	    "OS":       "Linux",
+		"Resources": {
+			"MySql": true
+		},
+	    "Apps": [
+	    	{
+	    		"UID": "t01",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8102,
+	    		"IsTest": false
+	    	},
+	    	{
+	    		"UID": "pb01",
+	    		"Name": "phonebookqa",
+	    		"Repo": "jenkins-snapshot/phonebook/latest",
+	    		"UPort": 8250,
+	    		"ActivateOpts": "-q",
+	    		"IsTest": false
+	    	}
+	    ]
+	}
+	]
+} 
+.fi
+.RS -5n
+.P
+The attributes are defined as follows:
+
+.TP
+.IP EnvName
+The name of the whole topology. No functional use at this time. Just used for formatting reports.
+
+.IP Instances
+Defines the list of endpoints to create.
+
+.IP InstName
+the name of an instance (i.e., an endpoint). It must be unique in the list of instances.
+
+.IP OS
+the operating system to put on the instance. Acceptable values are:
+.B Linux
+or
+.B Windows.
+
+.IP Resources
+A section where you can specify special resources needed by an endpoint. Currently, the only
+resource that is supported is
+.B MySql.
+Rather than setting it to
+.B false
+if you don't need it, you can just omit the
+.Resources
+section entirely.
+
+.IP Apps
+This section defines the applications running on each instance. These apps will be downloaded
+from a binary repository (currently Artifactory) using
+.B getfile.sh
+and deployed. The application in the binary repository must be in a gzipped tar file. The file 
+will be expanded using
+.B gunzip
+and
+.B tar.
+Untarring the file should result in the creation of a single directory in which the app is saved
+in a "pre-deployed" fashion. The name of the directory created must match the
+.B Name
+attribute defined for the application (see
+.B Name
+below). In this directory the only required file is
+.B activate.sh
+which
+.B tgo
+uses to control the application. See
+.B activate.sh(1)
+for details. The remaining files within the directory should be whatever the application needs
+for operating in a self-contained fasion.
+
+.IP UID
+A unique identifier associated with the application. Must be unique among the applications within
+the instance.
+
+.IP Name
+The name of the directory in which the application is contained. For an application "foo" the
+name of the file in the binary repository must be foo.tar.gz. When unzipped and untarred it must
+result in a directory named "foo" which contains all the files needed to run "foo" and the
+"activate.sh" file must be in the filepath "foo/activate.sh".
+
+.IP Repo
+This defines the file path within the binary repository where the application can be found.
+
+.IP UPort
+This defines the port on which this application listens.
+
+.IP IsTest
+Defines whether or not the application is a test. Tests have a few extra responsibilities as
+compared to a standard application.
+
+.IP ActivateOpts
+Command line options that can be passed to activate.sh when starting an application or test.
+.RE 5n
+
+.SH OPTIONS
+.IP -d
+Run in debug mode. It generates a lot of output to the logfile.
+.IP -D
+Echo log information to stdout.
+.IP "-e envDescriptor"
+The default name is "accordtest". The production database name is "accord" by default.
+.IP -k
+Do not destroy the environment after testing. The
+life cycle of the testing environment comes to an end after all tests are completed and
+results have been reported back to
+.B uhura.
+When the life cycle of the testing environment ends, uhura destroys the endpoints (in cloud
+terminology, it releases the resources to be reused).  Using the
+.I -k
+option causes
+.B uhura
+to skip this step and leave the environment running. This can be useful for creating a
+user sandbox, or an exploratory QA environment, or deploying to production.
+
+.IP -n
+Just do a "dry run" of the tasks, but don't actually create any new AWS instances. Used for
+debugging
+.B uhura.
+
+.IP "-p port"
+Specifies the port number on which the uhura server is listening. The default value is 8100.
+
+.IP "-t uhuraPublicDNSname"
+Specifies the externally visible hostname where uhura can be contacted. Note that this value
+is NOT what is returned by
+.B hostname
+on AWS.  It can be obtained via this command:
+
+.RS 5n
+.nf
+curl -s http://169.254.169.254/latest/meta-data/public-hostname
+.fi
+.RS -5n
+
+.IP "-u"
+Invokes uhura's internal tests. Used for development.
+
+.SH EXAMPLES
+.nf
+bash$  UHOST=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
+bash$  uhura -t ${UHOST} -e myenv.json
+.fi
+.P
+Run the uhura server, listen on the default port (8100), and read the environment description
+from the file named myenv.json. Endpoints will communicate back to uhura by contacting ${UHOST}:8100
+
+.SH FILES
+.B uhura.log
+is the logfile where uhura(1) logs its information.
+
+.SH BUGS
+Contact me if you find any.
+
+.SH AUTHOR
+Steve Mansour (sman@accordinterests.com)
+.SH "SEE ALSO"
+.B activate.sh(1),
+.B testreporter(1)

@@ -5,6 +5,7 @@ all: clean uhura test install
 
 install: uhura
 	cp uhura /usr/local/accord/bin
+	cp uhura.1 /usr/local/share/man/man1/
 	cd test;make install
 	@echo "*** INSTALL COMPLETED ***"
 

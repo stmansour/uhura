@@ -48,13 +48,13 @@ var Uhura UhuraApp
 func processCommandLine() {
 	dbugPtr := flag.Bool("d", false, "debug mode - includes debug info in logfile")
 	dtscPtr := flag.Bool("D", false, "LogToScreen mode - prints log messages to stdout")
+	envdPtr := flag.String("e", "", "environment descriptor filename")
+	keepPtr := flag.Bool("k", false, "Keep environment after tests complete (don't terminate)")
 	portPtr := flag.Int("p", 8100, "port on which uhura listens")
 	dryrPtr := flag.Bool("n", false, "Dry Run - don't actually create new instances on AWS")
-	envdPtr := flag.String("e", "", "environment descriptor filename")
-	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
-	keepPtr := flag.Bool("k", false, "Keep environment after tests complete (don't terminate)")
-	unitPtr := flag.Bool("u", false, "invoke internal tests")
 	retrPtr := flag.Bool("R", false, "don't regenerate tgo scripts, run based on current json descriptor, for debugging only")
+	murlPtr := flag.String("t", "", "public dns hostname where master can be contacted")
+	unitPtr := flag.Bool("u", false, "invoke internal tests")
 	flag.Parse()
 
 	Uhura.Port = *portPtr
