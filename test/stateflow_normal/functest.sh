@@ -138,6 +138,7 @@ fi
 #---------------------------------------------------------------------
 #  Find accord bin...
 #---------------------------------------------------------------------
+echo "Find accord/bin"
 if [ -d /usr/local/accord/bin ]; then
 	ACCORDBIN=/usr/local/accord/bin
 	TOOLS_DIR="/usr/local/accord/testtools"
@@ -156,6 +157,7 @@ fi
 #---------------------------------------------------------------------
 #  hard stance now... if uhura is running on our port, stop it first
 #---------------------------------------------------------------------
+echo "Shut down exisiting instance of uhura"
 if [ ${SKIP_UHURA} -eq 0 ]; then
 	COUNT=$(ps -ef | grep uhura | grep -v grep | grep ${UPORT} | wc -l)
 	if [ ${COUNT} -gt 0 ]; then

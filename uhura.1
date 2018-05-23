@@ -78,6 +78,9 @@ by examining a sample.  Here is a simple environment descriptor:
 	    		"UPort": 8250,
 	    		"ActivateOpts": "-q",
 	    		"IsTest": false
+				"AppRes": {
+					"Cmd": "./pbrestore -f"
+				}
 	    	}
 	    ]
 	}
@@ -159,6 +162,12 @@ compared to a standard application.
 
 .IP ActivateOpts
 Command line options that can be passed to activate.sh when starting an application or test.
+
+.IP AppRes
+This area provides the ability for applications to run custom commands.  The "Cmd" attribute
+can specify the name of a command to run before tgo initiates its state machine that starts
+up all the applications.
+
 .RE 5n
 
 .SH OPTIONS
@@ -224,4 +233,5 @@ Contact me if you find any.
 Steve Mansour (sman@accordinterests.com)
 .SH "SEE ALSO"
 .B activate.sh(1),
-.B testreporter(1)
+.B testreporter(1),
+.B tgo(1)

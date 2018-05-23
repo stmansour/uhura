@@ -1,3 +1,5 @@
+ACCORDBIN=/usr/local/accord/bin
+
 all: clean uhura test install
 	@echo "*** COMPLETED ***"
 
@@ -10,9 +12,9 @@ install: uhura
 	@echo "*** INSTALL COMPLETED ***"
 
 uhura: *.go
-	go fmt
+	# go fmt
 	gl=$(which golint);if [ "x${gl}" != "x" ]; then golint; fi
-	go vet
+	${ACCORDBIN}/govet.sh
 	go build
 	@echo "*** BUILD COMPLETED ***"
 
